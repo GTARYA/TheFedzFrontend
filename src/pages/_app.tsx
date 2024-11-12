@@ -11,6 +11,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { config } from '../wagmi';
 import CursorEffect from '../libs/cursorEffect';
+import Head from 'next/head';
 
 const client = new QueryClient();
 
@@ -30,6 +31,26 @@ function MyApp({ Component, pageProps }: AppProps) {
                         }),
                     }}>
                     {/* <CursorEffect /> */}
+                    <Head>
+                        <title>The Fedz Project</title>
+                        <meta
+                            content="The Fedz - Revolutionary DeFi Platform"
+                            name="description"
+                        />
+                        <link href="/favicon.ico" rel="icon" />
+                        <link
+                            rel="preconnect"
+                            href="https://fonts.googleapis.com"
+                        />
+                        <link
+                            rel="preconnect"
+                            href="https://fonts.gstatic.com"
+                        />
+                        <link
+                            href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap"
+                            rel="stylesheet"
+                        />
+                    </Head>
                     <Component {...pageProps} />
                 </RainbowKitProvider>
             </QueryClientProvider>

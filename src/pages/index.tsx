@@ -11,21 +11,6 @@ import Footer from '../components/Footer';
 const Home: NextPage = () => {
     return (
         <div className="bg-[#0A0012]">
-            <Head>
-                <title>The Fedz Project</title>
-                <meta
-                    content="The Fedz - Revolutionary DeFi Platform"
-                    name="description"
-                />
-                <link href="/favicon.ico" rel="icon" />
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap"
-                    rel="stylesheet"
-                />
-            </Head>
-
             <div className="relative overflow-hidden">
                 <img
                     className="absolute top-0 md:h-full xl:w-full left-1/2 -translate-x-1/2 z-[2] lg:min-w-[1440px] min-w-[1300px]"
@@ -530,7 +515,7 @@ const Home: NextPage = () => {
                                 <img
                                     src="/clouds-gray.png"
                                     alt="clouds"
-                                    className="absolute w-full sm:w-2/3 bottom-0 left-0"
+                                    className="absolute w-full sm:w-2/3 bottom-0 left-0 pointer-events-none"
                                 />
                             </div>
                             <div className="relative z-[5] overflow-hidden rounded-[32px] flex items-end border-[1px] border-white/20 bg-white/5 max-w-[476px]">
