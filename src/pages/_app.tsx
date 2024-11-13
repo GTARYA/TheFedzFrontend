@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                             accentColorForeground: '#f5f5f5',
                         }),
                     }}>
-                    {/* <CursorEffect /> */}
+                    <CursorEffect />
                     <Head>
                         <title>The Fedz Project</title>
                         <meta

@@ -60,11 +60,6 @@ const CursorEffect = () => {
                                 height: 32,
                             },
                             {
-                                src: '/cursor/4.png',
-                                width: 32,
-                                height: 32,
-                            },
-                            {
                                 src: '/cursor/5.png',
                                 width: 32,
                                 height: 32,

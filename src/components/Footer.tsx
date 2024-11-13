@@ -3,7 +3,7 @@ import Container from './Container';
 
 const Footer = () => {
     return (
-        <footer className="pt-[50px] md:pt-[75px] text-primary text-sm md:text-base">
+        <footer className="pt-[50px] md:pt-[75px] text-primary text-sm md:text-base relative z-[10]">
             <Container>
                 <div className="flex flex-col md:flex-row justify-between gap-[52px]">
                     <div className="max-w-full md:max-w-[300px] lg:max-w-[375px] w-full">
@@ -83,10 +83,10 @@ const Footer = () => {
                         <div>
                             <h2 className="font-semibold mb-4">Company</h2>
                             <div className="flex flex-col gap-3">
-                                <p>Home</p>
+                                <Link href="/">Home</Link>
                                 <p>About Us</p>
-                                <p>How It Works</p>
-                                <p>Features</p>
+                                <Link href="/#how-it-works">How It Works</Link>
+                                <Link href="/#features">Features</Link>
                             </div>
                         </div>
                         <div>

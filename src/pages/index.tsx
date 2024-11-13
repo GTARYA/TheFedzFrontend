@@ -10,7 +10,8 @@ import Footer from '../components/Footer';
 
 const Home: NextPage = () => {
     return (
-        <div className="bg-[#0A0012]">
+        <div className="bg-[#0A0012] relative">
+            <Navbar />
             <div className="relative overflow-hidden">
                 <img
                     className="absolute top-0 md:h-full xl:w-full left-1/2 -translate-x-1/2 z-[2] lg:min-w-[1440px] min-w-[1300px]"
@@ -23,7 +24,6 @@ const Home: NextPage = () => {
                     alt="bg"
                 />
 
-                <Navbar />
                 <Container className="z-[5] relative">
                     <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
                         <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
@@ -109,7 +109,9 @@ const Home: NextPage = () => {
             <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
 
             <main>
-                <section className="relative overflow-hidden md:pb-[75px] pb-[50px]">
+                <section
+                    className="relative overflow-hidden md:pb-[75px] pb-[50px]"
+                    id="features">
                     <Container>
                         <Subtitle className="mx-auto">
                             Strengths of The Fedz
@@ -262,7 +264,7 @@ const Home: NextPage = () => {
                                     className="max-w-[460px] xl:max-w-[540px]"
                                 />
                             </div>
-                            <div>
+                            <div id="how-it-works">
                                 <Subtitle className="mb-1 mx-auto lg:mx-0">
                                     How It Works
                                 </Subtitle>

@@ -5,7 +5,7 @@ import { TimeSlotSystemAddress } from '../contractAddress';
 import TimeSlotSystemAbi from '../abi/TimeSlotSystem_abi.json';
 import { useEffect, useState } from 'react';
 
-const RoundInfos: React.FC = () => {
+const RoundInfos = ({ isSelf }: { isSelf?: boolean }) => {
     const [timeLeft, setTimeLeft] = useState({
         hours: 0,
         minutes: 0,
@@ -204,6 +204,13 @@ const RoundInfos: React.FC = () => {
                 alt="eppilse"
                 className="absolute top-0 left-0 pointer-events-none"
             />
+            {isSelf && (
+                <img
+                    src="/blue-glare4.png"
+                    alt="eppilse"
+                    className="absolute -bottom-1/2 right-0 pointer-events-none"
+                />
+            )}
         </div>
     );
 };

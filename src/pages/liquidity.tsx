@@ -8,10 +8,10 @@ import Footer from '../components/Footer';
 const liquidity = () => {
     const { isConnected } = useAccount();
     return (
-        <div className="bg-[#0A0012]">
+        <div className="bg-[#0A0012] relative">
             <Navbar />
 
-            <main className="md:mt-14 mt-10">
+            <main className="md:mt-14 mt-10 min-h-[80vh]">
                 {isConnected ? (
                     <LiquidityComponent />
                 ) : (
