@@ -230,12 +230,12 @@ const Home: NextPage = () => {
                             <img
                                 src="/blue-glare1.png"
                                 alt="eppilse"
-                                className="absolute bottom-0 right-0 h-full"
+                                className="absolute bottom-0 right-0 h-full pointer-events-none"
                             />
                             <img
                                 src="/blue-glare2.png"
                                 alt="eppilse"
-                                className="absolute top-0 left-0"
+                                className="absolute top-0 left-0 pointer-events-none"
                             />
 
                             <img

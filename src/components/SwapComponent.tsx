@@ -26,6 +26,7 @@ import TimeSlotSystem from './TimeSlotSystem';
 import RoundInfos from './RoundInfos';
 import Title from './ui/Title';
 import Container from './Container';
+import Subtitle from './ui/Subtitle';
 
 const SwapComponent = () => {
     const [poolKeyHash, setPoolKeyHash] = useState('');
@@ -289,28 +290,6 @@ const SwapComponent = () => {
 
     return (
         <div>
-            {/* <div className="flex flex-col gap-4 mr-6">
-                {address && (
-                    <div className="card w-full bg-base-100 shadow-xl">
-                        <div className="card-body">
-                            <TimeSlotSystem address={address} />
-                        </div>
-                    </div>
-                )}
-
-                <div className="card w-full bg-base-100 shadow-xl">
-                    <div className="card-body">
-                        <RoundInfos />
-                    </div>
-                </div>
-
-                <div className="card w-full bg-base-100 shadow-xl">
-                    <div className="card-body">
-                        <PoolKeyHashDisplay poolKeyHash={poolKeyHash} />
-                    </div>
-                </div>
-            </div> */}
-
             <section className="pb-[50px] md:pb-[75px] relative">
                 <Title className="text-center">Swap Tokens</Title>
                 <Container>
@@ -805,6 +784,110 @@ const SwapComponent = () => {
                     src="/cursor/1.png"
                     alt="coin"
                     className="absolute w-full top-[95%] lg:top-[500px] right-[20px] max-w-[40px] lg:max-w-[60px] pointer-events-none"
+                />
+            </section>
+
+            <section className="py-[50px] md:py-[75px] relative">
+                <Container>
+                    <div className="overflow-hidden p-[30px] md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
+                        <div className="relative z-[5]">
+                            <Subtitle className="mb-1">Status</Subtitle>
+                            <Title>Action Windows</Title>
+                            <div className="overflow-x-auto mt-10 md:mt-14">
+                                <table className="min-w-full text-primary">
+                                    <thead>
+                                        <tr className="text-left text-base md:text-xl font-bold">
+                                            <th className="py-4 pr-4">Slot</th>
+                                            <th className="pr-4">Start Time</th>
+                                            <th className="pr-4">End Time</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="text-sm md:text-xl text-nowrap">
+                                            <td className="py-4 pr-4">1.</td>
+                                            <td className="pr-4">
+                                                04/11/2024, 03:16:56 PM
+                                            </td>
+                                            <td className="pr-4">
+                                                04/11/2024, 05:16:25 PM
+                                            </td>
+                                            <td>
+                                                <Subtitle>Ended</Subtitle>
+                                            </td>
+                                        </tr>
+                                        <tr className="text-sm md:text-xl text-nowrap">
+                                            <td className="py-4 pr-4">2.</td>
+                                            <td className="pr-4">
+                                                04/11/2024, 01:35:28 PM
+                                            </td>
+                                            <td className="pr-4">
+                                                04/11/2024, 02:25:27 PM
+                                            </td>
+                                            <td>
+                                                <Subtitle>Ended</Subtitle>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <img
+                            src="/blue-glare4.png"
+                            alt="eppilse"
+                            className="absolute -bottom-[130%] right-0 pointer-events-none"
+                        />
+                        <img
+                            src="/blue-glare2.png"
+                            alt="eppilse"
+                            className="absolute top-0 left-0 pointer-events-none"
+                        />
+                    </div>
+                </Container>
+                <img
+                    src="/cursor/10.png"
+                    alt="eppilse"
+                    className="absolute top-[0] md:top-[30%] left-[10px] md:left-[10px] max-w-[50px] md:max-w-[100px]"
+                />
+                <img
+                    src="/cursor/8.png"
+                    alt="eppilse"
+                    className="absolute bottom-[10px] md:bottom-[40px] right-[10px] md:right-[50px] max-w-[40px] md:max-w-[80px]"
+                />
+            </section>
+
+            <section className="relative py-[50px] md:py-[75px]">
+                <Container className="relative z-[5]">
+                    <Title>Rounds</Title>
+                    <div className="flex flex-col md:flex-row gap-8 mt-6 md:mt-9">
+                        {/* {address && (
+                            <div className="card w-full bg-base-100 shadow-xl">
+                                <div className="card-body">
+                                    <TimeSlotSystem address={address} />
+                                </div>
+                            </div>
+                        )} */}
+
+                        <RoundInfos />
+
+                        <PoolKeyHashDisplay poolKeyHash={poolKeyHash} />
+                    </div>
+                </Container>
+                <img
+                    src="/blue-glare4.png"
+                    alt="glare"
+                    className="absolute w-full -bottom-[10%] md:-bottom-[50%] right-0 max-w-[500px] md:max-w-[700px] pointer-events-none"
+                />
+                <img
+                    src="/cursor/10.png"
+                    alt="eppilse"
+                    className="absolute bottom-[0] md:bottom-[10%] left-[0px] md:left-[20px] max-w-[50px] md:max-w-[80px]"
+                />
+                <img
+                    src="/cursor/7.png"
+                    alt="eppilse"
+                    className="absolute bottom-[10px] md:bottom-[300px] right-[50px] md:right-0 max-w-[50px] md:max-w-[80px]"
                 />
             </section>
         </div>
