@@ -147,7 +147,7 @@ const NftComponent = () => {
                     <div className="card  bg-white/10 shadow-xl flex flex-col">
                         {selectedNft && address && (
                             <div className="card-body p-5 sm:p-10">
-                                <h3 className="card-title text-lg font-bold">
+                                <h3 className="card-title text-lg font-bold text-[#a1a8b6]">
                                     Selected NFT: #{selectedNft.id}
                                 </h3>
                                 <h2 className="text-md font-bold text-primary mb-8 truncate w-full">

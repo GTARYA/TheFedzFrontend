@@ -33,6 +33,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     <CursorEffect />
                     <Head>
                         <title>The Fedz Project</title>
+                        <link rel="icon" href="/cursor/5.png" sizes="any" />
                         <meta
                             content="The Fedz - Revolutionary DeFi Platform"
                             name="description"

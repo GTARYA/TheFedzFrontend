@@ -12,7 +12,7 @@ const PrimaryBtn = ({ children, className, onClick }: Props) => {
         <button
             onClick={onClick}
             className={twMerge(
-                'rounded-[56px] bg-lightblue px-6 py-[14px] text-primary leading-[27px] md:text-[18px] text-[16px] font-medium transition-all hover:scale-[102%]',
+                'rounded-[56px] bg-lightblue px-6 py-[14px] text-primary leading-[27px] md:text-[18px] text-[16px] font-medium transition-all hover:hover:bg-[#7a2ed6]',
                 className
             )}>
             {children}

@@ -607,7 +607,7 @@ const SwapComponent = () => {
                                 <span>Pool Settings</span>
                                 <input
                                     type="checkbox"
-                                    className="toggle toggle-primary"
+                                    className="toggle my-toggle toggle-primary"
                                     checked={showSettings}
                                     onChange={() =>
                                         setShowSettings(!showSettings)
@@ -620,14 +620,14 @@ const SwapComponent = () => {
                             <div className="mt-4 text-sm sm:text-base text-primary">
                                 <div className="form-control w-full max-w-xs mb-4">
                                     <label className="label">
-                                        <span className="label-text text-sm sm:text-base">
+                                        <span className="label-text text-sm sm:text-base text-primary/60">
                                             Tick Spacing{' '}
                                         </span>
                                     </label>
                                     <input
                                         type="text"
                                         placeholder="0.0"
-                                        className="input input-bordered w-full max-w-xs"
+                                        className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
                                         value={tickSpacing}
                                         onChange={(e) => {
                                             const re = /^[0-9]*\.?[0-9]*$/;
@@ -645,14 +645,14 @@ const SwapComponent = () => {
 
                                 <div className="form-control w-full max-w-xs mb-4">
                                     <label className="label">
-                                        <span className="label-text">
+                                        <span className="label-text text-primary/60">
                                             Fee Percent{' '}
                                         </span>
                                     </label>
                                     <input
                                         type="text"
                                         placeholder="0.0"
-                                        className="input input-bordered w-full max-w-xs"
+                                        className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
                                         value={swapFee}
                                         onChange={(e) => {
                                             const re = /^[0-9]*\.?[0-9]*$/;
@@ -680,7 +680,7 @@ const SwapComponent = () => {
                             <div className="card-actions justify-end mt-5">
                                 <div className="flex justify-between gap-6 w-full">
                                     <button
-                                        className="btn btn-primary flex-1 hover:scale-105 transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
+                                        className="btn btn-primary flex-1 hover:bg-[#7a2ed6] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
                                         onClick={approveFUSD}
                                         disabled={
                                             isToken0Approved ||
@@ -690,7 +690,7 @@ const SwapComponent = () => {
                                         Approve FUSD
                                     </button>
                                     <button
-                                        className="btn btn-primary flex-1 hover:scale-105 transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
+                                        className="btn btn-primary flex-1 hover:bg-[#7a2ed6] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
                                         onClick={approveUSDT}
                                         disabled={
                                             isToken1Approved ||

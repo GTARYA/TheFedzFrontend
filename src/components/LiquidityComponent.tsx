@@ -406,15 +406,15 @@ const LiquidityComponent = () => {
                                 <div className="card-actions justify-end mt-5">
                                     <div className="flex justify-between gap-6 w-full">
                                         <button
-                                            className="flex-1 hover:scale-105 py-[14px] hover:bg-[#2c2c2c] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
+                                            className="btn flex-1 hover:bg-[#7a2ed6] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
                                             onClick={approveToken0}
-                                            disabled={!!isNFTHolderState}>
+                                            disabled={!isNFTHolderState}>
                                             Approve FUSD
                                         </button>
                                         <button
-                                            className="flex-1 hover:scale-105 py-[14px] hover:bg-[#2c2c2c] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
+                                            className="btn flex-1 hover:bg-[#7a2ed6] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
                                             onClick={approveToken1}
-                                            disabled={!!isNFTHolderState}>
+                                            disabled={!isNFTHolderState}>
                                             Approve USDT
                                         </button>
                                     </div>
@@ -504,7 +504,7 @@ const LiquidityComponent = () => {
                             </label>
                             <div className="flex items-center gap-2 mt-5 text-primary">
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
+                                    className="btn btn-primary border-none text-primary btn-sm transition-transform duration-200 bg-lightblue hover:bg-[#7a2ed6]"
                                     onClick={() => {
                                         const newValue =
                                             (tickLower as number) - tickSpacing;
@@ -535,7 +535,7 @@ const LiquidityComponent = () => {
                                     }}
                                 />
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
+                                    className="btn btn-primary text-primary btn-sm transition-transform duration-200 bg-lightblue hover:bg-[#7a2ed6] border-none"
                                     onClick={() => {
                                         const newValue =
                                             (tickLower as number) + tickSpacing;
@@ -560,7 +560,7 @@ const LiquidityComponent = () => {
                             </label>
                             <div className="flex items-center mt-5 gap-2 text-primary">
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
+                                    className="btn btn-primary text-primary btn-sm transition-transform duration-200 bg-lightblue hover:bg-[#7a2ed6] border-none"
                                     onClick={() => {
                                         const newValue =
                                             (tickUpper as number) - tickSpacing;
@@ -591,7 +591,7 @@ const LiquidityComponent = () => {
                                     }}
                                 />
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
+                                    className="btn btn-primary text-primary btn-sm transition-transform duration-200 bg-lightblue hover:bg-[#7a2ed6] border-none"
                                     onClick={() => {
                                         const newValue =
                                             (tickUpper as number) + tickSpacing;

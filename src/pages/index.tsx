@@ -43,7 +43,7 @@ const Home: NextPage = () => {
                         </p>
                         <div className="flex items-center gap-4 justify-center py-6">
                             <PrimaryBtn>Join Us Today!</PrimaryBtn>
-                            <PrimaryBtn className="bg-transparent border-[1px] border-primary">
+                            <PrimaryBtn className="bg-transparent border-[1px] border-primary hover:!bg-transparent">
                                 Learn More
                             </PrimaryBtn>
                         </div>

@@ -134,7 +134,7 @@ export default function ActionWindow({ address }: { address: `0x${string}` }) {
     }
 
     return (
-        <div className="card flex bg-base-300 shadow-xl mb-10">
+        <div className="card flex shadow-xl mb-10 bg-[#15191e]">
             <div className="card-body">
                 <h2 className="card-title justify-center text-primary text-2xl">
                     Action Windows
