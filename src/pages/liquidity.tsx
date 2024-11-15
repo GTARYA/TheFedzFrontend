@@ -11,7 +11,7 @@ const liquidity = () => {
         <div className="bg-[#0A0012] relative">
             <Navbar />
 
-            <main className="md:mt-14 mt-10 min-h-[80vh]">
+            <main className="md:mt-14 mt-10 min-h-[80vh] relative z-[10]">
                 {isConnected ? (
                     <LiquidityComponent />
                 ) : (

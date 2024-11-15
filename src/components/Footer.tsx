@@ -84,7 +84,7 @@ const Footer = () => {
                             <h2 className="font-semibold mb-4">Company</h2>
                             <div className="flex flex-col gap-3">
                                 <Link href="/">Home</Link>
-                                <p>About Us</p>
+                                <Link href="/#about-us">About Us</Link>
                                 <Link href="/#how-it-works">How It Works</Link>
                                 <Link href="/#features">Features</Link>
                             </div>

@@ -28,6 +28,7 @@ import RoundInfos from './RoundInfos';
 import Container from './Container';
 import Title from './ui/Title';
 import ActionWindows from './ActionWindows';
+import PrimaryBtn from './ui/PrimaryBtn';
 
 const LiquidityComponent = () => {
     const [poolKeyHash, setPoolKeyHash] = useState('');
@@ -313,7 +314,7 @@ const LiquidityComponent = () => {
                                     <span>Pool Settings</span>
                                     <input
                                         type="checkbox"
-                                        className="toggle toggle-primary"
+                                        className="toggle my-toggle toggle-primary"
                                         checked={showSettings}
                                         onChange={() =>
                                             setShowSettings(!showSettings)
@@ -326,14 +327,14 @@ const LiquidityComponent = () => {
                                 <div className="mt-4 text-sm sm:text-base text-primary">
                                     <div className="form-control w-full max-w-xs mb-4">
                                         <label className="label">
-                                            <span className="label-text">
+                                            <span className="label-text text-primary/60">
                                                 Tick Spacing{' '}
                                             </span>
                                         </label>
                                         <input
                                             type="text"
                                             placeholder="0.0"
-                                            className="input input-bordered w-full max-w-xs"
+                                            className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
                                             value={tickSpacing}
                                             onChange={(e) => {
                                                 const re = /^[0-9]*\.?[0-9]*$/;
@@ -351,14 +352,14 @@ const LiquidityComponent = () => {
 
                                     <div className="form-control w-full max-w-xs mb-4">
                                         <label className="label">
-                                            <span className="label-text">
+                                            <span className="label-text text-primary/60">
                                                 Fee Percent{' '}
                                             </span>
                                         </label>
                                         <input
                                             type="text"
                                             placeholder="0.0"
-                                            className="input input-bordered w-full max-w-xs"
+                                            className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
                                             value={swapFee}
                                             onChange={(e) => {
                                                 const re = /^[0-9]*\.?[0-9]*$/;
@@ -378,12 +379,14 @@ const LiquidityComponent = () => {
 
                             <div className="form-control w-full max-w-xs mb-4">
                                 <label className="label">
-                                    <span className="label-text">Amount </span>
+                                    <span className="label-text text-primary/60">
+                                        Amount{' '}
+                                    </span>
                                 </label>
                                 <input
                                     type="text"
                                     placeholder="0.0"
-                                    className="input input-bordered w-full max-w-xs text-primary"
+                                    className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
                                     value={amount}
                                     onChange={(e) => {
                                         const re = /^[-+]?[0-9]*\.?[0-9]*$/;
@@ -403,15 +406,15 @@ const LiquidityComponent = () => {
                                 <div className="card-actions justify-end mt-5">
                                     <div className="flex justify-between gap-6 w-full">
                                         <button
-                                            className="btn btn-primary flex-1 hover:scale-105 transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
+                                            className="flex-1 hover:scale-105 py-[14px] hover:bg-[#2c2c2c] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
                                             onClick={approveToken0}
-                                            disabled={!isNFTHolderState}>
+                                            disabled={!!isNFTHolderState}>
                                             Approve FUSD
                                         </button>
                                         <button
-                                            className="btn btn-primary flex-1 hover:scale-105 transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
+                                            className="flex-1 hover:scale-105 py-[14px] hover:bg-[#2c2c2c] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
                                             onClick={approveToken1}
-                                            disabled={!isNFTHolderState}>
+                                            disabled={!!isNFTHolderState}>
                                             Approve USDT
                                         </button>
                                     </div>
@@ -501,7 +504,7 @@ const LiquidityComponent = () => {
                             </label>
                             <div className="flex items-center gap-2 mt-5 text-primary">
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200"
+                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
                                     onClick={() => {
                                         const newValue =
                                             (tickLower as number) - tickSpacing;
@@ -512,7 +515,7 @@ const LiquidityComponent = () => {
                                 <input
                                     type="text"
                                     placeholder="-100"
-                                    className="input input-bordered w-full mx-2 sm:text-2xl text-lg"
+                                    className="input input-bordered w-full mx-2 sm:text-2xl text-lg text-primary bg-[#1b222b]"
                                     value={tickLower.toString()}
                                     onChange={(e) => {
                                         const re = /^[-+]?[0-9]*$/;
@@ -532,7 +535,7 @@ const LiquidityComponent = () => {
                                     }}
                                 />
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200"
+                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
                                     onClick={() => {
                                         const newValue =
                                             (tickLower as number) + tickSpacing;
@@ -557,7 +560,7 @@ const LiquidityComponent = () => {
                             </label>
                             <div className="flex items-center mt-5 gap-2 text-primary">
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200"
+                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
                                     onClick={() => {
                                         const newValue =
                                             (tickUpper as number) - tickSpacing;
@@ -568,7 +571,7 @@ const LiquidityComponent = () => {
                                 <input
                                     type="text"
                                     placeholder="100"
-                                    className="input input-bordered w-full mx-2 sm:text-2xl text-lg"
+                                    className="input input-bordered w-full mx-2 sm:text-2xl text-lg text-primary bg-[#1b222b]"
                                     value={tickUpper.toString()}
                                     onChange={(e) => {
                                         const re = /^[-+]?[0-9]*$/;
@@ -588,7 +591,7 @@ const LiquidityComponent = () => {
                                     }}
                                 />
                                 <button
-                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200"
+                                    className="btn btn-primary text-primary btn-sm hover:scale-110 transition-transform duration-200 bg-lightblue"
                                     onClick={() => {
                                         const newValue =
                                             (tickUpper as number) + tickSpacing;

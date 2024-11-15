@@ -26,6 +26,11 @@ a {
     box-sizing: border-box;
 }
 
+*:hover {
+    scrollbar-color: color-mix(in oklch, currentColor 60%, transparent)
+        transparent;
+}
+
 .neon-text {
     color: var(--var-color);
     position: relative;
@@ -37,7 +42,7 @@ a {
     content: attr(data-text);
     text-shadow: 0px 0px 20px var(--var-color);
     filter: blur(10px) brightness(0);
-    animation: flicker 2s linear forwards;
+    animation: flicker 4s linear infinite;
     animation-delay: 1s;
 }
 
@@ -45,8 +50,14 @@ a {
     0% {
         filter: blur(5px) brightness(1);
     }
-    3% {
+    2% {
         filter: blur(5px) brightness(0);
+    }
+    4% {
+        filter: blur(5px) brightness(0);
+    }
+    5% {
+        filter: blur(5px) brightness(1);
     }
     6% {
         filter: blur(5px) brightness(0);
@@ -57,22 +68,41 @@ a {
     8% {
         filter: blur(5px) brightness(0);
     }
-    9% {
+    15% {
         filter: blur(5px) brightness(1);
     }
-    10% {
+    30% {
+        filter: blur(5px) brightness(1);
+    }
+    49% {
         filter: blur(5px) brightness(0);
-    }
-    20% {
-        filter: blur(5px) brightness(1);
     }
     50% {
         filter: blur(5px) brightness(1);
     }
-    99% {
-        filter: blur(5px) brightness(0);
-    }
     100% {
         filter: blur(5px) brightness(1);
     }
+}
+
+.my-toggle {
+    flex-shrink: 0;
+    --tglbg: var(--fallback-b1, oklch(var(--b1) / 1));
+    --handleoffset: 1.5rem;
+    --handleoffsetcalculator: calc(var(--handleoffset) * -1);
+    --togglehandleborder: 0 0;
+    height: 1.5rem;
+    width: 3rem;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: var(--rounded-badge, 1.9rem);
+    border-width: 1px;
+    border-color: currentColor;
+    background-color: currentColor;
+    color: var(--fallback-bc, oklch(var(--bc) / 0.5));
+    transition: background, box-shadow var(--animation-input, 0.2s) ease-out;
+    box-shadow: var(--handleoffsetcalculator) 0 0 2px var(--tglbg) inset,
+        0 0 0 2px var(--tglbg) inset, var(--togglehandleborder);
 }

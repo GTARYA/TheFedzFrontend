@@ -24,13 +24,13 @@ const Home: NextPage = () => {
                     alt="bg"
                 />
 
-                <Container className="z-[5] relative">
+                <Container className="z-[6] relative">
                     <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
                         <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
                             Bank Run Mitigation{' '}
                             <span
                                 data-text="Stable"
-                                className="neon-text font-normal">
+                                className="neon-text font-semibold">
                                 Stable
                             </span>{' '}
                             Coin
@@ -72,7 +72,7 @@ const Home: NextPage = () => {
                     alt="bg"
                 />
                 <img
-                    className="block md:hidden absolute left-[30px] top-[460px] z-20 max-w-[100px]"
+                    className="block md:hidden absolute left-[30px] top-[460px] z-[4] max-w-[100px]"
                     src="/background/pony-left.png"
                     alt="bg"
                 />
@@ -108,7 +108,7 @@ const Home: NextPage = () => {
 
             <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
 
-            <main>
+            <main className="relative z-[10]">
                 <section
                     className="relative overflow-hidden md:pb-[75px] pb-[50px]"
                     id="features">
@@ -208,10 +208,12 @@ const Home: NextPage = () => {
                 <section className="py-[50px] md:py-[75px]">
                     <Container>
                         <div className="overflow-hidden flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-0 justify-between min-h-[435px] px-6 lg:px-[90px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
-                            <div className="max-w-[410px] self-center relative z-[5] mt-6 md:mt-0">
+                            <div
+                                id="about-us"
+                                className="max-w-[410px] self-center relative z-[5] mt-6 md:mt-0">
                                 <Subtitle className="mb-1">About us</Subtitle>
                                 <Title>Our Mission</Title>
-                                <p className="pt-4 pb-6 text-sm sm:text-base">
+                                <p className="pt-4 pb-6 text-sm sm:text-base text-primary/80">
                                     Our mission is to create a robust financial
                                     mechanism that mitigates bank runs,
                                     demonstrating the system's effectiveness by

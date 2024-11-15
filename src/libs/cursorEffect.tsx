@@ -10,7 +10,7 @@ const CursorEffect = () => {
 
     return (
         <Particles
-            className="z-[1000] pointer-events-none fixed"
+            className="z-[6] pointer-events-none fixed"
             id="tsparticles"
             init={particlesInit}
             options={{
