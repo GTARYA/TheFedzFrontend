@@ -259,12 +259,49 @@ const Home: NextPage = () => {
                 <section className="py-[50px] md:py-[75px] relative">
                     <Container>
                         <div className="flex items-center gap-14 justify-between text-primary relative z-[5]">
-                            <div className="rounded-3xl overflow-hidden shrink-0 hidden lg:block">
+                            <div className="rounded-3xl overflow-hidden shrink-0 hidden lg:block relative">
                                 <img
-                                    src="/phone.png"
+                                    src="/Nft lord.png"
                                     alt="phone"
                                     className="max-w-[460px] xl:max-w-[540px]"
                                 />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[32px] overflow-hidden">
+                                    <img
+                                        src="/forward-phone2.png"
+                                        alt="phone"
+                                        className="absolute top-[47%] left-[49%] -translate-x-1/2 -translate-y-1/2 rounded-[10px] w-full h-full z-[-1] p-4"
+                                    />
+                                    <div className="absolute top-[48%] left-[48%]-translate-x-1/2 -translate-y-1/2 rounded-[10px] w-full h-full z-[0] p-5">
+                                        {/* <img
+                                            src="/forward-phone.png"
+                                            alt="phone"
+                                            className="w-full h-full"
+                                        />  */}
+                                        <div className="w-[82%] h-[91%] rounded-[32px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
+                                            <video
+                                                muted
+                                                autoPlay
+                                                loop
+                                                className="w-full h-full object-cover">
+                                                <source
+                                                    src="./video/Explainer.mp4"
+                                                    type="video/mp4"
+                                                />
+                                            </video>
+                                        </div>
+                                    </div>
+                                    <img src="/phone-wrapper.png" alt="phone" />
+                                    <video
+                                        muted
+                                        autoPlay
+                                        loop
+                                        className="w-full h-full object-cover absolute">
+                                        <source
+                                            src="./video/Explainer.mp4"
+                                            type="video/mp4"
+                                        />
+                                    </video>
+                                </div>
                             </div>
                             <div id="how-it-works">
                                 <Subtitle className="mb-1 mx-auto lg:mx-0">
@@ -279,19 +316,47 @@ const Home: NextPage = () => {
                                     financial stability in The Fedz ecosystem.
                                 </p>
 
-                                {/* <div className="my-8 p-0 w-fit mx-auto rounded-3xl overflow-hidden block lg:hidden">
+                                <div className="rounded-3xl overflow-hidden shrink-0 block lg:hidden relative w-fit mx-auto my-6">
                                     <img
-                                        src="/phone.png"
+                                        src="/Nft lord.png"
                                         alt="phone"
-                                        className="max-w-[460px] xl:max-w-[540px]"
+                                        className="max-w-[460px] w-full xl:max-w-[540px]"
                                     />
-                                </div> */}
-                                <div className="block lg:hidden max-w-[420px] w-full h-[420px] mx-auto relative rounded-3xl overflow-hidden my-8">
-                                    <img
-                                        src="/phone.png"
-                                        alt="phone"
-                                        className="absolute object-cover h-full rounded-3xl"
-                                    />
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[32px] overflow-hidden">
+                                        <img
+                                            src="/forward-phone2.png"
+                                            alt="phone"
+                                            className="absolute top-[47%] left-[49%] -translate-x-1/2 -translate-y-1/2 sm:rounded-[10px] w-full h-full z-[-1] p-[6%]"
+                                        />
+                                        <div className="absolute top-[48%] left-[48%]-translate-x-1/2 -translate-y-1/2 rounded-[10px] w-full h-full z-[0] p-5">
+                                            <div className="w-[82%] h-[91%] sm:rounded-[32px] rounded-[20px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
+                                                <video
+                                                    muted
+                                                    autoPlay
+                                                    loop
+                                                    className="w-full h-full object-cover">
+                                                    <source
+                                                        src="./video/Explainer.mp4"
+                                                        type="video/mp4"
+                                                    />
+                                                </video>
+                                            </div>
+                                        </div>
+                                        <img
+                                            src="/phone-wrapper.png"
+                                            alt="phone"
+                                        />
+                                        <video
+                                            muted
+                                            autoPlay
+                                            loop
+                                            className="w-full h-full object-cover absolute">
+                                            <source
+                                                src="./video/Explainer.mp4"
+                                                type="video/mp4"
+                                            />
+                                        </video>
+                                    </div>
                                 </div>
 
                                 <ul className="flex flex-col gap-4 mb-6 order-4">

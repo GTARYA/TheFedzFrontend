@@ -142,7 +142,7 @@ export default function ActionWindow({ address }: { address: `0x${string}` }) {
                 {timeSlots.length > 0 ? (
                     <div>
                         <div className="overflow-x-auto">
-                            <table className="table table-zebra text-primary">
+                            <table className="table text-primary">
                                 <thead>
                                     <tr className="text-primary text-base">
                                         <th>Slot</th>
@@ -170,13 +170,11 @@ export default function ActionWindow({ address }: { address: `0x${string}` }) {
                                                 {currentSlot &&
                                                 currentSlot.start ===
                                                     slot.start ? (
-                                                    <span className="badge badge-primary">
-                                                        Active
-                                                    </span>
+                                                    <Subtitle>Active</Subtitle>
                                                 ) : new Date() < slot.start ? (
-                                                    <span className="badge badge-secondary">
+                                                    <Subtitle>
                                                         Upcoming
-                                                    </span>
+                                                    </Subtitle>
                                                 ) : (
                                                     <Subtitle>Ended</Subtitle>
                                                 )}
