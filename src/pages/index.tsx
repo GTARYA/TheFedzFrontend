@@ -8,6 +8,7 @@ import Subtitle from '../components/ui/Subtitle';
 import Title from '../components/ui/Title';
 import Footer from '../components/Footer';
 import { useRef, useState } from "react"; 
+import '@fortawesome/fontawesome-free/css/all.css';
 
 
 const Home: NextPage = () => {
