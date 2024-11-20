@@ -14,7 +14,7 @@ const Home: NextPage = () => {
 const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
 const [isPlaying, setIsPlaying] = useState(true); // Video play state
 const [isMuted, setIsMuted] = useState(true); // Video mute state
-}
+};
 // Toggle Play/Pause
 const togglePlay = () => {
     if (videoRef.current) {
@@ -310,6 +310,8 @@ const toggleMute = () => {
                                         />  */}
                                         <div className="w-[82%] h-[91%] rounded-[32px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
                                            <div className="relative">
+<div className="relative">
+
     {/* Video Player */}
     <video
         ref={videoRef}
