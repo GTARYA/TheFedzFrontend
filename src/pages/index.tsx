@@ -7,8 +7,33 @@ import PrimaryBtn from '../components/ui/PrimaryBtn';
 import Subtitle from '../components/ui/Subtitle';
 import Title from '../components/ui/Title';
 import Footer from '../components/Footer';
+import { useRef, useState } from "react"; 
+
 
 const Home: NextPage = () => {
+const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
+const [isPlaying, setIsPlaying] = useState(true); // Video play state
+const [isMuted, setIsMuted] = useState(true); // Video mute state
+
+// Toggle Play/Pause
+const togglePlay = () => {
+    if (videoRef.current) {
+        if (isPlaying) {
+            videoRef.current.pause();
+        } else {
+            videoRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+    }
+};
+
+// Toggle Sound On/Off
+const toggleMute = () => {
+    if (videoRef.current) {
+        videoRef.current.muted = !isMuted;
+        setIsMuted(!isMuted);
+    }
+};
     return (
         <div className="bg-[#0A0012] relative">
             <Navbar />
@@ -284,16 +309,37 @@ const Home: NextPage = () => {
                                             className="w-full h-full"
                                         />  */}
                                         <div className="w-[82%] h-[91%] rounded-[32px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
-                                            <video
-                                                muted
-                                                autoPlay
-                                                loop
-                                                className="w-full h-full object-cover">
-                                                <source
-                                                    src="./video/Explainer.mp4"
-                                                    type="video/mp4"
-                                                />
-                                            </video>
+                                           <div className="relative">
+                                {/* Video Player */}
+                                <video
+                               ref={videoRef}
+                                muted={isMuted}
+                                autoPlay
+                                loop
+                                className="w-full h-full object-cover"
+                                 >
+                                <source src="./video/Explainer.mp4" type="video/mp4" />
+                                </video>
+
+                                {/* Control Buttons */}
+                                <div className="absolute bottom-4 left-4 flex gap-4">
+                                {/* Play/Pause Button */}
+                                <button
+                                onClick={togglePlay}
+                                className="px-4 py-2 bg-primary text-white rounded"
+                                >
+                                {isPlaying ? "Pause" : "Play"}
+                                </button>
+
+                                {/* Sound On/Off Button */}
+                                <button
+                                onClick={toggleMute}
+                                className="px-4 py-2 bg-primary text-white rounded"
+                                >
+                                {isMuted ? "Sound On" : "Sound Off"}
+                                </button>
+                                </div>
+                                </div>
                                         </div>
                                     </div>
                                     <img src="/phone-wrapper.png" alt="phone" />
