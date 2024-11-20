@@ -322,23 +322,32 @@ const toggleMute = () => {
     </video>
 
     {/* Control Buttons */}
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full flex gap-4">
-        {/* Play/Pause Button */}
-        <button
-            onClick={togglePlay}
-            className="px-4 py-2 bg-primary text-white rounded shadow hover:bg-primary-dark transition"
-        >
-            {isPlaying ? "Pause" : "Play"}
-        </button>
+    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-[50px] flex gap-4 z-[10]">
+    {/* Play/Pause Button */}
+    <button
+        onClick={togglePlay}
+        className="p-3 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition"
+    >
+        {isPlaying ? (
+            <i className="fas fa-pause text-lg"></i>
+        ) : (
+            <i className="fas fa-play text-lg"></i>
+        )}
+    </button>
 
-        {/* Sound On/Off Button */}
-        <button
-            onClick={toggleMute}
-            className="px-4 py-2 bg-primary text-white rounded shadow hover:bg-primary-dark transition"
-        >
-            {isMuted ? "Sound On" : "Sound Off"}
-        </button>
-    </div>
+    {/* Sound On/Off Button */}
+    <button
+        onClick={toggleMute}
+        className="p-3 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition"
+    >
+        {isMuted ? (
+            <i className="fas fa-volume-mute text-lg"></i>
+        ) : (
+            <i className="fas fa-volume-up text-lg"></i>
+        )}
+    </button>
+</div>
+
 </div>
 
                                         </div>
