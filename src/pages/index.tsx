@@ -310,51 +310,37 @@ const toggleMute = () => {
                                         />  */}
                                         <div className="w-[82%] h-[91%] rounded-[32px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
                                            <div className="relative">
-                                {/* Video Player */}
-                                <video
-                               ref={videoRef}
-                                muted={isMuted}
-                                autoPlay
-                                loop
-                                className="w-full h-full object-cover"
-                                 >
-                                <source src="./video/Explainer.mp4" type="video/mp4" />
-                                </video>
+                    <div className="relative">
+    {/* Video Player */}
+    <video
+        ref={videoRef}
+        muted={isMuted}
+        autoPlay
+        loop
+        className="w-full h-full object-cover rounded-md shadow-lg"
+    >
+        <source src="./video/Explainer.mp4" type="video/mp4" />
+    </video>
 
-                                {/* Control Buttons */}
-                                <div className="absolute bottom-4 left-4 flex gap-4">
-                                {/* Play/Pause Button */}
-                                <button
-                                onClick={togglePlay}
-                                className="px-4 py-2 bg-primary text-white rounded"
-                                >
-                                {isPlaying ? "Pause" : "Play"}
-                                </button>
+    {/* Control Buttons */}
+    <div className="flex gap-4 mt-4 justify-center">
+        {/* Play/Pause Button */}
+        <button
+            onClick={togglePlay}
+            className="px-6 py-2 bg-primary text-white font-medium rounded-lg shadow-md hover:bg-primary-dark transition"
+        >
+            {isPlaying ? "Pause" : "Play"}
+        </button>
 
-                                {/* Sound On/Off Button */}
-                                <button
-                                onClick={toggleMute}
-                                className="px-4 py-2 bg-primary text-white rounded"
-                                >
-                                {isMuted ? "Sound On" : "Sound Off"}
-                                </button>
-                                </div>
-                                </div>
-                                        </div>
-                                    </div>
-                                    <img src="/phone-wrapper.png" alt="phone" />
-                                    <video
-                                        muted
-                                        autoPlay
-                                        loop
-                                        className="w-full h-full object-cover absolute">
-                                        <source
-                                            src="./video/Explainer.mp4"
-                                            type="video/mp4"
-                                        />
-                                    </video>
-                                </div>
-                            </div>
+        {/* Sound On/Off Button */}
+        <button
+            onClick={toggleMute}
+            className="px-6 py-2 bg-primary text-white font-medium rounded-lg shadow-md hover:bg-primary-dark transition"
+        >
+            {isMuted ? "Sound On" : "Sound Off"}
+        </button>
+    </div>
+</div>
                             <div id="how-it-works">
                                 <Subtitle className="mb-1 mx-auto lg:mx-0">
                                     How It Works
