@@ -14,7 +14,7 @@ const Home: NextPage = () => {
 const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
 const [isPlaying, setIsPlaying] = useState(true); // Video play state
 const [isMuted, setIsMuted] = useState(true); // Video mute state
-
+}
 // Toggle Play/Pause
 const togglePlay = () => {
     if (videoRef.current) {
