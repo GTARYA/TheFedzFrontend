@@ -309,37 +309,38 @@ const toggleMute = () => {
                                             className="w-full h-full"
                                         />  */}
                                         <div className="w-[82%] h-[91%] rounded-[32px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
-                                           <div className="relative">
-                                {/* Video Player */}
-                                <video
-                               ref={videoRef}
-                                muted={isMuted}
-                                autoPlay
-                                loop
-                                className="w-full h-full object-cover"
-                                 >
-                                <source src="./video/Explainer.mp4" type="video/mp4" />
-                                </video>
+                    <div className="relative">
+    {/* Video Player */}
+    <video
+        ref={videoRef}
+        muted={isMuted}
+        autoPlay
+        loop
+        className="w-full h-full object-cover"
+    >
+        <source src="./video/Explainer.mp4" type="video/mp4" />
+    </video>
 
-                                {/* Control Buttons */}
-                                <div className="absolute bottom-4 left-4 flex gap-4">
-                                {/* Play/Pause Button */}
-                                <button
-                                onClick={togglePlay}
-                                className="px-4 py-2 bg-primary text-white rounded"
-                                >
-                                {isPlaying ? "Pause" : "Play"}
-                                </button>
+    {/* Control Buttons */}
+    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full flex gap-4">
+        {/* Play/Pause Button */}
+        <button
+            onClick={togglePlay}
+            className="px-4 py-2 bg-primary text-white rounded shadow hover:bg-primary-dark transition"
+        >
+            {isPlaying ? "Pause" : "Play"}
+        </button>
 
-                                {/* Sound On/Off Button */}
-                                <button
-                                onClick={toggleMute}
-                                className="px-4 py-2 bg-primary text-white rounded"
-                                >
-                                {isMuted ? "Sound On" : "Sound Off"}
-                                </button>
-                                </div>
-                                </div>
+        {/* Sound On/Off Button */}
+        <button
+            onClick={toggleMute}
+            className="px-4 py-2 bg-primary text-white rounded shadow hover:bg-primary-dark transition"
+        >
+            {isMuted ? "Sound On" : "Sound Off"}
+        </button>
+    </div>
+</div>
+
                                         </div>
                                     </div>
                                     <img src="/phone-wrapper.png" alt="phone" />
