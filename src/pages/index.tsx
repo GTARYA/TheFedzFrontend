@@ -310,7 +310,6 @@ const toggleMute = () => {
                                         />  */}
                                         <div className="w-[82%] h-[91%] rounded-[32px] overflow-hidden absolute top-[49%] left-[49%] -translate-x-1/2 -translate-y-1/2">
                                            <div className="relative">
-                    <div className="relative">
     {/* Video Player */}
     <video
         ref={videoRef}
@@ -327,7 +326,7 @@ const toggleMute = () => {
         {/* Play/Pause Button */}
         <button
             onClick={togglePlay}
-            className="px-6 py-2 bg-primary text-white font-medium rounded-lg shadow-md hover:bg-primary-dark transition"
+            className="px-6 py-2 bg-gray-800 text-white font-medium rounded-lg shadow-md hover:bg-gray-700 transition"
         >
             {isPlaying ? "Pause" : "Play"}
         </button>
@@ -335,7 +334,7 @@ const toggleMute = () => {
         {/* Sound On/Off Button */}
         <button
             onClick={toggleMute}
-            className="px-6 py-2 bg-primary text-white font-medium rounded-lg shadow-md hover:bg-primary-dark transition"
+            className="px-6 py-2 bg-gray-800 text-white font-medium rounded-lg shadow-md hover:bg-gray-700 transition"
         >
             {isMuted ? "Sound On" : "Sound Off"}
         </button>
