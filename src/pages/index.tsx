@@ -322,8 +322,6 @@ const toggleMute = () => {
         <source src="./video/Explainer.mp4" type="video/mp4" />
     </video>
 
-<div className="relative">
-
     {/* Control Buttons */}
    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 z-[50] sm:translate-y-[30px]">
     {/* Play/Pause Button */}
@@ -353,8 +351,6 @@ const toggleMute = () => {
 </div>
 
 </div>
-</div>
-
 
                                         </div>
                                     </div>
@@ -467,12 +463,12 @@ const toggleMute = () => {
                                         <div>
                                             <h4 className="text-base sm:text-xl mb-[10px] font-semibold">
                                                 Grant exclusive access to the
-                                                Private Liquidity Pool
+                                                private liquidity pool
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
                                                 Owning a Fedz NFT grants
-                                                exclusive access to the Private
-                                                Liquidity Pool, allowing you to
+                                                exclusive access to the private
+                                                liquidity pool, allowing you to
                                                 engage in profitable activities
                                                 like arbitrage and liquidity
                                                 provision within the game.
@@ -515,9 +511,9 @@ const toggleMute = () => {
                                                 Share Access
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
-                                                Take your turn in the Private Liquidity Pool 
+                                                Take your turn in the private liquidity pool 
                                                 and perform key actions like asset swaps to reinforce the system's stability.
-                                                Participation fuels a balanced ecosystem while unlocking 
+                                                Your participation fuels a balanced ecosystem while unlocking 
                                                 tangible rewards and exclusive privileges.
                                             </p>
                                         </div>
