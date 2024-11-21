@@ -506,16 +506,14 @@ const toggleMute = () => {
                                         </div>
                                         <div>
                                             <h4 className="text-base sm:text-xl mb-[10px] font-semibold">
-                                                Stake Collateral and Start
-                                                Playing
+                                                Swap to Stabilize and 
+                                                Share Access
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
-                                                Lock up cryptocurrencies as
-                                                collateral to back your in-game
-                                                currency (FUSD), and participate
-                                                in strategic gameplay involving
-                                                financial decision-making and
-                                                risk management.
+                                                Take your turn in the private liquidity pool 
+                                                and perform key actions like asset swaps to reinforce the system's stability.
+                                                Your participation fuels a balanced ecosystem while unlocking 
+                                                tangible rewards and exclusive privileges.
                                             </p>
                                         </div>
                                     </li>
