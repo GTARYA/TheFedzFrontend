@@ -353,6 +353,8 @@ const toggleMute = () => {
 </div>
 
 </div>
+</div>
+
 
                                         </div>
                                     </div>
