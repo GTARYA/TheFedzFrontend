@@ -517,7 +517,7 @@ const toggleMute = () => {
                                             <p className="text-sm sm:text-base opacity-80">
                                                 Take your turn in the private liquidity pool 
                                                 and perform key actions like asset swaps to reinforce the system's stability.
-                                                Your participation fuels a balanced ecosystem while unlocking 
+                                                Participation fuels a balanced ecosystem while unlocking 
                                                 tangible rewards and exclusive privileges.
                                             </p>
                                         </div>
