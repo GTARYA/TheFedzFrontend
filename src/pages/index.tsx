@@ -463,12 +463,12 @@ const toggleMute = () => {
                                         <div>
                                             <h4 className="text-base sm:text-xl mb-[10px] font-semibold">
                                                 Grant exclusive access to the
-                                                private liquidity pool
+                                                Private Liquidity Pool
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
                                                 Owning a Fedz NFT grants
-                                                exclusive access to the private
-                                                liquidity pool, allowing you to
+                                                exclusive access to the Private
+                                                Liquidity Pool, allowing you to
                                                 engage in profitable activities
                                                 like arbitrage and liquidity
                                                 provision within the game.
@@ -511,9 +511,9 @@ const toggleMute = () => {
                                                 Share Access
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
-                                                Take your turn in the private liquidity pool 
+                                                Take your turn in the Private Liquidity Pool 
                                                 and perform key actions like asset swaps to reinforce the system's stability.
-                                                Your participation fuels a balanced ecosystem while unlocking 
+                                                Participation fuels a balanced ecosystem while unlocking 
                                                 tangible rewards and exclusive privileges.
                                             </p>
                                         </div>
