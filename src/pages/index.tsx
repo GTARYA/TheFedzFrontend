@@ -515,7 +515,7 @@ const toggleMute = () => {
                                                 Share Access
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
-                                                Take your turn in the private liquidity pool 
+                                                Take your turn in the Private Liquidity Pool 
                                                 and perform key actions like asset swaps to reinforce the system's stability.
                                                 Participation fuels a balanced ecosystem while unlocking 
                                                 tangible rewards and exclusive privileges.
