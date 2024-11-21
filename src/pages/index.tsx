@@ -216,8 +216,8 @@ const toggleMute = () => {
                                 </h3>
                                 <p className="pt-2 text-sm md:text-base md:leading-6">
                                     A stablecoin backed by undercollateralized
-                                    assets, designed to maintain a stable value
-                                    while minimizing capital requirements, and
+                                    assets designed to maintain a stable value
+                                    while minimizing capital requirements and
                                     introduced as our first financial product to
                                     demonstrate stability and mitigate bank runs
                                     within The Fedz ecosystem.
@@ -323,12 +323,12 @@ const toggleMute = () => {
     </video>
 
     {/* Control Buttons */}
-    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-[50px] flex gap-4 z-[10]">
+   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 z-[50] sm:translate-y-[30px]">
     {/* Play/Pause Button */}
-    <button
-        onClick={togglePlay}
-        className="p-3 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition"
-    >
+  <button
+    onClick={togglePlay}
+    className="p-3 w-10 h-10 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition sm:w-12 sm:h-12"
+>
         {isPlaying ? (
             <i className="fas fa-pause text-lg"></i>
         ) : (
@@ -337,10 +337,11 @@ const toggleMute = () => {
     </button>
 
     {/* Sound On/Off Button */}
-    <button
-        onClick={toggleMute}
-        className="p-3 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition"
-    >
+   <button
+    onClick={toggleMute}
+    className="p-3 w-10 h-10 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition sm:w-12 sm:h-12"
+>
+
         {isMuted ? (
             <i className="fas fa-volume-mute text-lg"></i>
         ) : (
