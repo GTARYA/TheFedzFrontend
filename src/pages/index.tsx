@@ -322,6 +322,8 @@ const toggleMute = () => {
         <source src="./video/Explainer.mp4" type="video/mp4" />
     </video>
 
+<div className="relative">
+
     {/* Control Buttons */}
    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 z-[50] sm:translate-y-[30px]">
     {/* Play/Pause Button */}
