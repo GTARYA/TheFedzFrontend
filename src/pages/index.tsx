@@ -216,8 +216,8 @@ const toggleMute = () => {
                                 </h3>
                                 <p className="pt-2 text-sm md:text-base md:leading-6">
                                     A stablecoin backed by undercollateralized
-                                    assets designed to maintain a stable value
-                                    while minimizing capital requirements and
+                                    assets, designed to maintain a stable value
+                                    while minimizing capital requirements, and
                                     introduced as our first financial product to
                                     demonstrate stability and mitigate bank runs
                                     within The Fedz ecosystem.
@@ -323,12 +323,12 @@ const toggleMute = () => {
     </video>
 
     {/* Control Buttons */}
-   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4 z-[50] sm:translate-y-[30px]">
+    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-[50px] flex gap-4 z-[10]">
     {/* Play/Pause Button */}
-  <button
-    onClick={togglePlay}
-    className="p-3 w-10 h-10 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition sm:w-12 sm:h-12"
->
+    <button
+        onClick={togglePlay}
+        className="p-3 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition"
+    >
         {isPlaying ? (
             <i className="fas fa-pause text-lg"></i>
         ) : (
@@ -337,11 +337,10 @@ const toggleMute = () => {
     </button>
 
     {/* Sound On/Off Button */}
-   <button
-    onClick={toggleMute}
-    className="p-3 w-10 h-10 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition sm:w-12 sm:h-12"
->
-
+    <button
+        onClick={toggleMute}
+        className="p-3 bg-primary text-white rounded-full shadow hover:bg-primary-dark transition"
+    >
         {isMuted ? (
             <i className="fas fa-volume-mute text-lg"></i>
         ) : (
@@ -463,12 +462,12 @@ const toggleMute = () => {
                                         <div>
                                             <h4 className="text-base sm:text-xl mb-[10px] font-semibold">
                                                 Grant exclusive access to the
-                                                Private Liquidity Pool
+                                                private liquidity pool
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
                                                 Owning a Fedz NFT grants
-                                                exclusive access to the Private
-                                                Liquidity Pool, allowing you to
+                                                exclusive access to the private
+                                                liquidity pool, allowing you to
                                                 engage in profitable activities
                                                 like arbitrage and liquidity
                                                 provision within the game.
@@ -511,9 +510,9 @@ const toggleMute = () => {
                                                 Share Access
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
-                                                Take your turn in the Private Liquidity Pool 
+                                                Take your turn in the private liquidity pool 
                                                 and perform key actions like asset swaps to reinforce the system's stability.
-                                                Participation fuels a balanced ecosystem while unlocking 
+                                                Your participation fuels a balanced ecosystem while unlocking 
                                                 tangible rewards and exclusive privileges.
                                             </p>
                                         </div>
@@ -633,9 +632,9 @@ const toggleMute = () => {
                                             </td>
                                             <td className="pt-4 px-8">
                                                 A Uniswap v4 Hook that
-                                                implements a gamifiex
+                                                implements a gamified
                                                 experienced for Swappers and
-                                                LPs, with NFT restricted access
+                                                LPs, with NFT-restricted access
                                                 and Turn Based Logic for the
                                                 pool actions.
                                             </td>
