@@ -471,8 +471,8 @@ const toggleMute = () => {
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
                                                 Owning a Fedz NFT grants
-                                                exclusive access to the private
-                                                liquidity pool, allowing you to
+                                                exclusive access to the Private
+                                                Liquidity Pool, allowing you to
                                                 engage in profitable activities
                                                 like arbitrage and liquidity
                                                 provision within the game.
