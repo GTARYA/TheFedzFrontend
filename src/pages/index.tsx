@@ -467,7 +467,7 @@ const toggleMute = () => {
                                         <div>
                                             <h4 className="text-base sm:text-xl mb-[10px] font-semibold">
                                                 Grant exclusive access to the
-                                                private liquidity pool
+                                                Private Liquidity Pool
                                             </h4>
                                             <p className="text-sm sm:text-base opacity-80">
                                                 Owning a Fedz NFT grants
