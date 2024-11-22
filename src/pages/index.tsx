@@ -18,7 +18,7 @@ const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video eleme
 const [isPlaying, setIsPlaying] = useState(true); // Video play state
 const [isMuted, setIsMuted] = useState(true); // Video mute state
 const [showForm, setShowForm] = useState(false);
-const Web3Form = dynamic(() => import("../components/Web3Form"), { ssr: false });
+const Web3Form = dynamic(() => import("../components/Web3Form.tsx"), { ssr: false });
 
 
 
