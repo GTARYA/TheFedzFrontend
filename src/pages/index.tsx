@@ -13,7 +13,7 @@ import { useRef, useState } from "react";
 
 const Web3Form = dynamic(() => import("../components/Web3Form"), { ssr: false });
 import dynamic from "next/dynamic"; // For dynamic import of Web3Form
-import { useState } from "react"; // To manage modal state
+
 
 const Home: NextPage = () => {
 const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
