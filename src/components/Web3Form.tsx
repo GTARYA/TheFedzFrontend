@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { ethers } from "ethers";
+import React, { useState } from "react";
 
 const Web3Form = () => {
     const [formData, setFormData] = useState({
@@ -25,7 +24,9 @@ const Web3Form = () => {
                 return;
             }
 
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            // Load ethers dynamically from the CDN
+            const ethers = await import("https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js");
+            const provider = new ethers.ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
 
             const contractABI = [
@@ -43,7 +44,7 @@ const Web3Form = () => {
             ];
             const contractAddress = "0xYourSmartContractAddress"; // Replace with your contract address
 
-            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+            const contract = new ethers.ethers.Contract(contractAddress, contractABI, signer);
 
             const tx = await contract.submitForm(formData.name, formData.email, formData.message);
             console.log("Transaction sent:", tx.hash);
@@ -101,3 +102,4 @@ const Web3Form = () => {
 };
 
 export default Web3Form;
+
