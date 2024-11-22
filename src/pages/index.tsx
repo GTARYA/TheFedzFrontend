@@ -15,6 +15,13 @@ const Home: NextPage = () => {
 const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video element
 const [isPlaying, setIsPlaying] = useState(true); // Video play state
 const [isMuted, setIsMuted] = useState(true); // Video mute state
+const [showForm, setShowForm] = useState(false);
+
+import dynamic from "next/dynamic"; // For dynamic import of Web3Form
+import { useState } from "react"; // To manage modal state
+
+const Web3Form = dynamic(() => import("../components/Web3Form"), { ssr: false });
+
 
 // Toggle Play/Pause
 const togglePlay = () => {
@@ -68,7 +75,7 @@ const toggleMute = () => {
                             under-collateralized assets.
                         </p>
                         <div className="flex items-center gap-4 justify-center py-6">
-                            <PrimaryBtn>Join Us Today!</PrimaryBtn>
+                            <PrimaryBtn onClick={() => setShowForm(true)}>Join Us Today!</PrimaryBtn>
                            <a
                             href="https://the-fedz.gitbook.io/the-fedz"
                             target="_blank"
@@ -348,6 +355,22 @@ const toggleMute = () => {
         )}
     </button>
 </div>
+
+{/* Modal for the Web3 Form */}
+{showForm && (
+    <div className="modal-backdrop">
+        <div className="modal-content">
+            <button
+                className="close-btn"
+                onClick={() => setShowForm(false)}
+            >
+                Close
+            </button>
+            <Web3Form />
+        </div>
+    </div>
+)}
+
 
 </div>
 
