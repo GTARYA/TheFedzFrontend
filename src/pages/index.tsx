@@ -10,8 +10,6 @@ import Footer from '../components/Footer';
 import { useRef, useState } from "react"; 
 // import '@fortawesome/fontawesome-free/css/all.css';
 
-
-const Web3Form = dynamic(() => import("../components/Web3Form"), { ssr: false });
 import dynamic from "next/dynamic"; // For dynamic import of Web3Form
 
 
@@ -20,7 +18,7 @@ const videoRef = useRef<HTMLVideoElement>(null); // Reference to the video eleme
 const [isPlaying, setIsPlaying] = useState(true); // Video play state
 const [isMuted, setIsMuted] = useState(true); // Video mute state
 const [showForm, setShowForm] = useState(false);
-
+const Web3Form = dynamic(() => import("../components/Web3Form"), { ssr: false });
 
 
 
