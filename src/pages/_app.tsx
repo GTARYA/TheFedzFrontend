@@ -12,6 +12,7 @@ import {
 import { config } from '../wagmi';
 import CursorEffect from '../libs/cursorEffect';
 import Head from 'next/head';
+import { Toaster } from 'react-hot-toast';
 
 const client = new QueryClient();
 
@@ -53,6 +54,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         />
                     </Head>
                     <Component {...pageProps} />
+                    <Toaster />
                 </RainbowKitProvider>
             </QueryClientProvider>
         </WagmiProvider>

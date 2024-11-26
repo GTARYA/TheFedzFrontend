@@ -5,13 +5,13 @@ import PrimaryBtn from '../components/ui/PrimaryBtn';
 import Subtitle from '../components/ui/Subtitle';
 import Title from '../components/ui/Title';
 import Footer from '../components/Footer';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // import '@fortawesome/fontawesome-free/css/all.css';
 
 // import dynamic from 'next/dynamic'; // For dynamic import of Web3Form
 import VideoPlayer from '../components/VideoPlayer';
 import VideoPlayerMobile from '../components/VideoPlayerMobile';
-import JoinUsForm from '../components/JoinUsForm';
+import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
 
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
@@ -22,6 +22,14 @@ const Home: NextPage = () => {
     const onClose = () => {
         setShowForm(false);
     };
+
+    useEffect(() => {
+        if (showForm) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'visible';
+        }
+    }, [showForm]);
 
     return (
         <>
