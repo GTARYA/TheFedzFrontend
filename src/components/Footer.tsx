@@ -22,6 +22,7 @@ const Footer = () => {
                         <div className="mt-10 flex flex-col gap-3 items-center md:items-start">
                             <h3 className="font-semibold">Follow Us</h3>
                             <ul className="flex items-center gap-4">
+                            <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
@@ -35,6 +36,8 @@ const Footer = () => {
                                         />
                                     </svg>
                                 </li>
+</a>
+
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
