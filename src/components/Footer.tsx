@@ -36,8 +36,8 @@ const Footer = () => {
                                         />
                                     </svg>
                                 </li>
-</a>
-
+                                </a>
+                                 <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
@@ -51,6 +51,8 @@ const Footer = () => {
                                         />
                                     </svg>
                                 </li>
+                    </a>
+                     <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
@@ -64,6 +66,8 @@ const Footer = () => {
                                         />
                                     </svg>
                                 </li>
+                                </a>
+                                 <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
@@ -79,6 +83,8 @@ const Footer = () => {
                                         </g>
                                     </svg>
                                 </li>
+                                </a>
+
                             </ul>
                         </div>
                     </div>
