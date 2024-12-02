@@ -250,13 +250,12 @@ const Home: NextPage = () => {
                                     </Subtitle>
                                     <Title>Our Mission</Title>
                                     <p className="pt-4 pb-6 text-sm sm:text-base text-primary/80">
-                                        Our mission is to create a robust
-                                        financial mechanism that mitigates bank
-                                        runs, demonstrating the system's
-                                        effectiveness by stabilizing the FUSD
-                                        peg to USDT through
-                                        under-collateralization and minimal
-                                        capital needs.
+                                        Our mission is to enable the broader 
+                                        adoption of cryptocurrency by pioneering 
+                                        a modern fractional reserve financial mechanism. 
+                                        We aim to mitigate bank runs and 
+                                        ensure the stability of FUSD with minimal capital requirements, 
+                                        setting a new standard for financial efficiency and resilience.
                                     </p>
                                     <PrimaryBtn>Read More</PrimaryBtn>
                                 </div>
