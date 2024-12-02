@@ -217,7 +217,7 @@ const Home: NextPage = () => {
                                     </h3>
                                     <p className="pt-2 text-sm md:text-base md:leading-6">
                                         A stablecoin backed by
-                                        undercollateralized assets, designed to
+                                        undercollateralized assets designed to
                                         maintain a stable value while minimizing
                                         capital requirements, and introduced as
                                         our first financial product to
@@ -252,7 +252,7 @@ const Home: NextPage = () => {
                                     <p className="pt-4 pb-6 text-sm sm:text-base text-primary/80">
                                         Our mission is to enable the broader 
                                         adoption of cryptocurrency by pioneering 
-                                        a modern fractional reserve financial mechanism. 
+                                        a modern fractional reserve financial mechanism.<br />
                                         We aim to mitigate bank runs and 
                                         ensure the stability of FUSD with minimal capital requirements, 
                                         setting a new standard for financial efficiency and resilience.
