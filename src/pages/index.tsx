@@ -257,10 +257,9 @@ const Home: NextPage = () => {
                                         ensure the stability of FUSD with minimal capital requirements, 
                                         setting a new standard for financial efficiency and resilience.
                                     </p>
-                                     <PrimaryBtn onClick={() => window.location.href = "https://Blog.TheFedz.org"}
-
-                                    Read More
-                                </PrimaryBtn>
+                                   <PrimaryBtn className="mx-auto lg:mx-0 block">
+                                        Read More
+                                    </PrimaryBtn>
                                 </div>
                                 <div className="relative z-[5]">
                                     <img
