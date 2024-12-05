@@ -73,6 +73,13 @@ const Navbar = () => {
                                 Players
                             </Link>
                         </li>
+                        <li>
+                            <Link
+                               href="https://Blog.TheFedz.org"
+                                className="text-primary leading-6 text-[16px]">
+                                Blog
+                            </Link>
+                        </li>
                     </ul>
 
                     <div className="hidden lg:block">
