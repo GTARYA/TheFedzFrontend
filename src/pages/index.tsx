@@ -257,12 +257,13 @@ const Home: NextPage = () => {
                                         ensure the stability of FUSD with minimal capital requirements, 
                                         setting a new standard for financial efficiency and resilience.
                                    </p>
-                                    <PrimaryBtn>Read More</PrimaryBtn>
-                                    <Link
-                                        href="https://Blog.TheFedz.org"
-                                        className="text-primary ml-4 leading-6 text-[16px]">
-                                    Blog
-                                    </Link>
+    <PrimaryBtn>Read More</PrimaryBtn>
+    <a
+        href="https://Blog.TheFedz.org"
+        className="text-primary ml-4 leading-6 text-[16px]">
+        Blog
+    </a>
+</div>
                                     </div>
                                 <div className="relative z-[5]">
                                     <img
@@ -450,14 +451,14 @@ const Home: NextPage = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                 </p>
-                                <PrimaryBtn>Read More</PrimaryBtn>
-                                <Link
-                                        href="https://Blog.TheFedz.org"
-                                        className="text-primary ml-4 leading-6 text-[16px]">
-                                Blog
-                                </Link>
-                                </div>
+                                </p>
+    <PrimaryBtn>Read More</PrimaryBtn>
+    <a
+        href="https://Blog.TheFedz.org"
+        className="text-primary ml-4 leading-6 text-[16px]">
+        Blog
+    </a>
+</div>
                                 </div>
                             </div>
                         </Container>
