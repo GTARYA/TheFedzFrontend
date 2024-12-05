@@ -56,21 +56,21 @@ const Navbar = () => {
                             <Link
                                 href="/liquidity"
                                 className="text-primary leading-6 text-[16px]">
-                                Liquidity
+                                Earn
                             </Link>
                         </li>
                         <li>
                             <Link
                                 href="/nft"
                                 className="text-primary leading-6 text-[16px]">
-                                NFTs
+                                Owners
                             </Link>
                         </li>
                         <li>
                             <Link
                                 href="/players"
                                 className="text-primary leading-6 text-[16px]">
-                                Players
+                                Status
                             </Link>
                         </li>
                         <li>
