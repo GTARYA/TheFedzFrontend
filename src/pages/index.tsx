@@ -256,11 +256,9 @@ const Home: NextPage = () => {
                                         We aim to mitigate bank runs and 
                                         ensure the stability of FUSD with minimal capital requirements, 
                                         setting a new standard for financial efficiency and resilience.
-                                   </p>
-      <PrimaryBtn onClick={() => setShowForm(true)}>
-                                   Read More
-                                </PrimaryBtn>
-                                    </div>
+                                    </p>
+                                    <PrimaryBtn>Read More</PrimaryBtn>
+                                </div>
                                 <div className="relative z-[5]">
                                     <img
                                         src="/money-printer.png"
@@ -447,10 +445,9 @@ const Home: NextPage = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                </p>
-       <PrimaryBtn onClick={() => setShowForm(true)}>
-                                    Join Us Today!
-                                </PrimaryBtn>
+                                    <PrimaryBtn className="mx-auto lg:mx-0 block">
+                                        Read More
+                                    </PrimaryBtn>
                                 </div>
                             </div>
                         </Container>
