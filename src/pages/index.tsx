@@ -258,7 +258,7 @@ const Home: NextPage = () => {
                                         setting a new standard for financial efficiency and resilience.
                                     </p>
                                 <PrimaryBtn onClick={() => window.location.href = "https://Blog.TheFedz.org"}>
-                                Blog
+                                Read More
                                 </PrimaryBtn>
                                 </div>
                                 <div className="relative z-[5]">
@@ -448,7 +448,7 @@ const Home: NextPage = () => {
                                         </li>
                                     </ul>
                                 <PrimaryBtn onClick={() => window.location.href = "https://Blog.TheFedz.org"}>
-                                Blog
+                                Read More
                                 </PrimaryBtn>
                                 </div>
                             </div>
