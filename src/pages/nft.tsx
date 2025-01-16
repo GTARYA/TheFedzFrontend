@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import NftComponent from '../components/NftComponent';
 import { useAccount } from 'wagmi';
 import Footer from '../components/Footer';
-
+//a
 const nft = () => {
     const { isConnected } = useAccount();
     return (
