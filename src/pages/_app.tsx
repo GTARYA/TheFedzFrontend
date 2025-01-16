@@ -21,7 +21,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={client}>
-                <ToastContainer/>
                 <RainbowKitProvider
                     theme={{
                         lightMode: lightTheme({

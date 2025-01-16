@@ -15,6 +15,7 @@ export const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
   chains: [
     arbitrum,
+    sepolia,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
       ? []
       : []),

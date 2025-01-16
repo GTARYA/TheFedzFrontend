@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import {
   useContractRead,
@@ -9,6 +9,7 @@ import {
   useWriteContract,
   usePublicClient,
   useWalletClient,
+  useSwitchChain,
 } from "wagmi";
 import contractABI from "../abi/NFTABI.json";
 const contractAddress = "0xFDcAF9008EA347Fc0acc07E013c5d876545BFC57";
@@ -19,10 +20,17 @@ const maxBuy = 50;
 type Props = {};
 
 function MintPage({}: Props) {
-  const { address } = useAccount();
+  const { chains, switchChain } = useSwitchChain();
+  const { address, chainId: activeChainId } = useAccount();
   const [quantity, setQuantity] = useState(1);
   const [isMinting, setIsMinting] = useState(false);
   const publicClient = usePublicClient();
+
+  const isWRONG_NETWORK = chainId != activeChainId;
+  const ChangeChain = () => {
+    switchChain({ chainId: chainId! });
+  };
+
   const {
     data: balanceData,
     isLoading: balanceLoading,
@@ -86,7 +94,7 @@ function MintPage({}: Props) {
 
   const handleMint = async () => {
     if (!publicClient || !walletClient) {
-      return toast.info("Connect your wallet");
+      return toast.error("Connect your wallet");
     }
     try {
       if (Number(balanceData?.value) < Number(totalCost)) {
@@ -252,20 +260,24 @@ function MintPage({}: Props) {
               </button>
             </div>
             <button
-              onClick={handleMint}
+              onClick={isWRONG_NETWORK ? ChangeChain : handleMint}
               disabled={isMinting || isPending}
               className="bg-gradient-to-r flex uppercase items-center w-fit disabled:!text-white disabled:opacity-50 from-[#00ffe5] to-[#E100FF] text-white px-8 h-12 rounded-lg shadow-md text-lg font-bold hover:opacity-90"
             >
-              {isMinting || isPending ? "" : "Mint"}
-
-              <ScaleLoader
-                height={20}
-                loading={isMinting || isPending}
-                color="#ffffff"
-                className="text-white"
-                aria-label="Loading Spinner"
-                data-testid="loader"
-              />
+              {isMinting || isPending ? (
+                <ScaleLoader
+                  height={20}
+                  loading={isMinting || isPending}
+                  color="#ffffff"
+                  className="text-white"
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              ) : isWRONG_NETWORK ? (
+                "Switch Network"
+              ) : (
+                "Mint"
+              )}
             </button>
           </div>
         </div>
