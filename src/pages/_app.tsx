@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import type { AppProps } from 'next/app';
+import { ToastContainer, toast } from 'react-toastify';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
@@ -20,6 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={client}>
+                <ToastContainer/>
                 <RainbowKitProvider
                     theme={{
                         lightMode: lightTheme({
