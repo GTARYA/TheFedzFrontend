@@ -12,7 +12,7 @@ import {
   useSwitchChain,
 } from "wagmi";
 import contractABI from "../abi/NFTABI.json";
-const contractAddress = "0xFDcAF9008EA347Fc0acc07E013c5d876545BFC57";
+const contractAddress = "0x62bc6a7C71C60137Bbcd056E46Cc0285E98C097A";
 //base - 84532
 
 const chainId = 42161;
