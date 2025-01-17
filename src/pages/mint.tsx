@@ -96,6 +96,9 @@ function MintPage({}: Props) {
     if (!publicClient || !walletClient) {
       return toast.error("Connect your wallet");
     }
+
+    console.log(Number(balanceData?.value),"Number(balanceData?.value)");
+    
     try {
       if (Number(balanceData?.value) < Number(totalCost)) {
         toast.error("Insufficient balance to complete the transaction.");
@@ -260,9 +263,9 @@ function MintPage({}: Props) {
               </button>
             </div>
             <button
-              onClick={isWRONG_NETWORK ? ChangeChain : handleMint}
+              onClick={address ? isWRONG_NETWORK ? ChangeChain : handleMint:handleMint}
               disabled={isMinting || isPending}
-              className="bg-gradient-to-r flex uppercase items-center w-fit disabled:!text-white disabled:opacity-50 from-[#00ffe5] to-[#E100FF] text-white px-8 h-12 rounded-lg shadow-md text-lg font-bold hover:opacity-90"
+              className="bg-gradient-to-r  flex uppercase items-center w-fit disabled:!text-white disabled:opacity-50 from-[#00ffe5] to-[#E100FF] text-white px-8 h-12 rounded-lg shadow-md text-lg font-bold hover:opacity-90"
             >
               {isMinting || isPending ? (
                 <ScaleLoader
@@ -273,7 +276,7 @@ function MintPage({}: Props) {
                   aria-label="Loading Spinner"
                   data-testid="loader"
                 />
-              ) : isWRONG_NETWORK ? (
+              ) : isWRONG_NETWORK && address ? (
                 "Switch Network"
               ) : (
                 "Mint"
