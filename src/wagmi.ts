@@ -9,7 +9,7 @@ import {
   baseSepolia,
 } from "wagmi/chains";
 import { http } from "wagmi";
-
+//s
 export const config = getDefaultConfig({
   appName: "TheFedz",
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID!,
