@@ -203,7 +203,7 @@ function MintPage({}: Props) {
       </div> */}
 
       {/* New Section */}
-      <section className="flex relative z-10 flex-col md:flex-row items-center gap-8 py-6 pb-16 md:py-32 px-4 max-w-7xl mx-auto ">
+      <section className="flex relative z-1 flex-col md:flex-row items-center gap-8 py-6 pb-16 md:py-32 px-4 max-w-7xl mx-auto ">
         {/* NFT Image */}
         <div className="w-full md:w-6/12">
           <img
