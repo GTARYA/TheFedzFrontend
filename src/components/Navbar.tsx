@@ -21,7 +21,7 @@ const Navbar = () => {
     }, [menuIsOpen]);
 
     return (
-        <header className="bg-gradient-to-b from-[#000000CF] bg-opacity-80 to-transparent z-[10] sticky top-0  backdrop-blur-md">
+        <header className="bg-gradient-to-b from-[#000000CF] bg-opacity-80 to-transparent z-[11] sticky top-0  backdrop-blur-md">
             <Container>
                 <div className="flex items-center justify-between sm:h-[80px] h-[64px]">
                     <Link href="/">
