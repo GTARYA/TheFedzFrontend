@@ -1,13 +1,8 @@
 // components/Navbar.js
 import Link from 'next/link';
-import {
-    ConnectButton,
-    darkTheme,
-    RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
 import Container from './Container';
 import { useEffect, useState } from 'react';
-
+import ConnectButton from './ConnectButton';
 const Navbar = () => {
     const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false);
     const handleClick = () => {
@@ -26,7 +21,7 @@ const Navbar = () => {
     }, [menuIsOpen]);
 
     return (
-        <header className="bg-gradient-to-b from-[#000000CF] bg-opacity-80 to-transparent z-[1000] sticky top-0  backdrop-blur-md">
+        <header className="bg-gradient-to-b from-[#000000CF] bg-opacity-80 to-transparent z-[10] sticky top-0  backdrop-blur-md">
             <Container>
                 <div className="flex items-center justify-between sm:h-[80px] h-[64px]">
                     <Link href="/">
@@ -83,15 +78,7 @@ const Navbar = () => {
                     </ul>
 
                     <div className="hidden lg:block">
-                        <RainbowKitProvider
-                            theme={darkTheme({
-                                accentColor: '#4A88ED',
-                                accentColorForeground: '#FEFEFE',
-                                borderRadius: 'large',
-                                fontStack: 'system',
-                            })}>
-                            <ConnectButton />
-                        </RainbowKitProvider>
+                    <ConnectButton/>
                         {/* <ConnectButton /> */}
                     </div>
 
@@ -179,15 +166,7 @@ const Navbar = () => {
                             </li>
                         </ul>
                         <div className="mx-auto w-fit">
-                            <RainbowKitProvider
-                                theme={darkTheme({
-                                    accentColor: '#4A88ED',
-                                    accentColorForeground: '#FEFEFE',
-                                    borderRadius: 'large',
-                                    fontStack: 'system',
-                                })}>
-                                <ConnectButton />
-                            </RainbowKitProvider>
+                        <ConnectButton />
                         </div>
                     </Container>
                     <div className="block md:hidden">
