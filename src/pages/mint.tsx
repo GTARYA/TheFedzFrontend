@@ -11,6 +11,7 @@ import {
   useWalletClient,
   useSwitchChain,
 } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
 import contractABI from "../abi/NFTABI.json";
 const contractAddress = "0xE073a53a2Ba1709e2c8F481f1D7dbabA1eF611FD";
 //base - 84532
@@ -21,15 +22,21 @@ type Props = {};
 
 function MintPage({}: Props) {
   const { chains, switchChain } = useSwitchChain();
-  const { address, chainId: activeChainId } = useAccount();
+  const { address, chainId: activeChainId,isConnected } = useAccount();
   const [quantity, setQuantity] = useState(1);
   const [isMinting, setIsMinting] = useState(false);
   const publicClient = usePublicClient();
+  const { open, close } = useAppKit();
 
   const isWRONG_NETWORK = chainId != activeChainId;
   const ChangeChain = () => {
     switchChain({ chainId: chainId! });
   };
+
+  const connetButton = () => {
+    open();
+  };
+
 
   const {
     data: balanceData,
@@ -94,7 +101,8 @@ function MintPage({}: Props) {
 
   const handleMint = async () => {
     if (!publicClient || !walletClient) {
-      return toast.error("Connect your wallet");
+      open();
+      return ;
     }
 
     console.log(Number(balanceData?.value),"Number(balanceData?.value)");
