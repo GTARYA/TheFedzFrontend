@@ -13,7 +13,7 @@ const useLP = (
   signer: any,
   tokenA: TokenInfo,
   tokenB: TokenInfo,
-  slippageTolerance = 0.025
+  slippageTolerance = 0.05
 ) => {
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
@@ -68,6 +68,26 @@ const useLP = (
         path
       );
       const amountBParsed = Number(amountsOut[1]);
+
+      const uniswapPair = new ethers.Contract(
+        UNISWAP_V2_PAIR,
+        UNISWAP_PAIR_ABI,
+        signer
+      );
+      const [reserveB, reserveA] = await uniswapPair.getReserves();
+
+      const currentPrice =
+        Number(reserveB.toString()) / Number(reserveA.toString());
+
+      // Estimate slippage based on price impact
+      const priceImpact =
+        Math.abs(
+          amountBParsed / Number(inputAmountParsed.toString()) - currentPrice
+        ) / currentPrice;
+
+      const dynamicSlippage = priceImpact + slippageTolerance;
+      console.log(`Estimated Slippage: ${(priceImpact * 100).toFixed(2)}%`);
+      console.log(`Dynamic Slippage: ${(dynamicSlippage * 100).toFixed(2)}%`);
 
       const tokenAContract = new ethers.Contract(
         tokenA.address,
@@ -131,11 +151,11 @@ const useLP = (
       toast.dismiss(approvalToastId);
 
       const minAmountA =
-        Number(amountAParsed.toString()) * (1 - slippageTolerance);
+        Number(amountAParsed.toString()) * (1 - dynamicSlippage);
       const minAmountB =
-        Number(amountBParsed.toString()) * (1 - slippageTolerance);
+        Number(amountBParsed.toString()) * (1 - dynamicSlippage);
 
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 10; // 10 minutes from now
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
       liquidityToastId = toast.loading("Adding Liquidity...");
 
       const tx = await uniswapRouter.addLiquidity(
@@ -143,8 +163,8 @@ const useLP = (
         tokenB.address,
         amountAParsed.toString(),
         amountBParsed.toString(),
-        minAmountA.toString(),
-        minAmountB.toString(),
+        minAmountA.toFixed(),
+        minAmountB.toFixed(),
         signer.address,
         deadline
       );
@@ -300,7 +320,7 @@ const useLP = (
     addLiquidity,
     liquidityInfo,
     removeLiquidity,
-    removeLiquidityloading
+    removeLiquidityloading,
   };
 };
 
