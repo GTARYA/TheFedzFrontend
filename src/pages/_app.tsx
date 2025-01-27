@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { ToastContainer, toast } from "react-toastify";
+
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
@@ -9,6 +9,7 @@ import Head from "next/head";
 import { Toaster } from "react-hot-toast";
 import Web3provider from "../context/web3Provider";
 import { headers } from "next/headers";
+import { Toaster as SonnarToaster } from 'sonner';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -31,7 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           />
         </Head>
         <Component {...pageProps} />
-        <Toaster />
+   
       </Web3provider>
     </div>
   );

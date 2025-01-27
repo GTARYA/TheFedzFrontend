@@ -14,7 +14,8 @@ import {
 import React, { type ReactNode } from "react";
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 import { ToastContainer, toast } from "react-toastify";
-
+import { Toaster as SonnarToaster } from 'sonner';
+import { Toaster } from "react-hot-toast";
 const queryClient = new QueryClient();
 
 const metadata = {
@@ -53,6 +54,8 @@ function ContextProvider({
       config={wagmiAdapter.wagmiConfig as Config}
       initialState={initialState}
     >
+           <Toaster />
+           <SonnarToaster position="top-right"/>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   );
