@@ -73,12 +73,13 @@ const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated }) => {
       }`}
     >
       <td>
-        <img
+        <Image
           src={nft.image}
           alt="nft"
           width={55}
           height={55}
           className="rounded object-fill  "
+          quality={50}
         />
       </td>
       <td>{nft.tokenId}</td>

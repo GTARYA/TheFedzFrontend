@@ -35,11 +35,12 @@ const NftCarouselItem: React.FC<NftCarouselItemProps> = ({ nft, onClick }) => {
       className="carousel-item relative w-full h-96"
       onClick={() => onClick(nft)}
     >
-      <img
+      <Image
         src={nft.image}
         alt={`NFT ${nft.id}`}
         width={500}
         height={600}
+        quality={50}
         // layout="responsive"
         className={`w-full object-cover rounded-[25px] overflow-hidden ${
         "border-4 border-yellow-400" 
