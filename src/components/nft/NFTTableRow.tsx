@@ -65,14 +65,20 @@ const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated }) => {
   };
 
   return (
-    <tr className="border-none">
+    <tr
+      className={`border-none ${
+        address?.toLocaleLowerCase() == owner?.toLocaleLowerCase()
+          ? "bg-[#4a88ed8a]"
+          : ""
+      }`}
+    >
       <td>
-        <Image
+        <img
           src={nft.image}
           alt="nft"
-          width={48}
-          height={48}
-          className="rounded"
+          width={55}
+          height={55}
+          className="rounded object-fill  "
         />
       </td>
       <td>{nft.tokenId}</td>

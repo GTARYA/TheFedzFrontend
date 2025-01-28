@@ -190,7 +190,7 @@ const PlayersTable: React.FC = () => {
                       <th>NFT</th>
                       <th>ID</th>
                       <th>Owner</th>
-                      <th>Point</th>
+                      <th>FEDZ Points</th>
                     </tr>
                   </thead>
                   <tbody>
