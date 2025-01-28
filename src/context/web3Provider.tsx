@@ -55,7 +55,7 @@ function ContextProvider({
       initialState={initialState}
     >
            <Toaster />
-           <SonnarToaster position="top-right"/>
+           <SonnarToaster position="top-right" richColors/>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   );

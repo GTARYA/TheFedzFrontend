@@ -48,6 +48,8 @@ import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
 import { TokenInfo } from "../type";
 import useSwap from "../hooks/useSwap";
+
+
 const SwapComponent = () => {
   const activeChainId = useChainId();
 
@@ -74,7 +76,7 @@ const SwapComponent = () => {
   const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
   const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
   const { loading, swapExactTokensForTokens, quote, getQuote, quoteLoading } =
-    useSwap(amount, signer, tokenA, tokenB);
+    useSwap(activeChainId,amount, signer, tokenA, tokenB);
 
   const { data: tokenABalance ,refetch:refetchTokenABalance} = useBalance({
     address,

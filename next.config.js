@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    esmExternals: "loose",
+    serverComponentsExternalPackages: ["mongoose"]
+  },
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
+
   },
   typescript: {
     // !! WARN !!
@@ -12,6 +17,10 @@ const nextConfig = {
     // your project has type errors.
     // !! WARN !!
     ignoreBuildErrors: true,
+  },
+  images: {
+    domains: ["res.cloudinary.com","ipfs.raribleuserdata.com"],
+    // remotePatterns:["cdn.sanity.io"]
   },
 };
 

@@ -4,9 +4,10 @@ import routerAbi from "../abi/uniswapRouter.json";
 import erc20Abi from "../abi/erc20.json";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
-
+import { ChainId } from "../config";
 import { TokenInfo } from "../type";
 const useSwap = (
+  chainId:number,
   amount: string,
   signer: any,
   tokenA: TokenInfo,
@@ -47,10 +48,10 @@ const useSwap = (
   };
 
   useEffect(() => {
-    if (signer) {
+    if (signer && chainId==ChainId) {
       getQuote(amount);
     }
-  }, [amount, signer, tokenA, tokenB]);
+  }, [amount, signer, tokenA, tokenB,chainId]);
 
   const swapExactTokensForTokens = async (amount: string) => {
     let approvalToastId: any;

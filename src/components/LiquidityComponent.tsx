@@ -7,7 +7,10 @@ import {
   useWriteContract,
   useWalletClient,
   useChainId,
+  useContractRead,
+  
 } from "wagmi";
+import {erc721Abi} from "viem"
 import {
   mainnet,
   arbitrum,
@@ -47,6 +50,9 @@ import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
 import { TokenInfo } from "../type";
 import useLP from "../hooks/useLP";
+import { NFT_ADDR } from "../config";
+import { toast } from "sonner";
+
 const LiquidityComponent = () => {
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0, setToken0] = useState(MockFUSDAddress);
@@ -71,6 +77,16 @@ const LiquidityComponent = () => {
   const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
   const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
+
+  const { data: nftbalance, isLoading: balanceLoading } = useContractRead({
+    address: NFT_ADDR as `0x${string}`,
+    abi: erc721Abi,
+    functionName: "balanceOf",
+    args: [address as "0x"],
+    chainId: ChainId
+  });
+
+
   const { data: tokenABalance, refetch: refetchTokenABalance } = useBalance({
     address,
     chainId: ChainId,
@@ -92,12 +108,18 @@ const LiquidityComponent = () => {
     liquidityInfo,
     removeLiquidity,
     removeLiquidityloading,
-  } = useLP(amount, signer, tokenA, tokenB);
+  } = useLP(activeChainId,amount, signer, tokenA, tokenB);
 
   const addLiquidity = async () => {
-    await addLPS(amount);
-    refetchTokenABalance();
-    refetchTokenBBalance();
+
+    if(Number(nftbalance?.toString()) > 0){
+      await addLPS(amount);
+      refetchTokenABalance();
+      refetchTokenBBalance();
+    }else{
+      toast.error("You need to be an NFT Holder to add Liquidity")
+    }
+    
   };
 
   const handleRemoveLiquidity = () => {
@@ -295,6 +317,8 @@ const LiquidityComponent = () => {
     { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
     { value: FUSD_ADDR[ChainId], label: "FUSD", decimals: 18 },
   ];
+
+  
   const handleTokenSelection = (selectedToken: TokenInfo, isInput: boolean) => {
     if (isInput) {
       if (selectedToken.address === tokenB.address) {
@@ -312,6 +336,8 @@ const LiquidityComponent = () => {
       }
     }
   };
+
+
 
   return (
     <div>

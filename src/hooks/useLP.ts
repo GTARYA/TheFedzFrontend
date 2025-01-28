@@ -8,7 +8,10 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { formatEther as formatEtherViem } from "viem";
 import { TokenInfo } from "../type";
+import { ChainId } from "../config";
+
 const useLP = (
+  chainId:number, 
   amount: string,
   signer: any,
   tokenA: TokenInfo,
@@ -61,7 +64,6 @@ const useLP = (
         signer
       );
       const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
-
       const path = [tokenA.address, tokenB.address];
       const amountsOut = await uniswapRouter.getAmountsOut(
         inputAmountParsed,
@@ -85,7 +87,7 @@ const useLP = (
           amountBParsed / Number(inputAmountParsed.toString()) - currentPrice
         ) / currentPrice;
 
-      const dynamicSlippage = priceImpact + slippageTolerance;
+      const dynamicSlippage = priceImpact + 0.005;
       console.log(`Estimated Slippage: ${(priceImpact * 100).toFixed(2)}%`);
       console.log(`Dynamic Slippage: ${(dynamicSlippage * 100).toFixed(2)}%`);
 
@@ -306,11 +308,11 @@ const useLP = (
   };
 
   useEffect(() => {
-    if (signer) {
+    if (signer && chainId==ChainId) {
       getQuote(amount);
       getLiquidityInfo();
     }
-  }, [amount, signer, tokenA, tokenB]);
+  }, [amount, signer, tokenA, tokenB,chainId]);
 
   return {
     getQuote,

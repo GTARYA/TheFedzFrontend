@@ -6,19 +6,34 @@ export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID!
 export const networks = [    arbitrum,
 sepolia];
 
-
+export const NFT_ADDR = "0xE073a53a2Ba1709e2c8F481f1D7dbabA1eF611FD";
 export enum chainId {
-  BSC = 56,
-  BSC_TEST = 97,
-  ETHEREUM = 1,
-  BASE = 8453,
-  POLYGON = 137,
   ARB=42161,
+  SEPOLIA=11155111,
+
 }
 
-export const ChainId = arbitrum.id;
+export const SUPPORTED_NETWORK = [
+  chainId.ARB,
+  chainId.SEPOLIA,
+];
 
 
+export const ChainId = arbitrum.id;  
+export const OWNER_WALLET = "0x833e421145863237e9B372dbA99EcF49C98956fb"
+
+export const ChainInfo: Record<chainId, { config: any; icon: string ,name:string}> = {
+  [42161]: {
+    config: arbitrum,
+    icon: "/network/arb.svg",
+    name:"Arbitrum"
+  },
+  [11155111]: {
+    config: sepolia,
+    icon: "/network/eth.svg",
+        name:"Sepolia"
+  },
+};
 
 export const USDT_ADDR: { [key: number]: TokenInfo } = {
   [chainId.ARB]: {
