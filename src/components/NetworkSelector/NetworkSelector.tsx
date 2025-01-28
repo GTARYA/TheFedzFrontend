@@ -42,7 +42,7 @@ function NetworkSelector({}: Props) {
       </div>
     );
   }
-
+//
   return (
     <Menu
       as="div"
