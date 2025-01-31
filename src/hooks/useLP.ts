@@ -11,12 +11,12 @@ import { TokenInfo } from "../type";
 import { ChainId } from "../config";
 
 const useLP = (
-  chainId:number, 
+  chainId: number,
   amount: string,
   signer: any,
   tokenA: TokenInfo,
   tokenB: TokenInfo,
-  slippageTolerance = 0.05
+  slippageTolerance = 0.04
 ) => {
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
@@ -36,20 +36,25 @@ const useLP = (
       const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
 
-      // Get amounts out
-      const amountsOut = await uniswapRouter.getAmountsOut(
-        inputAmountParsed,
-        path
+      const uniswapPair = new ethers.Contract(
+        UNISWAP_V2_PAIR,
+        UNISWAP_PAIR_ABI,
+        signer
       );
+      const [reserveA, reserveB] = await uniswapPair.getReserves();
 
-      const outputAmount = formatUnits(amountsOut[1], tokenB.decimals);
-      setQuote(outputAmount.toString()); // Update the quote in state
-      return outputAmount;
+      const adjustedReserveA = Number(reserveA.toString()) / 10 ** 18;
+      const adjustedReserveB = Number(reserveB.toString()) / 10 ** 6;
+      const priceA = adjustedReserveB / adjustedReserveA;
+      const priceB = adjustedReserveA / adjustedReserveB;
+      let quote = tokenA.decimals === 6 ? priceB : priceA;
+      const final = quote * Number(inputAmount)
+      setQuote(final.toString());
     } catch (error) {
       console.error("Error getting quote:", error);
       return null;
     } finally {
-      setQuoteLoading(false); // End loading for quote
+      setQuoteLoading(false); 
     }
   };
 
@@ -69,27 +74,25 @@ const useLP = (
         inputAmountParsed,
         path
       );
-      const amountBParsed = Number(amountsOut[1]);
+      // const amountBParsed = Number(amountsOut[1]);
+
+      
 
       const uniswapPair = new ethers.Contract(
         UNISWAP_V2_PAIR,
         UNISWAP_PAIR_ABI,
         signer
       );
-      const [reserveB, reserveA] = await uniswapPair.getReserves();
+      const [reserveA, reserveB] = await uniswapPair.getReserves();
 
-      const currentPrice =
-        Number(reserveB.toString()) / Number(reserveA.toString());
 
-      // Estimate slippage based on price impact
-      const priceImpact =
-        Math.abs(
-          amountBParsed / Number(inputAmountParsed.toString()) - currentPrice
-        ) / currentPrice;
-
-      const dynamicSlippage = priceImpact + 0.005;
-      console.log(`Estimated Slippage: ${(priceImpact * 100).toFixed(2)}%`);
-      console.log(`Dynamic Slippage: ${(dynamicSlippage * 100).toFixed(2)}%`);
+      const adjustedReserveA = Number(reserveA.toString()) / 10 ** 18;
+      const adjustedReserveB = Number(reserveB.toString()) / 10 ** 6;
+      const priceA = adjustedReserveB / adjustedReserveA;
+      const priceB = adjustedReserveA / adjustedReserveB;
+      let quote = tokenA.decimals === 6 ? priceB : priceA;
+      const quoteOutput = quote * Number(inputAmount);
+      const amountBParsed = parseUnits(quoteOutput.toFixed(5), tokenB.decimals);
 
       const tokenAContract = new ethers.Contract(
         tokenA.address,
@@ -108,13 +111,13 @@ const useLP = (
       if (
         parseFloat(balanceOfTokenA) < parseFloat(inputAmountParsed.toString())
       ) {
-        toast.error("Insufficient balance.");
+        toast.error("Insufficient balance A");
         setLoading(false);
         return;
       }
 
       if (parseFloat(balanceOfTokenB) < parseFloat(amountBParsed.toString())) {
-        toast.error("Insufficient balance.");
+        toast.error("Insufficient balance. B");
         setLoading(false);
         return;
       }
@@ -153,9 +156,9 @@ const useLP = (
       toast.dismiss(approvalToastId);
 
       const minAmountA =
-        Number(amountAParsed.toString()) * (1 - dynamicSlippage);
+        Number(amountAParsed.toString()) * (1 - slippageTolerance);
       const minAmountB =
-        Number(amountBParsed.toString()) * (1 - dynamicSlippage);
+        Number(amountBParsed.toString()) * (1 - slippageTolerance);
 
       const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
       liquidityToastId = toast.loading("Adding Liquidity...");
@@ -308,11 +311,11 @@ const useLP = (
   };
 
   useEffect(() => {
-    if (signer && chainId==ChainId) {
+    if (signer && chainId == ChainId) {
       getQuote(amount);
       getLiquidityInfo();
     }
-  }, [amount, signer, tokenA, tokenB,chainId]);
+  }, [amount, signer, tokenA, tokenB, chainId]);
 
   return {
     getQuote,

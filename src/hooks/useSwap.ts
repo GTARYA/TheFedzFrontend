@@ -1,7 +1,9 @@
 import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
 const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 import routerAbi from "../abi/uniswapRouter.json";
+const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
 import erc20Abi from "../abi/erc20.json";
+import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
@@ -12,7 +14,7 @@ const useSwap = (
   signer: any,
   tokenA: TokenInfo,
   tokenB: TokenInfo,
-  slippageTolerance = 0.025
+  slippageTolerance =  0.04
 ) => {
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
@@ -30,20 +32,25 @@ const useSwap = (
       const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
 
-      // Get amounts out
-      const amountsOut = await uniswapRouter.getAmountsOut(
-        inputAmountParsed,
-        path
+      const uniswapPair = new ethers.Contract(
+        UNISWAP_V2_PAIR,
+        UNISWAP_PAIR_ABI,
+        signer
       );
+      const [reserveA, reserveB] = await uniswapPair.getReserves();
 
-      const outputAmount = formatUnits(amountsOut[1], tokenB.decimals);
-      setQuote(outputAmount.toString()); // Update the quote in state
-      return outputAmount;
+      const adjustedReserveA = Number(reserveA.toString()) / 10 ** 18;
+      const adjustedReserveB = Number(reserveB.toString()) / 10 ** 6;
+      const priceA = adjustedReserveB / adjustedReserveA;
+      const priceB = adjustedReserveA / adjustedReserveB;
+      let quote = tokenA.decimals === 6 ? priceB : priceA;
+      const final = quote * Number(inputAmount)
+      setQuote(final.toString());
     } catch (error) {
       console.error("Error getting quote:", error);
       return null;
     } finally {
-      setQuoteLoading(false); // End loading for quote
+      setQuoteLoading(false); 
     }
   };
 

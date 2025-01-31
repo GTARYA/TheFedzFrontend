@@ -111,7 +111,6 @@ const LiquidityComponent = () => {
   } = useLP(activeChainId,amount, signer, tokenA, tokenB);
 
   const addLiquidity = async () => {
-
     if(Number(nftbalance?.toString()) > 0){
       await addLPS(amount);
       refetchTokenABalance();
