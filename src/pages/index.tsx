@@ -140,6 +140,44 @@ const Home: NextPage = () => {
                 <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
 
                 <main className="relative z-[10]">
+                    <section className="relative md:pb-[75px] pb-[50px]">
+                        <Container className="!max-w-full !p-0">
+                            <div className="bg-gradient-to-b from-[#0A0012] to-[#000000]">
+                                <Subtitle className="mx-auto">
+                                    FUSD is Issued By
+                                </Subtitle>
+                                <Title className="text-center pt-1">
+                                    The Fedz
+                                </Title>
+                            </div>
+
+                            <div className="w-full mx-auto flex flex-col gap-10 items-center text-white pt-5 bg-black">
+                                <div>
+                                    <h3 className="font-semibold text-2xl sm:text-4xl mb-4 text-center">
+                                        Private Liquidity Pool
+                                    </h3>
+                                    <p className="max-w-[450px] text-xl sm:text-2xl font-normal opacity-85 text-center">
+                                        A stability mechanism designed to secure
+                                        DeFi fractional reserve system
+                                    </p>
+                                </div>
+                                <div>
+                                    <video
+                                        autoPlay
+                                        loop
+                                        muted
+                                        className="max-w-[400px] w-full">
+                                        <source
+                                            src="./video/swap.mp4"
+                                            type="video/mp4"
+                                        />
+                                    </video>
+                                </div>
+                            </div>
+                            <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[200px]"></div>
+                        </Container>
+                    </section>
+
                     <section
                         className="relative overflow-hidden md:pb-[75px] pb-[50px]"
                         id="features">
@@ -217,7 +255,7 @@ const Home: NextPage = () => {
                                     </h3>
                                     <p className="pt-2 text-sm md:text-base md:leading-6">
                                         A stablecoin backed by
-                                        undercollateralized assets, designed to
+                                        undercollateralized assets designed to
                                         maintain a stable value while minimizing
                                         capital requirements, and introduced as
                                         our first financial product to
@@ -250,15 +288,24 @@ const Home: NextPage = () => {
                                     </Subtitle>
                                     <Title>Our Mission</Title>
                                     <p className="pt-4 pb-6 text-sm sm:text-base text-primary/80">
-                                        Our mission is to create a robust
-                                        financial mechanism that mitigates bank
-                                        runs, demonstrating the system's
-                                        effectiveness by stabilizing the FUSD
-                                        peg to USDT through
-                                        under-collateralization and minimal
-                                        capital needs.
+                                        Our mission is to enable the broader
+                                        adoption of cryptocurrency by pioneering
+                                        a modern fractional reserve financial
+                                        mechanism.
+                                        <br />
+                                        We aim to mitigate bank runs and ensure
+                                        the stability of FUSD with minimal
+                                        capital requirements, setting a new
+                                        standard for financial efficiency and
+                                        resilience.
                                     </p>
-                                    <PrimaryBtn>Read More</PrimaryBtn>
+                                    <PrimaryBtn
+                                        onClick={() =>
+                                            (window.location.href =
+                                                'https://Blog.TheFedz.org')
+                                        }>
+                                        Read More
+                                    </PrimaryBtn>
                                 </div>
                                 <div className="relative z-[5]">
                                     <img
@@ -446,7 +493,11 @@ const Home: NextPage = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                    <PrimaryBtn className="mx-auto lg:mx-0 block">
+                                    <PrimaryBtn
+                                        onClick={() =>
+                                            (window.location.href =
+                                                'https://Blog.TheFedz.org')
+                                        }>
                                         Read More
                                     </PrimaryBtn>
                                 </div>

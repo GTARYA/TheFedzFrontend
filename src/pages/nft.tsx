@@ -4,14 +4,14 @@ import Navbar from '../components/Navbar';
 import NftComponent from '../components/NftComponent';
 import { useAccount } from 'wagmi';
 import Footer from '../components/Footer';
-
+//a
 const nft = () => {
     const { isConnected } = useAccount();
     return (
         <div className="bg-[#0A0012]">
             <Navbar />
 
-            <main className="md:mt-14 mt-10 min-h-[80vh] relative z-[10]">
+            <main className="md:mt-14 mt-10 min-h-[80vh] relative z-1">
                 {isConnected ? (
                     <NftComponent />
                 ) : (
