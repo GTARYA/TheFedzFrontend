@@ -52,7 +52,7 @@ const Home: NextPage = () => {
                     <Container className="z-[6] relative">
                         <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
                             <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
-                                Bank Run Mitigation{' '}
+                                FUSD{' '}
                                 <span
                                     data-text="Stable"
                                     className="neon-text font-semibold">
@@ -61,10 +61,8 @@ const Home: NextPage = () => {
                                 Coin
                             </h1>
                             <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
-                                FUSD is an under-collateralized stablecoin
-                                issued by The Fedz - A DeFi stability mechanism
-                                designed to ensure the financial stability of
-                                under-collateralized assets.
+                                Superior Yield. Robust Stability. Deeper
+                                Liquidity
                             </p>
                             <div className="flex items-center gap-4 justify-center py-6">
                                 <PrimaryBtn onClick={() => setShowForm(true)}>
@@ -140,49 +138,37 @@ const Home: NextPage = () => {
 
                 <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
 
+                <section className="relative">
+                    <Container className="!max-w-full !p-0">
+                        <div className="bg-gradient-to-b from-[#0A0012] to-[#000000]">
+                            <Subtitle className="mx-auto relative z-[10]">
+                                FUSD is Issued By
+                            </Subtitle>
+                            <Title className="text-center pt-1 relative z-[10]">
+                                The Fedz
+                            </Title>
+                        </div>
+
+                        <SwapAnimation />
+                        <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[50px] md:h-[100px]"></div>
+                    </Container>
+                    <img
+                        src="/cursor/5.png"
+                        alt="eppilse"
+                        className="absolute bottom-[92%] md:bottom-[60%] left-0 md:left-[40px] max-w-[50px] md:max-w-[80px]"
+                    />
+                    <img
+                        src="/cursor/7.png"
+                        alt="eppilse"
+                        className="absolute bottom-[10%] md:bottom-[50%] right-[60px] max-w-[50px] md:max-w-[80px]"
+                    />
+                    <img
+                        src="/cursor/6.png"
+                        alt="eppilse"
+                        className="absolute hidden lg:block top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
+                    />
+                </section>
                 <main className="relative z-[10]">
-                    <section className="relative">
-                        <Container className="!max-w-full !p-0">
-                            <div className="bg-gradient-to-b from-[#0A0012] to-[#000000]">
-                                <Subtitle className="mx-auto">
-                                    FUSD is Issued By
-                                </Subtitle>
-                                <Title className="text-center pt-1">
-                                    The Fedz
-                                </Title>
-                            </div>
-
-                            <div className="w-full mx-auto flex flex-col gap-10 items-center text-white pt-3 sm:pt-5 bg-black">
-                                <div>
-                                    <h3 className="font-semibold text-2xl sm:text-4xl mb-2 sm:mb-4 text-center">
-                                        Private Liquidity Pool
-                                    </h3>
-                                    <p className="max-w-[450px] text-xl sm:text-2xl font-normal opacity-85 text-center">
-                                        A stability mechanism designed to secure
-                                        DeFi fractional reserve system
-                                    </p>
-                                </div>
-                                <SwapAnimation />
-                            </div>
-                            <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[100px] sm:h-[150px]"></div>
-                        </Container>
-                        <img
-                            src="/cursor/5.png"
-                            alt="eppilse"
-                            className="absolute bottom-[92%] md:bottom-[60%] left-0 md:left-[40px] max-w-[50px] md:max-w-[80px]"
-                        />
-                        <img
-                            src="/cursor/7.png"
-                            alt="eppilse"
-                            className="absolute bottom-[10%] md:bottom-[50%] right-[60px] max-w-[50px] md:max-w-[80px]"
-                        />
-                        <img
-                            src="/cursor/6.png"
-                            alt="eppilse"
-                            className="absolute hidden lg:block top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
-                        />
-                    </section>
-
                     <section
                         className="relative overflow-hidden md:pb-[75px] pb-[50px]"
                         id="features">
