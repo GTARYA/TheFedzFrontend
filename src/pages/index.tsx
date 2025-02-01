@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import VideoPlayer from '../components/VideoPlayer';
 import VideoPlayerMobile from '../components/VideoPlayerMobile';
 import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
+import SwapAnimation from '../components/SwapAnimation';
 
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
@@ -140,7 +141,7 @@ const Home: NextPage = () => {
                 <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
 
                 <main className="relative z-[10]">
-                    <section className="relative md:pb-[75px] pb-[50px]">
+                    <section className="relative">
                         <Container className="!max-w-full !p-0">
                             <div className="bg-gradient-to-b from-[#0A0012] to-[#000000]">
                                 <Subtitle className="mx-auto">
@@ -151,9 +152,9 @@ const Home: NextPage = () => {
                                 </Title>
                             </div>
 
-                            <div className="w-full mx-auto flex flex-col gap-10 items-center text-white pt-5 bg-black">
+                            <div className="w-full mx-auto flex flex-col gap-10 items-center text-white pt-3 sm:pt-5 bg-black">
                                 <div>
-                                    <h3 className="font-semibold text-2xl sm:text-4xl mb-4 text-center">
+                                    <h3 className="font-semibold text-2xl sm:text-4xl mb-2 sm:mb-4 text-center">
                                         Private Liquidity Pool
                                     </h3>
                                     <p className="max-w-[450px] text-xl sm:text-2xl font-normal opacity-85 text-center">
@@ -161,20 +162,9 @@ const Home: NextPage = () => {
                                         DeFi fractional reserve system
                                     </p>
                                 </div>
-                                <div>
-                                    <video
-                                        autoPlay
-                                        loop
-                                        muted
-                                        className="max-w-[400px] w-full">
-                                        <source
-                                            src="./video/swap.mp4"
-                                            type="video/mp4"
-                                        />
-                                    </video>
-                                </div>
+                                <SwapAnimation />
                             </div>
-                            <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[200px]"></div>
+                            <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[100px] sm:h-[150px]"></div>
                         </Container>
                     </section>
 
