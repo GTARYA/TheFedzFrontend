@@ -5,38 +5,24 @@ const SwapAnimation = () => {
     const words = ['Own', 'Swap', 'Earn', 'Repeat'];
     const [index, setIndex] = useState<number>(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const animationFrame = useRef<number | null>(null);
-    const durationRef = useRef<number>(4);
 
     useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
         const updateIndex = () => {
-            if (!video.duration || video.duration === Infinity) return;
-            durationRef.current = video.duration;
+            const video = videoRef.current;
+            if (!video) return;
 
-            const segmentDuration = durationRef.current / words.length;
+            const segmentDuration = video.duration / words.length;
             const newIndex = Math.floor(video.currentTime / segmentDuration);
 
             if (newIndex !== index) {
                 setIndex(newIndex);
             }
 
-            animationFrame.current = requestAnimationFrame(updateIndex);
+            requestAnimationFrame(updateIndex);
         };
 
-        video.addEventListener('loadedmetadata', () => {
-            durationRef.current = video.duration;
-        });
-
-        animationFrame.current = requestAnimationFrame(updateIndex);
-
-        return () => {
-            if (animationFrame.current)
-                cancelAnimationFrame(animationFrame.current);
-        };
-    }, [index]);
+        requestAnimationFrame(updateIndex);
+    }, []);
 
     return (
         <div className="relative">

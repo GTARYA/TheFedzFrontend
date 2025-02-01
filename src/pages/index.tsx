@@ -166,6 +166,21 @@ const Home: NextPage = () => {
                             </div>
                             <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[100px] sm:h-[150px]"></div>
                         </Container>
+                        <img
+                            src="/cursor/5.png"
+                            alt="eppilse"
+                            className="absolute bottom-[92%] md:bottom-[60%] left-0 md:left-[40px] max-w-[50px] md:max-w-[80px]"
+                        />
+                        <img
+                            src="/cursor/7.png"
+                            alt="eppilse"
+                            className="absolute bottom-[10%] md:bottom-[50%] right-[60px] max-w-[50px] md:max-w-[80px]"
+                        />
+                        <img
+                            src="/cursor/6.png"
+                            alt="eppilse"
+                            className="absolute hidden lg:block top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
+                        />
                     </section>
 
                     <section
