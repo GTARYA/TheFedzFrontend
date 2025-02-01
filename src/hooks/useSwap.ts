@@ -37,15 +37,13 @@ const useSwap = (
         UNISWAP_PAIR_ABI,
         signer
       );
-      const [reserveA, reserveB] = await uniswapPair.getReserves();
-
-      const adjustedReserveA = Number(reserveA.toString()) / 10 ** 18;
-      const adjustedReserveB = Number(reserveB.toString()) / 10 ** 6;
-      const priceA = adjustedReserveB / adjustedReserveA;
-      const priceB = adjustedReserveA / adjustedReserveB;
-      let quote = tokenA.decimals === 6 ? priceB : priceA;
-      const final = quote * Number(inputAmount)
-      setQuote(final.toString());
+      const amountsOut = await uniswapRouter.getAmountsOut(
+        inputAmountParsed,
+        path
+      );
+      const outputAmount = formatUnits(amountsOut[1], tokenB.decimals);
+      setQuote(outputAmount.toString()); // Update the quote in state
+      return outputAmount;
     } catch (error) {
       console.error("Error getting quote:", error);
       return null;
