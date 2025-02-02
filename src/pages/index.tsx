@@ -97,10 +97,11 @@ const Home: NextPage = () => {
                         </section>
                     </Container>
                     <img
-                        className="absolute bottom-0 translate-y-1/2 w-full left-1/2 -translate-x-1/2 z-[4] max-h-[240px]"
+                        className="absolute md:bottom-[10px] bottom-[20px] z-[4] translate-y-1/2 w-full left-1/2 -translate-x-1/2 max-h-[240px]"
                         src="/background/hero-bottom.png"
                         alt="bg"
                     />
+
                     {/* <img
                         className="block md:hidden absolute left-[30px] top-[460px] z-[4] max-w-[100px]"
                         src="/background/pony-left.png"
@@ -136,7 +137,9 @@ const Home: NextPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
+                <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14 relative">
+                    <div className="absolute bg-[#140025] -top-[5px] z-[900] w-full h-[10px]"></div>
+                </div>
 
                 <section className="relative">
                     <Container className="!max-w-full !p-0">
