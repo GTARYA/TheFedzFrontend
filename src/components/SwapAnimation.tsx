@@ -44,17 +44,16 @@ const SwapAnimation = () => {
                     reserve system
                 </p>
             </div>
-            <div className="relative">
-                <video
-                    ref={videoRef}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="max-w-[300px] w-full">
-                    <source src="./video/animation.mp4" type="video/mp4" />
-                </video>
-            </div>
+
+            <video
+                ref={videoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="max-w-[300px] w-full h-auto">
+                <source src="./video/animation.mp4" type="video/mp4" />
+            </video>
         </div>
     );
 };

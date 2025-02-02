@@ -101,11 +101,11 @@ const Home: NextPage = () => {
                         src="/background/hero-bottom.png"
                         alt="bg"
                     />
-                    <img
+                    {/* <img
                         className="block md:hidden absolute left-[30px] top-[460px] z-[4] max-w-[100px]"
                         src="/background/pony-left.png"
                         alt="bg"
-                    />
+                    /> */}
 
                     <div className="block md:hidden">
                         <img
@@ -150,6 +150,13 @@ const Home: NextPage = () => {
                         </div>
 
                         <SwapAnimation />
+                        <video
+                            autoPlay
+                            loop
+                            muted
+                            className="max-w-[300px] w-full h-auto">
+                            <source src="./video/swap.mp4" type="video/mp4" />
+                        </video>
                         <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[50px] md:h-[100px]"></div>
                     </Container>
                     <img
