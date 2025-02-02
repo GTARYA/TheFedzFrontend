@@ -97,7 +97,7 @@ const Home: NextPage = () => {
                         </section>
                     </Container>
                     <img
-                        className="absolute md:bottom-[10px] bottom-[30px] translate-y-1/2 w-full left-1/2 -translate-x-1/2 z-[4] max-h-[240px]"
+                        className="absolute bottom-0 translate-y-1/2 w-full left-1/2 -translate-x-1/2 z-[4] max-h-[240px]"
                         src="/background/hero-bottom.png"
                         alt="bg"
                     />
