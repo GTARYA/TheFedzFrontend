@@ -50,6 +50,7 @@ const SwapAnimation = () => {
                     autoPlay
                     loop
                     muted
+                    playsInline
                     className="max-w-[300px] w-full">
                     <source src="./video/animation.mp4" type="video/mp4" />
                 </video>

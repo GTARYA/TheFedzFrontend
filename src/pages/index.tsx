@@ -77,7 +77,7 @@ const Home: NextPage = () => {
                                     </PrimaryBtn>
                                 </a>
                             </div>
-                            <div className="flex items-center justify-center gap-10 md:mt-0 mt-[120px]">
+                            <div className="flex items-center justify-center gap-10 mt-0">
                                 <img
                                     src="/background/pony-left.png"
                                     alt="pony"
