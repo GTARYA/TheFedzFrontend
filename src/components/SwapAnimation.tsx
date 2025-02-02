@@ -1,33 +1,30 @@
 import { motion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const SwapAnimation = () => {
     const words = ['Own', 'Swap', 'Earn', 'Repeat'];
-    const [index, setIndex] = useState<number>(1);
+    const [index, setIndex] = useState<number>(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const animationFrameRef = useRef<number | null>(null);
-
-    const updateIndex = useCallback(() => {
-        const video = videoRef.current;
-        if (!video || !video.duration) return;
-
-        const segmentDuration = video.duration / words.length;
-        const newIndex = Math.floor(video.currentTime / segmentDuration);
-
-        setIndex((prev) => (prev !== newIndex ? newIndex : prev));
-
-        animationFrameRef.current = requestAnimationFrame(updateIndex);
-    }, [words.length]);
 
     useEffect(() => {
-        animationFrameRef.current = requestAnimationFrame(updateIndex);
+        let animation: null | number = null;
+
+        const updateIndex = () => {
+            const video = videoRef.current;
+            if (!video) return;
+            const segmentDuration = video.duration / words.length;
+            const newIndex = Math.floor(video.currentTime / segmentDuration);
+
+            setIndex((prev) => (newIndex !== prev ? newIndex : prev));
+            animation = requestAnimationFrame(updateIndex);
+        };
+
+        animation = requestAnimationFrame(updateIndex);
 
         return () => {
-            if (animationFrameRef.current) {
-                cancelAnimationFrame(animationFrameRef.current);
-            }
+            animation && cancelAnimationFrame(animation);
         };
-    }, [updateIndex]);
+    }, []);
 
     return (
         <div className="w-full mx-auto flex md:flex-row flex-col items-center justify-center md:gap-10 text-white pt-5 sm:pt-10 bg-black">
