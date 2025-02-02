@@ -150,13 +150,6 @@ const Home: NextPage = () => {
                         </div>
 
                         <SwapAnimation />
-                        <video
-                            autoPlay
-                            loop
-                            muted
-                            className="max-w-[300px] w-full h-auto">
-                            <source src="./video/swap.mp4" type="video/mp4" />
-                        </video>
                         <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[50px] md:h-[100px]"></div>
                     </Container>
                     <img
