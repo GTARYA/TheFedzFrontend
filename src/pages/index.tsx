@@ -13,7 +13,6 @@ import VideoPlayer from '../components/VideoPlayer';
 import VideoPlayerMobile from '../components/VideoPlayerMobile';
 import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
 import SwapAnimation from '../components/SwapAnimation';
-import YouTubePopup from '../components/YouTubePopup';
 import FAQSection from '../components/FAQSection';
 
 const Home: NextPage = () => {
@@ -518,7 +517,7 @@ const Home: NextPage = () => {
                         />
                     </section>
 
-                    <section className="relative py-[50px] md:py-[75px]">
+                    <section className="relative z-[5] py-[50px] md:py-[75px]">
                         <Container className="relative z-[5]">
                             <Subtitle className="mx-auto mb-1">
                                 Go Brrrr with Confidence

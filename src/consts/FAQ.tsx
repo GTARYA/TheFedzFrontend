@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import JoinUsBtn from '../components/ui/JoinUsBtn';
 
 export type FAQType = {
     question: string;
@@ -174,8 +175,8 @@ export const faqData: FAQType[] = [
                     https://x.com/thefedznft
                 </a>{' '}
                 for updates. Join the community, and get your hands on an NFT
-                when minting opens is based on invitation.Requests to join are
-                handled through (add join us button link). If you want to
+                when minting opens is based on invitation. Requests to join are
+                handled through <JoinUsBtn>Join Us</JoinUsBtn>. If you want to
                 actually be part of the next evolution in DeFi instead of just
                 watching from the sidelines, now’s your turn.
             </div>

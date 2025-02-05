@@ -7,7 +7,7 @@ import {
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
-import { faqData, FAQType } from '../consts/FAQ.tsx';
+import { faqData, FAQType } from '../consts/FAQ';
 import clsx from 'clsx';
 
 const FAQItem = ({ item, index }: { item: FAQType; index: number }) => {
@@ -24,7 +24,8 @@ const FAQItem = ({ item, index }: { item: FAQType; index: number }) => {
                 <>
                     <DisclosureButton className="flex text-base sm:text-xl text-white items-center justify-between gap-5 w-full p-4 sm:p-5 text-left font-semibold hover:bg-white/10 transition-all">
                         <span>
-                            {index + 1}. {item.question}
+                            <span className="mr-2 sm:mr-3">{index + 1}.</span>
+                            {item.question}
                         </span>
                         <motion.div
                             animate={{ rotate: open ? 135 : 0 }}
