@@ -19,7 +19,8 @@
         "next-env.d.ts",
         "**/*.ts",
         "**/*.tsx",
-        "src/models/nftdata.ts"
+        "src/models/nftdata.ts",
+        "src/consts/FAQ.tsx"
     ],
     "exclude": ["node_modules"]
 }

@@ -13,6 +13,8 @@ import VideoPlayer from '../components/VideoPlayer';
 import VideoPlayerMobile from '../components/VideoPlayerMobile';
 import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
 import SwapAnimation from '../components/SwapAnimation';
+import YouTubePopup from '../components/YouTubePopup';
+import FAQSection from '../components/FAQSection';
 
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
@@ -138,7 +140,7 @@ const Home: NextPage = () => {
                 </div>
 
                 <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14 relative">
-                    <div className="absolute bg-[#140025] -top-[5px] z-[900] w-full h-[10px]"></div>
+                    <div className="absolute bg-[#140025] -top-[5px] z-[5] w-full h-[10px]"></div>
                 </div>
 
                 <section className="relative">
@@ -153,6 +155,7 @@ const Home: NextPage = () => {
                         </div>
 
                         <SwapAnimation />
+
                         <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[50px] md:h-[100px]"></div>
                     </Container>
                     <img
@@ -513,6 +516,18 @@ const Home: NextPage = () => {
                             alt="eppilse"
                             className="absolute top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
                         />
+                    </section>
+
+                    <section className="relative py-[50px] md:py-[75px]">
+                        <Container className="relative z-[5]">
+                            <Subtitle className="mx-auto mb-1">
+                                Go Brrrr with Confidence
+                            </Subtitle>
+                            <Title className="text-center mb-5">
+                                The Fedz FAQ
+                            </Title>
+                            <FAQSection />
+                        </Container>
                     </section>
 
                     <section className="relative py-[50px] md:py-[75px] bg-gradient-to-b from-[#0A0012] to-[#0A0012] via-[#04152F78]">
