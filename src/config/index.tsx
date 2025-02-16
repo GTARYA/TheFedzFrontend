@@ -23,12 +23,12 @@ export const ChainId = arbitrum.id;
 export const OWNER_WALLET = "0x833e421145863237e9B372dbA99EcF49C98956fb"
 
 export const ChainInfo: Record<chainId, { config: any; icon: string ,name:string}> = {
-  [42161]: {
+  [chainId.ARB]: {
     config: arbitrum,
     icon: "/network/arb.svg",
     name:"Arbitrum"
   },
-  [11155111]: {
+  [chainId.SEPOLIA]: {
     config: sepolia,
     icon: "/network/eth.svg",
         name:"Sepolia"
@@ -37,7 +37,7 @@ export const ChainInfo: Record<chainId, { config: any; icon: string ,name:string
 
 export const USDT_ADDR: { [key: number]: TokenInfo } = {
   [chainId.ARB]: {
-    address: "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+    address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
     name: "mUSDT",
     decimals: 6,
   },

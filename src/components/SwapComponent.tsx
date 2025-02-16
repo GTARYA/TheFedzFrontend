@@ -22,13 +22,8 @@ import {
   bsc,
   sepolia,
 } from "@reown/appkit/networks";
-import {
-  PoolSwapTestAddress,
-  HookAddress,
-  MockFUSDAddress,
-  MockUSDTAddress,
-  TimeSlotSystemAddress,
-} from "../contractAddress";
+import * as sepoliaContractAddress from "../contractAddress";
+import * as arbitrumContractAddress from "../contractAddressArbitrum";
 import PoolSwapTestAbi from "../abi/PoolSwapTest_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 import { getPoolId } from "../misc/v4helpers";
@@ -49,10 +44,16 @@ import BalanceDisplay from "./swap/BalanceDisplay";
 import { TokenInfo } from "../type";
 import useSwap from "../hooks/useSwap";
 
-
+const UNISWAP_V4 = true;
 const SwapComponent = () => {
   const activeChainId = useChainId();
-
+  const {
+    PoolSwapTestAddress,
+    HookAddress,
+    MockFUSDAddress,
+    MockUSDTAddress,
+    TimeSlotSystemAddress,
+  } = activeChainId == sepolia.id ? sepoliaContractAddress : arbitrumContractAddress;
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0, setToken0] = useState(MockFUSDAddress);
   const [token1, setToken1] = useState(MockUSDTAddress);
@@ -287,28 +288,16 @@ const SwapComponent = () => {
         abi: PoolSwapTestAbi,
         functionName: "swap",
         args: [
+          token0 < token1 ? token0 : token1,
+          token0 < token1 ? token1 : token0,
           {
-            currency0:
-              token0.toLowerCase() < token1.toLowerCase() ? token0 : token1,
-            currency1:
-              token0.toLowerCase() < token1.toLowerCase() ? token1 : token0,
-            fee: Number(swapFee),
-            tickSpacing: Number(tickSpacing),
-            hooks: HookAddress,
-          },
-          {
-            zeroForOne: token0.toLowerCase() < token1.toLowerCase(),
+            zeroForOne: token0 < token1,
             amountSpecified: parseEther(amount), // TODO: assumes tokens are always 18 decimals
             sqrtPriceLimitX96:
-              token0.toLowerCase() < token1.toLowerCase()
+              token0 < token1
                 ? MIN_SQRT_PRICE_LIMIT
                 : MAX_SQRT_PRICE_LIMIT, // unlimited impact
-          },
-          {
-            takeClaims: false,
-            settleUsingBurn: false,
-          },
-          hookData,
+          }
         ],
       });
       console.log("Swap transaction sent:", writeSwapData);
@@ -356,7 +345,7 @@ const SwapComponent = () => {
       <section className="pb-[50px] md:pb-[75px] relative">
         <Title className="text-center">Swap Tokens</Title>
         <Container>
-          {activeChainId == arbitrum.id && (
+          {!UNISWAP_V4 && (
             <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
               <div className="">
                 {/* Token A Input */}
@@ -437,7 +426,7 @@ const SwapComponent = () => {
               </div>
             </div>
           )}
-          {activeChainId == sepolia.id && (
+          {UNISWAP_V4 && (
             <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
               {/* <div className="form-control w-full max-w-xs mb-4">
                             {token0 == MockFUSDAddress ? (
