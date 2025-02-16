@@ -3,34 +3,22 @@ import {
   useAccount,
   useBalance,
   useReadContract,
-  useContractWrite,
   useWriteContract,
-  useWalletClient,
   useChainId,
   useContractRead,
   
 } from "wagmi";
 import {erc721Abi} from "viem"
 import {
-  mainnet,
   arbitrum,
-  bscTestnet,
-  base,
-  bsc,
   sepolia,
 } from "@reown/appkit/networks";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 
 import { parseEther, formatEther } from "viem";
-import {
-  PoolSwapTestAddress,
-  HookAddress,
-  MockFUSDAddress,
-  MockUSDTAddress,
-  PoolModifyLiquidityTestAddress,
-  TimeSlotSystemAddress,
-} from "../contractAddress";
+import * as sepoliaContractAddress from "../contractAddress";
+import * as arbitrumContractAddress from "../contractAddressArbitrum";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import { getPoolId } from "../misc/v4helpers";
@@ -38,13 +26,11 @@ import MockERC721Abi from "../abi/MockERC721_abi.json";
 import { MockERC721Address } from "../contractAddress";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import PoolKeyHashDisplay from "./PoolKeyHash";
-import TimeSlotSystem from "./TimeSlotSystem";
 import LiquidityChart from "./LiquidityChart";
 import RoundInfos from "./RoundInfos";
 import Container from "./Container";
 import Title from "./ui/Title";
 import ActionWindows from "./ActionWindows";
-import PrimaryBtn from "./ui/PrimaryBtn";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
@@ -53,7 +39,17 @@ import useLP from "../hooks/useLP";
 import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 
+const UNISWAP_V4 = true;
 const LiquidityComponent = () => {
+  const activeChainId = useChainId();
+  const {
+    PoolSwapTestAddress,
+    PoolModifyLiquidityTestAddress,
+    HookAddress,
+    MockFUSDAddress,
+    MockUSDTAddress,
+    TimeSlotSystemAddress,
+  } = activeChainId == sepolia.id ? sepoliaContractAddress : arbitrumContractAddress;
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0, setToken0] = useState(MockFUSDAddress);
   const [token1, setToken1] = useState(MockUSDTAddress);
@@ -71,7 +67,6 @@ const LiquidityComponent = () => {
   const [tickError, setTickError] = useState<string | null>(null);
 
   const signer = useEthersSigner();
-  const activeChainId = useChainId();
   const { address } = useAccount();
   const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
   const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
@@ -254,20 +249,11 @@ const LiquidityComponent = () => {
         abi: PoolModifiyLiquidityAbi,
         functionName: "modifyLiquidity",
         args: [
-          {
-            currency0: token0 < token1 ? token0 : token1,
-            currency1: token0 < token1 ? token1 : token0,
-            fee: Number(swapFee),
-            tickSpacing: Number(tickSpacing),
-            hooks: HookAddress,
-          },
-          {
-            tickLower: Number(tickLower),
-            tickUpper: Number(tickUpper),
-            liquidityDelta: parseEther(amount),
-            salt: `0x0000000000000000000000000000000000000000000000000000000000000000`,
-          },
-          hookData,
+          token0 < token1 ? token0 : token1,
+          token0 < token1 ? token1 : token0,
+          Number(tickLower),
+          Number(tickUpper),
+          parseEther(amount),
         ],
       });
       console.log("Swap transaction sent:", result);
@@ -345,7 +331,7 @@ const LiquidityComponent = () => {
           <Title className="text-center">Add Liquidity</Title>
           <Container>
             <div>
-              {activeChainId == arbitrum.id && (
+              {!UNISWAP_V4 && (
                 <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
                   <div className="space-y-10">
                     {/* Token A Input */}
@@ -386,7 +372,7 @@ const LiquidityComponent = () => {
                     <div className="pt-6">
                       <button
                         disabled={loading}
-                        onClick={addLiquidity}
+                        onClick={modifyLiquidity}
                         className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
                       >
                         {loading ? (
@@ -526,7 +512,7 @@ const LiquidityComponent = () => {
                 )}
             </div>
 
-            {activeChainId == sepolia.id && (
+            {UNISWAP_V4 && (
               <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
                 <div>
                   <label className="text-base sm:text-xl text-primary">
