@@ -23,7 +23,6 @@ import MockERC20Abi from "../abi/MockERC20_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import { getPoolId } from "../misc/v4helpers";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
-import { MockERC721Address } from "../contractAddress";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import PoolKeyHashDisplay from "./PoolKeyHash";
 import LiquidityChart from "./LiquidityChart";
@@ -49,6 +48,7 @@ const LiquidityComponent = () => {
     MockFUSDAddress,
     MockUSDTAddress,
     TimeSlotSystemAddress,
+    MockERC721Address,
   } = activeChainId == sepolia.id ? sepoliaContractAddress : arbitrumContractAddress;
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0, setToken0] = useState(MockFUSDAddress);
@@ -144,7 +144,6 @@ const LiquidityComponent = () => {
     functionName: "isNFTHolder",
     args: [address],
   });
-
   useEffect(() => {
     if (isNFTHolder !== undefined) {
       setIsNFTHolderState(isNFTHolder as boolean);
