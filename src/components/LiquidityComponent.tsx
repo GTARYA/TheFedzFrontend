@@ -139,6 +139,7 @@ const LiquidityComponent = () => {
   } = useWriteContract();
 
   console.log(`nft contract address ${MockERC721Address}`);
+  console.log(`current user: ${address}`);
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
     abi: MockERC721Abi,
