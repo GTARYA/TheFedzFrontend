@@ -105,17 +105,6 @@ const LiquidityComponent = () => {
     removeLiquidityloading,
   } = useLP(activeChainId,amount, signer, tokenA, tokenB);
 
-  const addLiquidity = async () => {
-    if(Number(nftbalance?.toString()) > 0){
-      await addLPS(amount);
-      refetchTokenABalance();
-      refetchTokenBBalance();
-    }else{
-      toast.error("You need to be an NFT Holder to add Liquidity")
-    }
-    
-  };
-
   const handleRemoveLiquidity = () => {
     // Handle the removal logic here, passing the percentToRemove
     console.log(`Removing ${percentToRemove}% of liquidity`);
@@ -170,12 +159,13 @@ const LiquidityComponent = () => {
     }
   }, [tickLower, tickUpper]);
 
-  const { data: isPlayerTurn } = useReadContract({
+  const { data: currentPlayer } = useReadContract({
     address: TimeSlotSystemAddress,
     abi: TimeSlotSystemAbi,
-    functionName: "canPlayerAct",
-    args: [address],
+    functionName: "getCurrentPlayer",
+    args: [],
   });
+  const isPlayerTurn = currentPlayer === address;
 
   useEffect(() => {
     if (isPlayerTurn !== undefined) {
@@ -247,16 +237,16 @@ const LiquidityComponent = () => {
       const result = await writeModifyLiquidity({
         address: PoolModifyLiquidityTestAddress,
         abi: PoolModifiyLiquidityAbi,
-        functionName: "modifyLiquidity",
-        args: [
+        functionName: "modifiyLiquidity",
+        args: [[
           token0 < token1 ? token0 : token1,
           token0 < token1 ? token1 : token0,
           Number(tickLower),
           Number(tickUpper),
           parseEther(amount),
-        ],
+        ]],
       });
-      console.log("Swap transaction sent:", result);
+      console.log("Modify Liquidity transaction sent:", result);
     } catch (error) {
       console.error("Error in deposit:", error);
       //setSwapError(error);
