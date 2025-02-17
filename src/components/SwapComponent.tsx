@@ -8,10 +8,7 @@ import {
   useWalletClient,
   useChainId,
 } from "wagmi";
-import { ethers } from "ethers";
 import { parseEther, formatEther, parseGwei } from "viem";
-import { Pair, Route, Trade } from "@uniswap/v2-sdk";
-import { swapExactTokensForTokens } from "../utils/swap";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import {
@@ -27,16 +24,12 @@ import * as arbitrumContractAddress from "../contractAddressArbitrum";
 import PoolSwapTestAbi from "../abi/PoolSwapTest_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 import { getPoolId } from "../misc/v4helpers";
-import { formatBigIntToDecimal } from "../misc/formatBigIntToDecimals";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
-import { MockERC721Address } from "../contractAddress";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import PoolKeyHashDisplay from "./PoolKeyHash";
-import TimeSlotSystem from "./TimeSlotSystem";
 import RoundInfos from "./RoundInfos";
 import Title from "./ui/Title";
 import Container from "./Container";
-import Subtitle from "./ui/Subtitle";
 import ActionWindows from "./ActionWindows";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
@@ -53,6 +46,7 @@ const SwapComponent = () => {
     MockFUSDAddress,
     MockUSDTAddress,
     TimeSlotSystemAddress,
+    MockERC721Address,
   } = activeChainId == sepolia.id ? sepoliaContractAddress : arbitrumContractAddress;
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0, setToken0] = useState(MockFUSDAddress);
@@ -125,6 +119,7 @@ const SwapComponent = () => {
     writeContract: writeApproveToken1Contract,
   } = useWriteContract();
 
+  console.log(`nft contract address ${MockERC721Address}`);
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
     abi: MockERC721Abi,
@@ -132,12 +127,15 @@ const SwapComponent = () => {
     args: [address],
   });
 
-  const { data: isPlayerTurn } = useReadContract({
+  const { data: currentPlayer } = useReadContract({
     address: TimeSlotSystemAddress,
     abi: TimeSlotSystemAbi,
-    functionName: "canPlayerAct",
-    args: [address],
+    functionName: "getCurrentPlayer",
+    args: [],
   });
+  console.log(`TimeSlotSystemAddress ${TimeSlotSystemAddress}`);
+  console.log(`currentPlayer ${currentPlayer}`);
+  const isPlayerTurn = currentPlayer === address;
 
   useEffect(() => {
     if (isPlayerTurn !== undefined) {
