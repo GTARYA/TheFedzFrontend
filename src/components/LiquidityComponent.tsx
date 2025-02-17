@@ -54,7 +54,7 @@ const LiquidityComponent = () => {
   const [token0, setToken0] = useState(MockFUSDAddress);
   const [token1, setToken1] = useState(MockUSDTAddress);
   const [amount, setAmount] = useState("1");
-  const [tickSpacing, setTickSpacing] = useState(60);
+  const [tickSpacing, setTickSpacing] = useState(10);
   const [swapFee, setSwapFee] = useState(4000);
   const [tickLower, setTickLower] = useState<number>(-tickSpacing);
   const [tickUpper, setTickUpper] = useState<number>(tickSpacing);
@@ -138,6 +138,7 @@ const LiquidityComponent = () => {
     writeContract: writeApproveToken1Contract,
   } = useWriteContract();
 
+  console.log(`nft contract address ${MockERC721Address}`);
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
     abi: MockERC721Abi,
@@ -164,6 +165,8 @@ const LiquidityComponent = () => {
     functionName: "getCurrentPlayer",
     args: [],
   });
+  console.log(`TimeSlotSystemAddress ${TimeSlotSystemAddress}`);
+  console.log(`currentPlayer ${currentPlayer}`);
   const isPlayerTurn = currentPlayer === address;
 
   useEffect(() => {
