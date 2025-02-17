@@ -455,7 +455,7 @@ const LiquidityComponent = () => {
                 Number(liquidityInfo?.userLPBalance || 0) > 0 && (
                   <div className=" max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8 text-white">
                     <div className="mx-auto text-center text-2xl mb-6">
-                      Your positions
+                      Your Positions
                     </div>
 
                     <div className="space-y-4">
