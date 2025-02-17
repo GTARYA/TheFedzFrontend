@@ -139,13 +139,9 @@ const LiquidityComponent = () => {
   } = useWriteContract();
 
   console.log(`nft contract address ${MockERC721Address}`);
-  console.log(`current user: ${address}`);
-  const { data: isNFTHolder } = useReadContract({
-    address: MockERC721Address,
-    abi: MockERC721Abi,
-    functionName: "isNFTHolder",
-    args: [address],
-  });
+  console.log(`current user: ${address}, balance ${nftbalance}`);
+  const isNFTHolder = (nftbalance || 0) > 0;
+  console.log(`isNFTHolder ${isNFTHolder}`);
   useEffect(() => {
     if (isNFTHolder !== undefined) {
       setIsNFTHolderState(isNFTHolder as boolean);
