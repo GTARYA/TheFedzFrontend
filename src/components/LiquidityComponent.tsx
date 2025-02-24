@@ -32,7 +32,7 @@ import {
   TimeSlotSystemAddress,
 } from "../contractAddress";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
-import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
+import AllowanceTransferAbi from "../abi/allowanceTransfer_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import { getPoolId } from "../misc/v4helpers";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
