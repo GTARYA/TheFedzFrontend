@@ -57,7 +57,7 @@ const SwapComponent = () => {
   const [token0, setToken0] = useState(MockFUSDAddress);
   const [token1, setToken1] = useState(MockUSDTAddress);
   const [amount, setAmount] = useState("1");
-  const [tickSpacing, setTickSpacing] = useState(60);
+  const [tickSpacing, setTickSpacing] = useState(10);
   const [swapFee, setSwapFee] = useState(4000);
   const [isToken0Approved, setIsToken0Approved] = useState(false);
   const [isToken1Approved, setIsToken1Approved] = useState(false);
