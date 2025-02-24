@@ -34,6 +34,7 @@ import {
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 import AllowanceTransferAbi from "../abi/allowanceTransfer_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
+import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import { getPoolId } from "../misc/v4helpers";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import { MockERC721Address } from "../contractAddress";
@@ -56,6 +57,7 @@ import { toast } from "sonner";
 import { ethers, parseUnits, solidityPacked } from "ethers";
 import { all } from "axios";
 import { get } from "http";
+import JSBI from 'jsbi';
 
 const LiquidityComponent = () => {
   const [poolKeyHash, setPoolKeyHash] = useState("");
@@ -124,49 +126,69 @@ const LiquidityComponent = () => {
     await approveToken0();
     await approveToken1();
     await modifyLiquidity();
-    // if(Number(nftbalance?.toString()) > 0){
-    //   await addLPS(amount);
-    //   refetchTokenABalance();
-    //   refetchTokenBBalance();
-    // }else{
-    //   toast.error("You need to be an NFT Holder to add Liquidity")
-    // }
-    
   };
 
-  // const handleRemoveLiquidity = () => {
-  //   // Handle the removal logic here, passing the percentToRemove
-  //   console.log(`Removing ${percentToRemove}% of liquidity`);
-  //   // Close the modal after handling
-  //   setShowModal(false);
-  //   removeLiquidity(Number(percentToRemove));
-  // };
+  // BigInt(2).exponentiate(BigInt(96));
+  const ZERO = JSBI.BigInt(0);
+  const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
+  const Q128 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128));
+  const Q256 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(256));
 
-  // arb config
+  function getTickAtSqrtPrice(sqrtPriceX96: number){
+    let tick = Math.floor(Math.log((sqrtPriceX96/parseInt(Q96.toString()))**2)/Math.log(1.0001));
+    return tick;
+  }
 
-  // const Q96 = JSBI.exponentiate(BigInt(2), BigInt(96));
+  async function getTokenAmounts(liquidity: number, sqrtPriceX96: number, tickLow: number, tickHigh: number, Decimal0: number, Decimal1: number){
+    let sqrtRatioA = Math.sqrt(1.0001**tickLow);
+    let sqrtRatioB = Math.sqrt(1.0001**tickHigh);
+    let currentTick = getTickAtSqrtPrice(sqrtPriceX96);
+    let sqrtPrice = sqrtPriceX96 / parseInt(Q96.toString());
+    let amount0 = 0;
+    let amount1 = 0;
+    if(currentTick < tickLow){
+      amount0 = Math.floor(liquidity*((sqrtRatioB-sqrtRatioA)/(sqrtRatioA*sqrtRatioB)));
+    }
+    else if(currentTick >= tickHigh){
+      amount1 = Math.floor(liquidity*(sqrtRatioB-sqrtRatioA));
+    }
+    else if(currentTick >= tickLow && currentTick < tickHigh){ 
+      amount0 = Math.floor(liquidity*((sqrtRatioB-sqrtPrice)/(sqrtPrice*sqrtRatioB)));
+      amount1 = Math.floor(liquidity*(sqrtPrice-sqrtRatioA));
+    }
+  
+    let amount0Human = (amount0/(10**Decimal0)).toFixed(Decimal0);
+    let amount1Human = (amount1/(10**Decimal1)).toFixed(Decimal1);
+  
+    console.log("Amount Token0 in lowest decimal: "+amount0);
+    console.log("Amount Token1 in lowest decimal: "+amount1);
+    console.log("Amount Token0 : "+amount0Human);
+    console.log("Amount Token1 : "+amount1Human);
+    return [amount0Human, amount1Human]
+  }
+  
   const MIN_SQRT_PRICE_LIMIT = BigInt("4295128739") + BigInt("1");
   const MAX_SQRT_PRICE_LIMIT =
     BigInt("1461446703485210103287273052203988822378723970342") - BigInt("1");
 
-  const {
-    data: writewriteLiquidityData,
-    error: writeLiquidityError,
-    isPending: isLiquidityPending,
-    writeContract: writeModifyLiquidity,
-  } = useWriteContract();
-  const {
-    data: writeApprove0Data,
-    error: writeApprove0Error,
-    isPending: isApprove0Pending,
-    writeContract: writeApproveToken0Contract,
-  } = useWriteContract();
-  const {
-    data: writeApprove1Data,
-    error: writeApprove1Error,
-    isPending: isApprove1Pending,
-    writeContract: writeApproveToken1Contract,
-  } = useWriteContract();
+  // const {
+  //   data: writewriteLiquidityData,
+  //   error: writeLiquidityError,
+  //   isPending: isLiquidityPending,
+  //   writeContract: writeModifyLiquidity,
+  // } = useWriteContract();
+  // const {
+  //   data: writeApprove0Data,
+  //   error: writeApprove0Error,
+  //   isPending: isApprove0Pending,
+  //   writeContract: writeApproveToken0Contract,
+  // } = useWriteContract();
+  // const {
+  //   data: writeApprove1Data,
+  //   error: writeApprove1Error,
+  //   isPending: isApprove1Pending,
+  //   writeContract: writeApproveToken1Contract,
+  // } = useWriteContract();
 
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
@@ -239,50 +261,6 @@ const LiquidityComponent = () => {
   const PERMIT_2_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
   const approveToken0 = async () => {
     await approveToken(token0);
-    // try {
-    //   const allowanceTransfer = new ethers.Contract(
-    //     PERMIT_2_ADDRESS,
-    //     AllowanceTransferAbi,
-    //     signer
-    //   );
-    //   const [permitAllowance] = await allowanceTransfer.allowance(
-    //     address, token0, PoolModifyLiquidityTestAddress
-    //   );
-    //   const token0Contract = new ethers.Contract(
-    //     token0,
-    //     MockERC20Abi,
-    //     signer
-    //   );
-    //   const decimals = await token0Contract.decimals();
-    //   const amountIn = ethers.parseUnits(amount, decimals);
-    //   // token0, address(positionManager), uint160(20), uint48(block.timestamp + 2 hours)
-    //   console.log({
-    //     amountIn,
-    //   })
-    //   console.log(
-    //     permitAllowance
-    //   );
-    //   if (permitAllowance < amountIn) {
-    //     const tx = await allowanceTransfer.approve(token0, PoolModifyLiquidityTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200);
-    //   }
-    //   const allowance = await token0Contract.allowance(
-    //     address,
-    //     PERMIT_2_ADDRESS
-    //   );
-    //   if (allowance < amountIn) {
-    //     const tx = await token0Contract.approve(PERMIT_2_ADDRESS, amountIn);
-    //     console.log({tx});
-    //   }
-    //   console.log({allowance});
-    //   // await writeApproveToken0Contract({
-    //   //   address: MockFUSDAddress,
-    //   //   abi: MockERC20Abi,
-    //   //   functionName: "approve",
-    //   //   args: [PoolModifyLiquidityTestAddress, parseEther(amount)],
-    //   // });
-    // } catch (err) {
-    //   console.log(err);
-    // }
   };
 
   const approveToken = async (tokenAddress: string) => {
@@ -324,12 +302,6 @@ const LiquidityComponent = () => {
       }
       console.log({allowance});
       setIsApproved(true);
-      // await writeApproveToken0Contract({
-      //   address: MockFUSDAddress,
-      //   abi: MockERC20Abi,
-      //   functionName: "approve",
-      //   args: [PoolModifyLiquidityTestAddress, parseEther(amount)],
-      // });
     } catch (err) {
       console.log(err);
     }
@@ -338,36 +310,97 @@ const LiquidityComponent = () => {
   const approveToken1 = async () => {
     try {
       await approveToken(token1);
-      // await writeApproveToken1Contract({
-      //   address: MockUSDTAddress,
-      //   abi: MockERC20Abi,
-      //   functionName: "approve",
-      //   args: [PoolModifyLiquidityTestAddress, parseEther(amount)],
-      // });
     } catch (err) {
       console.log(err);
     }
   };
 
-  // const tokenId = 0;
-  // const tokenId = 6854;
   const [tokenId, setTokenId] = useState<number>(6879);
   const [positionInfo, setPositionInfo] = useState<any>();
   useEffect(() => {
-    if (!tokenId || !signer || !address) return;
+    if (!tokenId || !signer || !address || !poolKeyHash) return;
     const positionManagerContract = new ethers.Contract(
       PoolModifyLiquidityTestAddress,
       PoolModifiyLiquidityAbi,
       signer
     );
     (async () => {
+
+
+      const stateViewContract = new ethers.Contract(
+        '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+        UniswapStateViewAbi,
+        signer
+      );
+      const [sqrtPriceX96,] = await stateViewContract.getSlot0(poolKeyHash);
+      console.log({sqrtPriceX96})
+      const tickLow = -600;
+      const tickHigh = 600;
+      const Decimal0 = 18;
+      const Decimal1 = 6;
+      const [liquidity,] = await stateViewContract.getPositionInfo(poolKeyHash, PoolModifyLiquidityTestAddress, tickLow, tickHigh, ethers.AbiCoder.defaultAbiCoder().encode(["uint256"], [tokenId]));
+      console.log({liquidity});
+      const [amount0, amount1] = await getTokenAmounts(parseInt(liquidity.toString()), parseInt(sqrtPriceX96.toString()), tickLow, tickHigh, Decimal0, Decimal1);
+      console.log({amount0, amount1});
+      setPositionInfo({
+        amount0, amount1
+      })
       // const positionInfo = await positionManagerContract.positionInfo(tokenId);
-      const [positionInfoStruct,] = await positionManagerContract.getPoolAndPositionInfo(tokenId);
-      console.log({positionInfoStruct});
-      console.log(positionInfoStruct[2]);
-      console.log(positionInfoStruct[3]);
+      // const [positionInfoStruct,] = await positionManagerContract.getPoolAndPositionInfo(tokenId);
+      // console.log({positionInfoStruct});
+      // console.log(positionInfoStruct[2]);
+      // console.log(positionInfoStruct[3]);
     })();
-  }, [tokenId, signer, address]);
+  }, [tokenId, signer, address, poolKeyHash]);
+
+  
+  const [poolInfo, setPoolInfo] = useState<any>();
+  useEffect(() => {
+    if (!poolInfo || !positionInfo) return;
+    if (positionInfo.poolShares) return;
+
+    const userShare = (positionInfo.amount0 / poolInfo.amount0 + positionInfo.amount1 / poolInfo.amount1).toFixed(2);
+    console.log({userShare});
+    setPositionInfo({
+      ...positionInfo, userShare
+    })
+  }, [poolInfo, positionInfo]);
+  useEffect(() => {
+    if (!signer || !address || !poolKeyHash) return;
+    const positionManagerContract = new ethers.Contract(
+      PoolModifyLiquidityTestAddress,
+      PoolModifiyLiquidityAbi,
+      signer
+    );
+    (async () => {
+
+
+      const stateViewContract = new ethers.Contract(
+        '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+        UniswapStateViewAbi,
+        signer
+      );
+      const [sqrtPriceX96,] = await stateViewContract.getSlot0(poolKeyHash);
+      console.log({sqrtPriceX96})
+      const tickLow = -600;
+      const tickHigh = 600;
+      const Decimal0 = 18;
+      const Decimal1 = 6;
+      const liquidity = await stateViewContract.getLiquidity(poolKeyHash);
+      console.log({liquidity});
+      const [amount0, amount1] = await getTokenAmounts(parseInt(liquidity.toString()), parseInt(sqrtPriceX96.toString()), tickLow, tickHigh, Decimal0, Decimal1);
+      console.log({amount0, amount1});
+      setPoolInfo({
+        amount0, amount1
+      })
+      // const positionInfo = await positionManagerContract.positionInfo(tokenId);
+      // const [positionInfoStruct,] = await positionManagerContract.getPoolAndPositionInfo(tokenId);
+      // console.log({positionInfoStruct});
+      // console.log(positionInfoStruct[2]);
+      // console.log(positionInfoStruct[3]);
+    })();
+  }, [signer, address, poolKeyHash]);
+
   const INCREASE_POSITION = 0;
   const DECREASE_POSITION = 1;
   const MINT_POSITION = 2;
@@ -406,9 +439,6 @@ const LiquidityComponent = () => {
     const player = address;
     const hookData = "0x";
     const poolValues = [pool.currency0, pool.currency1, pool.fee, pool.tickSpacing, pool.hooks];
-    // const mintParams = ethers.AbiCoder.defaultAbiCoder()
-    //   .encode([poolStruct, "int24", "int24", "uint256", "uint128", "uint128", "address", "bytes"]
-    //     , [poolValues, Number(tickLower), Number(tickUpper), liquidityDelta, amountMax0, amountMax1, player, ""]);
     const mintParams = ethers.AbiCoder.defaultAbiCoder()
       .encode([poolStruct, "int24", "int24", "uint256", "uint128", "uint128", "address", "bytes"]
         , [poolValues, Number(tickLower), Number(tickUpper), liquidityDelta, amountMax0, amountMax1, player, hookData]);
@@ -416,19 +446,14 @@ const LiquidityComponent = () => {
     params.push([pool, actions, poolStruct]);
     params[0] = mintParams;
     const pairParams = ethers.AbiCoder.defaultAbiCoder().encode(["address", "address"], [token0, token1]);
-    console.log({pairParams});
-    // params[1] = [pool.currency0, pool.currency1];
     params[1] = pairParams;
     const inputs = ethers.AbiCoder.defaultAbiCoder().encode(["bytes", "bytes[]"], [actions, params]);
-    console.log({inputs});
     const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;
-    
     const positionManagerContract = new ethers.Contract(
       PoolModifyLiquidityTestAddress,
       [...MockERC721Abi, ...PoolModifiyLiquidityAbi],
       signer
     );
-    console.log({positionManagerContract});
     const nextId = await positionManagerContract.nextTokenId();
     const tx = await positionManagerContract.modifyLiquidities(
       inputs,
@@ -442,16 +467,11 @@ const LiquidityComponent = () => {
         break;
       }
     }
-    console.log({tokenId});
-    console.log(await positionManagerContract.ownerOf(tokenId));
     if (await positionManagerContract.ownerOf(tokenId) === address) {
       console.log({tokenId});
       storeTokenId(tokenId);
       setTokenId(tokenId);
     }
-    // while (await positionManagerContract.ownerOf(tokenId) !== address && await positionManagerContract.nextId() >= tokenId) {
-    //   tokenId = await positionManagerContract.nextId();
-    // }
     console.log({tx});
   }
 
@@ -500,60 +520,27 @@ const LiquidityComponent = () => {
   }
 
   const burnPosition = async () => {
-    // return;
-    // const pool = {
-    //   currency0: token0 < token1 ? token0 : token1,
-    //   currency1: token0 < token1 ? token1 : token0,
-    //   fee: Number(swapFee),
-    //   tickSpacing: Number(tickSpacing),
-    //   hooks: HookAddress,
-    // };
-
-    // const actions = [MINT_POSITION, SETTLE_PAIR];
     const actions = solidityPacked(["uint8", "uint8"], [BURN_POSITION, TAKE_PAIR]);
-    // const poolStruct = ["address", "address", "uint24", "int24", "address"];
-    // const 
-    // console.log({actions});
     const params: any[] = [];
-    // const liquidityDelta = parseEther(amount);
-    // const liquidityDelta = parseUnits("80", 0);
-    // console.log({liquidityDelta});;
-    // const amountMax0 = parseUnits("100000", 0);
-    // const amountMax1 = parseUnits("100000", 0);
-    // const player = address;
     const hookData = "0x";
-    // const poolValues = [pool.currency0, pool.currency1, pool.fee, pool.tickSpacing, pool.hooks];
-    // const mintParams = ethers.AbiCoder.defaultAbiCoder()
-    //   .encode([poolStruct, "int24", "int24", "uint256", "uint128", "uint128", "address", "bytes"]
-    //     , [poolValues, Number(tickLower), Number(tickUpper), liquidityDelta, amountMax0, amountMax1, player, ""]);
     const burnParams = ethers.AbiCoder.defaultAbiCoder()
       .encode(["uint256", "uint24", "uint24", "bytes"]
         , [tokenId, 0, 0, hookData]);
 
-    // params.push([pool, actions, poolStruct]);
     params[0] = burnParams;
     const pairParams = ethers.AbiCoder.defaultAbiCoder().encode(["address", "address", "address"], [token0, token1, address]);
-    console.log({pairParams});
-    // params[1] = [pool.currency0, pool.currency1];
     params[1] = pairParams;
     const inputs = ethers.AbiCoder.defaultAbiCoder().encode(["bytes", "bytes[]"], [actions, params]);
-    console.log({inputs});
-    const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;
-    
+    const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;    
     const positionManagerContract = new ethers.Contract(
       PoolModifyLiquidityTestAddress,
       [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
       signer
     );
-    console.log({positionManagerContract});
-    // const allowance = await positionManagerContract.allowance(tokenId);
-    // const approveTx = await positionManagerContract.approve(PoolModifyLiquidityTestAddress, tokenId);
-    // console.log({approveTx});
     const tx = await positionManagerContract.modifyLiquidities(
       inputs,
       deadline
     );
-    console.log({tx});
   }
   const getPositionInfo = async () => {
 
@@ -564,11 +551,9 @@ const LiquidityComponent = () => {
     try {
 
       if (!tokenId) {
-        // Mint Position
         await mintPosition();
       } else {
-        // Increase
-
+        // Increase position
         const hookData = "0x";
         const actions = solidityPacked(["uint8", "uint8"], [INCREASE_POSITION, SETTLE_PAIR]);
         const params: any[] = [];
@@ -594,75 +579,7 @@ const LiquidityComponent = () => {
           deadline
         );
         console.log({tx});
-        // const positionInfo = await getPositionInfo(tokenId);
-        // console.log({positionInfo});
       }
-      // const INCREASE_POSITION = 0;
-      // const DECREASE_POSITION = 1;
-      // const MINT_POSITION = 2;
-      // const BURN_POSITION = 3;
-
-      // const SETTLE_PAIR = 13;
-      // // const actions = [MINT_POSITION, SETTLE_PAIR];
-      // const actions = solidityPacked(["uint8", "uint8"], [MINT_POSITION, SETTLE_PAIR]);
-      // // const poolStruct = ["address", "address", "uint24", "int24", "address"];
-      // const poolStruct = "(address, address, uint24, int24, address)";
-      // // const 
-      // console.log({actions});
-      // const params: any[] = [];
-      // // const liquidityDelta = parseEther(amount);
-      // const liquidityDelta = parseUnits("80", 0);
-      // console.log({liquidityDelta});;
-      // const amountMax0 = parseUnits("100000", 0);
-      // const amountMax1 = parseUnits("100000", 0);
-      // const player = address;
-      // const hookData = "0x";
-      // const poolValues = [pool.currency0, pool.currency1, pool.fee, pool.tickSpacing, pool.hooks];
-      // // const mintParams = ethers.AbiCoder.defaultAbiCoder()
-      // //   .encode([poolStruct, "int24", "int24", "uint256", "uint128", "uint128", "address", "bytes"]
-      // //     , [poolValues, Number(tickLower), Number(tickUpper), liquidityDelta, amountMax0, amountMax1, player, ""]);
-      // const mintParams = ethers.AbiCoder.defaultAbiCoder()
-      //   .encode([poolStruct, "int24", "int24", "uint256", "uint128", "uint128", "address", "bytes"]
-      //     , [poolValues, Number(tickLower), Number(tickUpper), liquidityDelta, amountMax0, amountMax1, player, hookData]);
-
-      // params.push([pool, actions, poolStruct]);
-      // params[0] = mintParams;
-      // const pairParams = ethers.AbiCoder.defaultAbiCoder().encode(["address", "address"], [token0, token1]);
-      // console.log({pairParams});
-      // // params[1] = [pool.currency0, pool.currency1];
-      // params[1] = pairParams;
-      // const inputs = ethers.AbiCoder.defaultAbiCoder().encode(["bytes", "bytes[]"], [actions, params]);
-      // console.log({inputs});
-      // const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;
-      
-      // const positionManagerContract = new ethers.Contract(
-      //   PoolModifyLiquidityTestAddress,
-      //   PoolModifiyLiquidityAbi,
-      //   signer
-      // );
-      // console.log({positionManagerContract});
-      // const tx = await positionManagerContract.modifyLiquidities(
-      //   inputs,
-      //   deadline
-      // );
-      // console.log({tx});
-      // const callbackData = ethers.AbiCoder.defaultAbiCoder().encode(["uint256", "uint256"], [0, 0]);
-      // const result = await writeModifyLiquidity({
-      //   address: PoolModifyLiquidityTestAddress,
-      //   abi: PoolModifiyLiquidityAbi,
-      //   functionName: "modifyLiquidity",
-      //   args: [
-      //     pool,
-      //     {
-      //       tickLower: Number(tickLower),
-      //       tickUpper: Number(tickUpper),
-      //       liquidityDelta: parseEther(amount),
-      //       salt: `0x0000000000000000000000000000000000000000000000000000000000000000`,
-      //     },
-      //     hookData,
-      //   ],
-      // });
-      // console.log("Swap transaction sent:", result);
       console.log(`Mint position with ${amount} of liquidity`);
     } catch (error) {
       console.error("Error in deposit:", error);
@@ -892,15 +809,15 @@ const LiquidityComponent = () => {
                       </div>
                       <div className="flex justify-between">
                         <span>Deposited mFUSD:</span>
-                        <span>{liquidityInfo?.tokenA?.userReserve}</span>
+                        <span>{positionInfo?.amount0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Deposited mUSDT:</span>
-                        <span>{liquidityInfo?.tokenB?.userReserve}</span>
+                        <span>{positionInfo?.amount1}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Share of pool:</span>
-                        <span>{liquidityInfo?.userShare}%</span>
+                        <span>{positionInfo?.userShare}%</span>
                       </div>
                     </div>
 
