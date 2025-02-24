@@ -121,13 +121,16 @@ const LiquidityComponent = () => {
     setTokenId(loadTokenId());
   }, [mount]);
   const addLiquidity = async () => {
-    if(Number(nftbalance?.toString()) > 0){
-      await addLPS(amount);
-      refetchTokenABalance();
-      refetchTokenBBalance();
-    }else{
-      toast.error("You need to be an NFT Holder to add Liquidity")
-    }
+    await approveToken0();
+    await approveToken1();
+    await modifyLiquidity();
+    // if(Number(nftbalance?.toString()) > 0){
+    //   await addLPS(amount);
+    //   refetchTokenABalance();
+    //   refetchTokenBBalance();
+    // }else{
+    //   toast.error("You need to be an NFT Holder to add Liquidity")
+    // }
     
   };
 
@@ -141,6 +144,7 @@ const LiquidityComponent = () => {
 
   // arb config
 
+  // const Q96 = JSBI.exponentiate(BigInt(2), BigInt(96));
   const MIN_SQRT_PRICE_LIMIT = BigInt("4295128739") + BigInt("1");
   const MAX_SQRT_PRICE_LIMIT =
     BigInt("1461446703485210103287273052203988822378723970342") - BigInt("1");
@@ -443,7 +447,7 @@ const LiquidityComponent = () => {
     if (await positionManagerContract.ownerOf(tokenId) === address) {
       console.log({tokenId});
       storeTokenId(tokenId);
-      tokenId(tokenId);
+      setTokenId(tokenId);
     }
     // while (await positionManagerContract.ownerOf(tokenId) !== address && await positionManagerContract.nextId() >= tokenId) {
     //   tokenId = await positionManagerContract.nextId();
@@ -490,6 +494,9 @@ const LiquidityComponent = () => {
       // Decrease position
       await decreasePosition(p);
     }
+    storeTokenId(0);
+    setTokenId(0);
+    setShowModal(false);
   }
 
   const burnPosition = async () => {
@@ -921,7 +928,7 @@ const LiquidityComponent = () => {
                 )}
             </div>
 
-            {(activeChainId == sepolia.id || activeChainId == arbitrum.id) && (
+            {(activeChainId == sepolia.id) && (
               <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
                 <div>
                   <label className="text-base sm:text-xl text-primary">
