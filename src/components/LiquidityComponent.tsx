@@ -175,13 +175,13 @@ const LiquidityComponent = () => {
     const amount0 = parseInt(ethers.parseUnits(amount0Human, Decimal0).toString());
     const amount1 = parseInt(ethers.parseUnits(amount1Human, Decimal1).toString());
     if(currentTick < tickLow){
-      return Math.ceil(amount0 / ((sqrtRatioB-sqrtRatioA)/(sqrtRatioA*sqrtRatioB)));
+      return Math.floor(amount0 / ((sqrtRatioB-sqrtRatioA)/(sqrtRatioA*sqrtRatioB)));
     }
     else if(currentTick >= tickHigh){
-      return Math.ceil(amount1 / (sqrtRatioB-sqrtRatioA));
+      return Math.floor(amount1 / (sqrtRatioB-sqrtRatioA));
     }
     else if(currentTick >= tickLow && currentTick < tickHigh){
-      return Math.ceil(amount0 / ((sqrtRatioB-sqrtPrice)/(sqrtPrice*sqrtRatioB)));
+      return Math.floor(amount0 / ((sqrtRatioB-sqrtPrice)/(sqrtPrice*sqrtRatioB)));
     }
   }
   
@@ -470,7 +470,8 @@ const LiquidityComponent = () => {
     const mintParams = ethers.AbiCoder.defaultAbiCoder()
       .encode([poolStruct, "int24", "int24", "uint256", "uint128", "uint128", "address", "bytes"]
         , [poolValues, Number(tickLower), Number(tickUpper), liquidityDelta, amountMax0, amountMax1, player, hookData]);
-
+    console.log({mintParams});
+    console.log({liquidityDelta, amountMax0, amountMax1});
     params.push([pool, actions, poolStruct]);
     params[0] = mintParams;
     const pairParams = ethers.AbiCoder.defaultAbiCoder().encode(["address", "address"], [token0, token1]);
