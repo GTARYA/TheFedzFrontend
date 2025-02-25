@@ -167,6 +167,24 @@ const LiquidityComponent = () => {
     return [amount0Human, amount1Human]
   }
   
+  function getLiquidityByTokenAmount(amount0Human: string, amount1Human: string, sqrtPriceX96: number, tickLow: number, tickHigh: number, Decimal0: number, Decimal1: number){
+    let sqrtRatioA = Math.sqrt(1.0001**tickLow);
+    let sqrtRatioB = Math.sqrt(1.0001**tickHigh);
+    let currentTick = getTickAtSqrtPrice(sqrtPriceX96);
+    let sqrtPrice = sqrtPriceX96 / parseInt(Q96.toString());
+    const amount0 = parseInt(ethers.parseUnits(amount0Human, Decimal0).toString());
+    const amount1 = parseInt(ethers.parseUnits(amount1Human, Decimal1).toString());
+    if(currentTick < tickLow){
+      return Math.ceil(amount0 / ((sqrtRatioB-sqrtRatioA)/(sqrtRatioA*sqrtRatioB)));
+    }
+    else if(currentTick >= tickHigh){
+      return Math.ceil(amount1 / (sqrtRatioB-sqrtRatioA));
+    }
+    else if(currentTick >= tickLow && currentTick < tickHigh){
+      return Math.ceil(amount0 / ((sqrtRatioB-sqrtPrice)/(sqrtPrice*sqrtRatioB)));
+    }
+  }
+  
   const MIN_SQRT_PRICE_LIMIT = BigInt("4295128739") + BigInt("1");
   const MAX_SQRT_PRICE_LIMIT =
     BigInt("1461446703485210103287273052203988822378723970342") - BigInt("1");
@@ -357,7 +375,7 @@ const LiquidityComponent = () => {
   const [poolInfo, setPoolInfo] = useState<any>();
   useEffect(() => {
     if (!poolInfo || !positionInfo) return;
-    if (positionInfo.poolShares) return;
+    if (positionInfo.userShare) return;
 
     const userShare = (positionInfo.amount0 / poolInfo.amount0 + positionInfo.amount1 / poolInfo.amount1).toFixed(2);
     console.log({userShare});
@@ -391,13 +409,9 @@ const LiquidityComponent = () => {
       const [amount0, amount1] = await getTokenAmounts(parseInt(liquidity.toString()), parseInt(sqrtPriceX96.toString()), tickLow, tickHigh, Decimal0, Decimal1);
       console.log({amount0, amount1});
       setPoolInfo({
-        amount0, amount1
+        amount0, amount1, rate: parseFloat((ethers.parseUnits(amount0, Decimal0)
+          /(ethers.parseUnits(amount1, Decimal1))).toString())
       })
-      // const positionInfo = await positionManagerContract.positionInfo(tokenId);
-      // const [positionInfoStruct,] = await positionManagerContract.getPoolAndPositionInfo(tokenId);
-      // console.log({positionInfoStruct});
-      // console.log(positionInfoStruct[2]);
-      // console.log(positionInfoStruct[3]);
     })();
   }, [signer, address, poolKeyHash]);
 
@@ -423,7 +437,7 @@ const LiquidityComponent = () => {
       tickSpacing: Number(tickSpacing),
       hooks: HookAddress,
     };
-
+    if (!amountOut) return;
     // const actions = [MINT_POSITION, SETTLE_PAIR];
     const actions = solidityPacked(["uint8", "uint8"], [MINT_POSITION, SETTLE_PAIR]);
     // const poolStruct = ["address", "address", "uint24", "int24", "address"];
@@ -432,10 +446,24 @@ const LiquidityComponent = () => {
     console.log({actions});
     const params: any[] = [];
     // const liquidityDelta = parseEther(amount);
-    const liquidityDelta = parseUnits("80", 0);
-    console.log({liquidityDelta});;
-    const amountMax0 = parseUnits("100000", 0);
-    const amountMax1 = parseUnits("100000", 0);
+    // const liquidityDelta = parseUnits("80", 0);
+    // console.log({liquidityDelta});
+    const amountMax0 = parseUnits(tokenA.address === token0 ? amount : amountOut, tokenA.address === token0 ? tokenA.decimals : tokenB.decimals);
+    const amountMax1 = ethers.parseUnits(tokenA.address === token0 ? amountOut : amount, tokenA.address === token0 ? tokenB.decimals : tokenA.decimals);
+    const stateViewContract = new ethers.Contract(
+      '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+      UniswapStateViewAbi,
+      signer
+    );
+    const [sqrtPriceX96,] = await stateViewContract.getSlot0(poolKeyHash);
+    console.log({sqrtPriceX96})
+    const tickLow = -600;
+    const tickHigh = 600;
+    const Decimal0 = 18;
+    const Decimal1 = 6;
+    const liquidityDelta = getLiquidityByTokenAmount(ethers.formatUnits(amountMax0, Decimal0),
+      ethers.formatUnits(amountMax1, Decimal1), parseFloat(sqrtPriceX96.toString()), tickLow, tickHigh, 18, 6);
+    console.log({liquidityDelta});
     const player = address;
     const hookData = "0x";
     const poolValues = [pool.currency0, pool.currency1, pool.fee, pool.tickSpacing, pool.hooks];
@@ -653,6 +681,25 @@ const LiquidityComponent = () => {
     }
   };
 
+  const [amountOut, setAmountOut] = useState<string | null>(null);
+  useEffect(() => {
+    if (!amount || !poolInfo) return;
+    console.log({amount, poolInfo});
+    console.log({tokenA, tokenB});
+    if (tokenA.address < tokenB.address) {
+
+    } else {
+
+    }
+    const amountIn = ethers.parseUnits(amount, tokenA.decimals);
+    const amountOut = tokenA.address < tokenB.address ? parseInt(amountIn.toString()) * (1/ poolInfo.rate) : parseInt(amountIn.toString()) / poolInfo.rate;
+    let amountInHuman = (parseInt(amountIn.toString())/(10**tokenA.decimals)).toFixed(tokenA.decimals);
+    let amountOutHuman = (amountOut/(10**tokenB.decimals)).toFixed(tokenB.decimals);
+  
+    console.log(tokenA.address < tokenB.address);
+    console.log({amountInHuman, amountOutHuman, amountIn, amountOut, rate: poolInfo.rate});
+    setAmountOut(amountOutHuman);
+  }, [amount, poolInfo]);
 
 
   return (
@@ -692,7 +739,7 @@ const LiquidityComponent = () => {
                         amount={
                           quoteLoading
                             ? "---" // Show a placeholder text during quote calculation
-                            : Number(quote).toFixed(3) || "0"
+                            : Number(amountOut).toFixed(6) || "0"
                         }
                         setAmount={() => {}} // Disable changing amount for output token
                         token={tokenB}
