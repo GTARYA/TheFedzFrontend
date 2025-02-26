@@ -3,11 +3,12 @@ import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import React from "react";
 import { TokenInfo } from '../../type'
+import { Token } from "@uniswap/sdk-core";
 interface TokenInputProps {
   amount: string;
   setAmount: (value: string) => void;
-  token: TokenInfo;
-  setToken: (value: TokenInfo) => void;
+  token: Token | TokenInfo;
+  setToken: (value: TokenInfo | Token) => void;
   options: { value: any; label: string }[];
   disabled?: boolean;
 }

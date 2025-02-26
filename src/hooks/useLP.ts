@@ -11,13 +11,14 @@ import { toast } from "sonner";
 import { formatEther as formatEtherViem } from "viem";
 import { TokenInfo } from "../type";
 import { ChainId } from "../config";
+import { Token } from "@uniswap/sdk-core";
 
 const useLP = (
   chainId: number,
   amount: string,
   signer: any,
-  tokenA: TokenInfo,
-  tokenB: TokenInfo,
+  tokenA: Token | TokenInfo,
+  tokenB: Token | TokenInfo,
   slippageTolerance = 0.04
 ) => {
   const [loading, setLoading] = useState(false);

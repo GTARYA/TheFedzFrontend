@@ -45,7 +45,6 @@ import ActionWindows from "./ActionWindows";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
-import { TokenInfo } from "../type";
 import useLP from "../hooks/useLP";
 import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
@@ -73,8 +72,8 @@ const V4LiquidityComponent = () => {
   const [tickError, setTickError] = useState<string | null>(null);
 
   const { address } = useAccount();
-  const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
-  const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
+  const [tokenA, setTokenA] = useState<Token>(v4Token0);
+  const [tokenB, setTokenB] = useState<Token>(v4Token1);
   const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
 
@@ -241,7 +240,7 @@ const V4LiquidityComponent = () => {
   ];
 
   
-  const handleTokenSelection = (selectedToken: TokenInfo, isInput: boolean) => {
+  const handleTokenSelection = (selectedToken: Token, isInput: boolean) => {
     if (isInput) {
       if (selectedToken.address === tokenB.address) {
         setTokenA(tokenB);
@@ -281,7 +280,7 @@ const V4LiquidityComponent = () => {
                         amount={amount}
                         setAmount={setAmount}
                         token={tokenA}
-                        setToken={(token) => handleTokenSelection(token, true)}
+                        setToken={(token: any) => handleTokenSelection(token, true)}
                         options={tokenOptions}
                       />
                     </div>
@@ -302,7 +301,7 @@ const V4LiquidityComponent = () => {
                         }
                         setAmount={() => {}} // Disable changing amount for output token
                         token={tokenB}
-                        setToken={(token) => handleTokenSelection(token, false)}
+                        setToken={(token: any) => handleTokenSelection(token, false)}
                         options={tokenOptions}
                       />
                     </div>
