@@ -22,9 +22,8 @@ import {
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 
-import { parseEther, formatEther } from "viem";
+import { parseEther } from "viem";
 import {
-  PoolSwapTestAddress,
   HookAddress,
   MockFUSDAddress,
   MockUSDTAddress,
@@ -38,13 +37,11 @@ import MockERC721Abi from "../abi/MockERC721_abi.json";
 import { MockERC721Address } from "../contractAddress";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import PoolKeyHashDisplay from "./PoolKeyHash";
-import TimeSlotSystem from "./TimeSlotSystem";
 import LiquidityChart from "./LiquidityChart";
 import RoundInfos from "./RoundInfos";
 import Container from "./Container";
 import Title from "./ui/Title";
 import ActionWindows from "./ActionWindows";
-import PrimaryBtn from "./ui/PrimaryBtn";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
@@ -58,11 +55,11 @@ const V4LiquidityComponent = () => {
   const activeChainId = useChainId();
   const signer = useEthersSigner();
   const [poolKeyHash, setPoolKeyHash] = useState("");
-  const [token0, setToken0] = useState(MockFUSDAddress);
-  const [token1, setToken1] = useState(MockUSDTAddress);
+  const [token0] = useState(MockFUSDAddress);
+  const [token1] = useState(MockUSDTAddress);
   const [amount, setAmount] = useState("1");
-  const [tickSpacing, setTickSpacing] = useState(10);
-  const [swapFee, setSwapFee] = useState(4000);
+  const [tickSpacing] = useState(10);
+  const [swapFee] = useState(4000);
   const [tickLower, setTickLower] = useState<number>(-600);
   const [tickUpper, setTickUpper] = useState<number>(600);
 
@@ -73,7 +70,6 @@ const V4LiquidityComponent = () => {
   const [hookData, setHookData] = useState<`0x${string}`>("0x0"); // New state for custom hook data
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
   const [tickError, setTickError] = useState<string | null>(null);
 
   const { address } = useAccount();
@@ -132,31 +128,6 @@ const V4LiquidityComponent = () => {
     setShowModal(false);
     removeLiquidity(Number(percentToRemove));
   };
-
-  // arb config
-
-  const MIN_SQRT_PRICE_LIMIT = BigInt("4295128739") + BigInt("1");
-  const MAX_SQRT_PRICE_LIMIT =
-    BigInt("1461446703485210103287273052203988822378723970342") - BigInt("1");
-
-  const {
-    data: writewriteLiquidityData,
-    error: writeLiquidityError,
-    isPending: isLiquidityPending,
-    writeContract: writeModifyLiquidity,
-  } = useWriteContract();
-  const {
-    data: writeApprove0Data,
-    error: writeApprove0Error,
-    isPending: isApprove0Pending,
-    writeContract: writeApproveToken0Contract,
-  } = useWriteContract();
-  const {
-    data: writeApprove1Data,
-    error: writeApprove1Error,
-    isPending: isApprove1Pending,
-    writeContract: writeApproveToken1Contract,
-  } = useWriteContract();
 
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
@@ -228,62 +199,6 @@ const V4LiquidityComponent = () => {
       setIsApproved(false);
     }
   }, [token0Allowance, token1Allowance, amount]);
-
-  const approveToken0 = async () => {
-    try {
-      await writeApproveToken0Contract({
-        address: MockFUSDAddress,
-        abi: MockERC20Abi,
-        functionName: "approve",
-        args: [PoolModifyLiquidityTestAddress, parseEther(amount)],
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const approveToken1 = async () => {
-    try {
-      await writeApproveToken1Contract({
-        address: MockUSDTAddress,
-        abi: MockERC20Abi,
-        functionName: "approve",
-        args: [PoolModifyLiquidityTestAddress, parseEther(amount)],
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const modifyLiquidity = async () => {
-    try {
-      const result = await writeModifyLiquidity({
-        address: PoolModifyLiquidityTestAddress,
-        abi: PoolModifiyLiquidityAbi,
-        functionName: "modifyLiquidity",
-        args: [
-          {
-            currency0: token0 < token1 ? token0 : token1,
-            currency1: token0 < token1 ? token1 : token0,
-            fee: Number(swapFee),
-            tickSpacing: Number(tickSpacing),
-            hooks: HookAddress,
-          },
-          {
-            tickLower: Number(tickLower),
-            tickUpper: Number(tickUpper),
-            liquidityDelta: parseEther(amount),
-            salt: `0x0000000000000000000000000000000000000000000000000000000000000000`,
-          },
-          hookData,
-        ],
-      });
-      console.log("Swap transaction sent:", result);
-    } catch (error) {
-      console.error("Error in deposit:", error);
-      //setSwapError(error);
-    }
-  };
 
   useEffect(() => {
     if (
@@ -533,239 +448,6 @@ const V4LiquidityComponent = () => {
                   </div>
                 )}
             </div>
-
-            {activeChainId == sepolia.id && (
-              <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
-                <div>
-                  <label className="text-base sm:text-xl text-primary">
-                    <span className="font-bold">Token 1</span>
-                  </label>
-                  <select
-                    className="select text-primary mt-3 w-full text-sm sm:text-base !min-h-[10px] !h-auto bg-white/10 !py-[6px] !px-[14px] cursor-pointer rounded-[46px] border-white/10 border-[1px] outline-none"
-                    value={token0}
-                    onChange={(e) => {
-                      setToken0(e.target.value);
-                      setToken1(token0);
-                    }}
-                  >
-                    <option
-                      className="bg-gray-500 text-white"
-                      disabled
-                      defaultValue={"SelectToken"}
-                    >
-                      Select token
-                    </option>
-                    <option
-                      className="bg-gray-500 text-white"
-                      value={MockFUSDAddress}
-                    >
-                      mFUSD
-                    </option>
-                    <option
-                      className="bg-gray-500 text-white"
-                      value={MockUSDTAddress}
-                    >
-                      mUSDT
-                    </option>
-                    {/* Add more token options */}
-                  </select>
-                </div>
-
-                <div className="mt-5 md:mt-10 mb-5">
-                  <label className="text-base sm:text-xl text-primary">
-                    <span className="font-bold">Token 2</span>
-                  </label>
-                  <select
-                    className="select text-primary mt-3 w-full text-sm sm:text-base !min-h-[10px] !h-auto bg-white/10 !py-[6px] !px-[14px] cursor-pointer rounded-[46px] border-white/10 border-[1px] outline-none"
-                    value={token1}
-                    onChange={(e) => {
-                      setToken1(e.target.value);
-                      setToken0(token1);
-                    }}
-                  >
-                    <option
-                      className="bg-gray-500 text-white"
-                      disabled
-                      defaultValue={"SelectToken"}
-                    >
-                      Select token
-                    </option>
-                    <option
-                      className="bg-gray-500 text-white"
-                      value={MockUSDTAddress}
-                    >
-                      mUSDT
-                    </option>
-                    <option
-                      className="bg-gray-500 text-white"
-                      value={MockFUSDAddress}
-                    >
-                      mFUSD
-                    </option>
-
-                    {/* Add more token options */}
-                  </select>
-                </div>
-
-                <div className="text-primary">
-                  <label className="label cursor-pointer">
-                    <span>Pool Settings</span>
-                    <input
-                      type="checkbox"
-                      className="toggle my-toggle toggle-primary"
-                      checked={showSettings}
-                      onChange={() => setShowSettings(!showSettings)}
-                    />
-                  </label>
-                </div>
-
-                {showSettings && (
-                  <div className="mt-4 text-sm sm:text-base text-primary">
-                    <div className="form-control w-full max-w-xs mb-4">
-                      <label className="label">
-                        <span className="label-text text-primary/60">
-                          Tick Spacing{" "}
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="0.0"
-                        className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
-                        value={tickSpacing}
-                        onChange={(e) => {
-                          const re = /^[0-9]*\.?[0-9]*$/;
-                          if (
-                            e.target.value === "" ||
-                            re.test(e.target.value)
-                          ) {
-                            setTickSpacing(Number(e.target.value));
-                          }
-                        }}
-                      />
-                    </div>
-
-                    <div className="form-control w-full max-w-xs mb-4">
-                      <label className="label">
-                        <span className="label-text text-primary/60">
-                          Fee Percent{" "}
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="0.0"
-                        className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
-                        value={swapFee}
-                        onChange={(e) => {
-                          const re = /^[0-9]*\.?[0-9]*$/;
-                          if (
-                            e.target.value === "" ||
-                            re.test(e.target.value)
-                          ) {
-                            setSwapFee(Number(e.target.value));
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="form-control w-full max-w-xs mb-4">
-                  <label className="label">
-                    <span className="label-text text-primary/60">Amount </span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="0.0"
-                    className="input input-bordered w-full max-w-xs text-primary bg-[#1b222b]"
-                    value={amount}
-                    onChange={(e) => {
-                      const re = /^[-+]?[0-9]*\.?[0-9]*$/;
-                      if (e.target.value === "" || re.test(e.target.value)) {
-                        setAmount(e.target.value);
-                      }
-                    }}
-                  />
-                </div>
-
-                {isApproved ? (
-                  <></>
-                ) : (
-                  <div className="card-actions justify-end mt-5">
-                    <div className="flex justify-between gap-6 w-full">
-                      <button
-                        className="btn flex-1 hover:bg-[#7a2ed6] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
-                        onClick={approveToken0}
-                        disabled={!isNFTHolderState}
-                      >
-                        Approve FUSD
-                      </button>
-                      <button
-                        className="btn flex-1 hover:bg-[#7a2ed6] transition-transform duration-200 bg-[#383838] text-primary border-none rounded-[56px] font-medium text-center text-base sm:text-lg"
-                        onClick={approveToken1}
-                        disabled={!isNFTHolderState}
-                      >
-                        Approve USDT
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div className="card-actions justify-center mt-4">
-                  {isNFTHolderState ? (
-                    <div>
-                      {isPlayerTurnState ? (
-                        <>
-                          {isApproved && (
-                            <button
-                              className="btn btn-primary btn-wide hover:scale-110 transition-transform duration-200"
-                              onClick={modifyLiquidity}
-                            >
-                              Modify Liquidity
-                            </button>
-                          )}
-                        </>
-                      ) : (
-                        <div className="alert alert-error">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="stroke-current shrink-0 h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <span>It is not your Turn to Act !</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="alert alert-warning">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="stroke-current shrink-0 h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                        />
-                      </svg>
-                      <span>
-                        You need to be an NFT Holder to add Liquidity !
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </Container>
 
           <img
@@ -934,16 +616,7 @@ const V4LiquidityComponent = () => {
         <Container className="relative z-[5]">
           <Title>Rounds</Title>
           <div className="flex flex-col md:flex-row gap-8 mt-6 md:mt-9">
-            {/* {address && (
-                            <div className="card w-full bg-base-100 shadow-xl">
-                                <div className="card-body">
-                                    <TimeSlotSystem address={address} />
-                                </div>
-                            </div>
-                        )} */}
-
             <RoundInfos />
-
             <PoolKeyHashDisplay poolKeyHash={poolKeyHash} />
           </div>
         </Container>
