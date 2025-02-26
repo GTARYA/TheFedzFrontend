@@ -6,10 +6,8 @@ const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
 import routerAbi from "../abi/uniswapRouter.json";
 import erc20Abi from "../abi/erc20.json";
 import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { formatEther as formatEtherViem } from "viem";
-import { TokenInfo } from "../type";
 import { ChainId } from "../config";
 import { Token } from "@uniswap/sdk-core";
 
