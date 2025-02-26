@@ -45,7 +45,7 @@ import ActionWindows from "./ActionWindows";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
-import useLP from "../hooks/useLP";
+import useLP from "../hooks/V4UseLP";
 import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
@@ -64,6 +64,8 @@ const V4LiquidityComponent = () => {
 
   const [v4Token0, setV4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
   const [v4Token1, setV4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
+  const [tokenA, setTokenA] = useState<Token>(v4Token0);
+  const [tokenB, setTokenB] = useState<Token>(v4Token1);
   
   const [isApproved, setIsApproved] = useState(false);
   const [hookData, setHookData] = useState<`0x${string}`>("0x0"); // New state for custom hook data
@@ -72,8 +74,6 @@ const V4LiquidityComponent = () => {
   const [tickError, setTickError] = useState<string | null>(null);
 
   const { address } = useAccount();
-  const [tokenA, setTokenA] = useState<Token>(v4Token0);
-  const [tokenB, setTokenB] = useState<Token>(v4Token1);
   const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
 
