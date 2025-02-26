@@ -1,4 +1,6 @@
-import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
+// import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
+const { ethers, JsonRpcProvider } = require('ethers');
+
 const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
 import routerAbi from "../abi/uniswapRouter.json";
@@ -33,7 +35,7 @@ const useLP = (
         signer
       );
 
-      const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
+      const inputAmountParsed = ethers.utils.parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
 
       const uniswapPair = new ethers.Contract(
@@ -68,7 +70,7 @@ const useLP = (
         routerAbi,
         signer
       );
-      const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
+      const inputAmountParsed = ethers.utils.parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
       const amountsOut = await uniswapRouter.getAmountsOut(
         inputAmountParsed,
@@ -92,7 +94,7 @@ const useLP = (
       const priceB = adjustedReserveA / adjustedReserveB;
       let quote = tokenA.decimals === 6 ? priceB : priceA;
       const quoteOutput = quote * Number(inputAmount);
-      const amountBParsed = parseUnits(quoteOutput.toFixed(5), tokenB.decimals);
+      const amountBParsed = ethers.utils.parseUnits(quoteOutput.toFixed(5), tokenB.decimals);
 
       const tokenAContract = new ethers.Contract(
         tokenA.address,
