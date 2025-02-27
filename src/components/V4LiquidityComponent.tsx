@@ -267,8 +267,8 @@ const V4LiquidityComponent = () => {
     }
   };
   const tokenOptions = [
-    { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
     { value: FUSD_ADDR[ChainId], label: "FUSD", decimals: 18 },
+    { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
   ];
 
   
@@ -313,7 +313,11 @@ const V4LiquidityComponent = () => {
                         setAmount={setAmount0}
                         token={tokenA}
                         setToken={(token: any) => handleTokenSelection(token, true)}
-                        options={tokenOptions}
+                        options={[{
+                          value: tokenA,
+                          label: "FUSD",
+                          // decimals: 18,
+                        }]}
                       />
                     </div>
                     {
@@ -337,7 +341,11 @@ const V4LiquidityComponent = () => {
                         setAmount={setAmount1} // Disable changing amount for output token
                         token={tokenB}
                         setToken={(token: any) => handleTokenSelection(token, false)}
-                        options={tokenOptions}
+                        options={[{
+                          value: tokenB,
+                          label: "USDT",
+                          // decimals: 18,
+                        }]}
                       />
                     </div>
                     <div className="pt-6">

@@ -63,7 +63,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
               "focus:outline-none focus:ring-2 !gap-3 focus:ring-offset-2 focus:ring-white"
             )}
           >
-            {`m${selectedToken?.label}` || "Select a token"}
+            {`${selectedToken?.label}` || "Select a token"}
             <ChevronDownIcon
               className="pointer-events-none absolute  right-2 h-5 w-5 text-white/60"
               aria-hidden="true"
@@ -93,7 +93,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                       {selected && (
                         <CheckIcon className="h-5 w-5 text-green-400" />
                       )}
-                      <span>m{option.label}</span>
+                      <span>{option.label}</span>
                     </div>
                   )}
                 </Listbox.Option>
