@@ -73,15 +73,15 @@ const V4UseLP = (
     );
     return pool;
   }
+  const rawTickLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18));
+  const rawTickUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18));
+  const mLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)) % 10;
+  const mUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)) % 10;
+  const tickLower = rawTickLower - mLower;
+  const tickUpper = rawTickUpper - mUpper;
   const updateAmount0 = async (amount: string) => {
     const pool = await loadPool();
     const amountAParsed = ethers.utils.parseUnits(amount, tokenA.decimals);
-    const rawTickLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18));
-    const rawTickUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18));
-    const mLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)) % 10;
-    const mUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)) % 10;
-    const tickLower = rawTickLower - mLower;
-    const tickUpper = rawTickUpper - mUpper;
     const nextPosition = Position.fromAmount0({
       pool,
       amount0: amountAParsed,
@@ -138,14 +138,13 @@ const V4UseLP = (
     setLoading(true);
     let approvalToastId;
     let liquidityToastId;
-    // try {
-      console.log({liquidity});
+    try {
       const pool = await loadPool();
       const position = new Position({
         pool,
         liquidity,
-        tickLower: -600,
-        tickUpper: 600,
+        tickLower,
+        tickUpper,
       });
       const { amount0: amount0Max, amount1: amount1Max } = position.mintAmountsWithSlippage(slippageTolerance)
       const tokenAContract = new ethers.Contract(
@@ -153,23 +152,13 @@ const V4UseLP = (
         erc20Abi,
         signer
       );
-      console.log('....');
       const balanceOfTokenA = await tokenAContract.balanceOf(address);
-      console.log('....');
       const tokenBContract = new ethers.Contract(
         tokenB.address,
         erc20Abi,
         signer
       );
-      console.log(signer.address);
-      console.log({address});
       const balanceOfTokenB = await tokenBContract.balanceOf(address);
-      console.log({ balanceOfTokenA, balanceOfTokenB });
-      console.log({
-        balanceOfTokenA: balanceOfTokenA.toString(),
-        amount0Max: amount0Max.toString()
-      })
-
       if (!isGraterThanEquals(balanceOfTokenA, amount0Max)) {
           toast.error("Insufficient balance A");
           setLoading(false);
@@ -193,7 +182,6 @@ const V4UseLP = (
         data: calldata as `0x${string}`,
         value: BigInt(value),
       });
-      console.log(calldata.slice(10));
 
       // const result = useCall({
       //   account: address,
@@ -269,16 +257,16 @@ const V4UseLP = (
       // );
 
       // await tx.wait();
-      // toast.success("Liquidity Added Successfully");
-    // } catch (error) {
-    //   console.error("Error adding liquidity:", error);
-    //   toast.error("Failed to add liquidity.");
-    //   throw error;
-    // } finally {
-    //   if (approvalToastId) toast.dismiss(approvalToastId);
-    //   if (liquidityToastId) toast.dismiss(liquidityToastId);
-    //   setLoading(false);
-    // }
+      toast.success("Liquidity Added Successfully");
+    } catch (error) {
+      console.error("Error adding liquidity:", error);
+      toast.error("Failed to add liquidity.");
+      throw error;
+    } finally {
+      if (approvalToastId) toast.dismiss(approvalToastId);
+      if (liquidityToastId) toast.dismiss(liquidityToastId);
+      setLoading(false);
+    }
   };
 
   const removeLiquidity = async (percentToRemove: number) => {
@@ -457,7 +445,7 @@ const V4UseLP = (
       let approvalToastId;
       const currentUnixTime = Math.ceil(new Date().getTime()/1000);
       if (permitAllowance < amountIn || expiration < currentUnixTime) {
-        approvalToastId = toast.loading(`Approving Token ${tokenA.name} unsing permit2 method - step 1`);
+        approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
         await writeApproveToken0Contract({
           address: PERMIT_2_ADDRESS,
           abi: AllowanceTransferAbi,
