@@ -14,9 +14,11 @@ import VideoPlayerMobile from '../components/VideoPlayerMobile';
 import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
 import SwapAnimation from '../components/SwapAnimation';
 import FAQSection from '../components/FAQSection';
+import { useMode } from '../context/modeProvider';
 
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
+    const { isNormalMode } = useMode();
     // const Web3Form = dynamic(() => import('../components/Web3Form.tsx'), {
     //     ssr: false,
     // });
@@ -52,18 +54,32 @@ const Home: NextPage = () => {
 
                     <Container className="z-[6] relative">
                         <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
-                            <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
-                                FUSD{' '}
-                                <span
-                                    data-text="Stable"
-                                    className="neon-text font-semibold">
-                                    Stable
-                                </span>{' '}
-                                Coin
-                            </h1>
+                            {isNormalMode ? (
+                                <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
+                                    FUSD{' '}
+                                    <span
+                                        data-text="Stable"
+                                        className="neon-text font-semibold">
+                                        Stable
+                                    </span>{' '}
+                                    Coin
+                                </h1>
+                            ) : (
+                                <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
+                                    Bank Run Mitigation{' '}
+                                    <span
+                                        data-text="Stable"
+                                        className="neon-text font-semibold">
+                                        Stable
+                                    </span>{' '}
+                                    Coin
+                                </h1>
+                            )}
+
                             <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
-                                Superior Yield. Robust Stability. Deeper
-                                Liquidity
+                                {isNormalMode
+                                    ? 'Superior Yield. Robust Stability. DeeperLiquidity'
+                                    : 'FUSD is an under-collateralized stablecoin issued by The Fedz - A DeFi stability mechanism designed to ensure the financial stability of under-collateralized assets.'}
                             </p>
                             <div className="flex items-center gap-4 justify-center py-6">
                                 <PrimaryBtn onClick={() => setShowForm(true)}>

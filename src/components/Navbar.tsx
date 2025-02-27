@@ -4,8 +4,11 @@ import Container from './Container';
 import { useEffect, useState } from 'react';
 import ConnectButton from './ConnectButton';
 import NetworkSelector from './NetworkSelector/NetworkSelector';
+import { useMode } from '../context/modeProvider';
 const Navbar = () => {
     const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false);
+    const { isNormalMode, toggleMode } = useMode();
+
     const handleClick = () => {
         setMenuIsOpen((prev) => !prev);
     };
@@ -83,6 +86,31 @@ const Navbar = () => {
                         <ConnectButton />
 
                         {/* <ConnectButton /> */}
+
+                        <button
+                            onClick={toggleMode}
+                            className={`relative w-[150px] h-12 flex items-center rounded-full border-2 transition-all ${
+                                isNormalMode
+                                    ? 'bg-black border-white text-white'
+                                    : 'bg-gray-300 border-gray-300 text-black'
+                            }`}>
+                            <span
+                                className={`absolute text-2xl left-0 h-full w-12 transition-transform bg-white border-[1px] border-black rounded-full flex items-center justify-center ${
+                                    isNormalMode
+                                        ? 'translate-x-[98px]'
+                                        : 'translate-x-0'
+                                }`}>
+                                {isNormalMode ? '🏦' : '🔥'}
+                            </span>
+                            <span
+                                className={`w-full text-sm font-bold ${
+                                    isNormalMode
+                                        ? 'text-left pl-2'
+                                        : 'text-right pr-3'
+                                }`}>
+                                {isNormalMode ? 'Normie Mode' : 'Degen Mode'}
+                            </span>
+                        </button>
                     </div>
                     <div className=" lg:hidden">
                         <NetworkSelector />
@@ -173,6 +201,32 @@ const Navbar = () => {
                         </ul>
                         <div className="mx-auto w-fit flex flex-col justify-center  gap-6">
                             <ConnectButton />
+                            <button
+                                onClick={toggleMode}
+                                className={`relative w-[150px] h-12 flex items-center rounded-full border-2 transition-all ${
+                                    isNormalMode
+                                        ? 'bg-black border-white text-white'
+                                        : 'bg-gray-300 border-gray-300 text-black'
+                                }`}>
+                                <span
+                                    className={`absolute text-2xl left-0 h-full w-12 transition-transform bg-white border-[1px] border-black rounded-full flex items-center justify-center ${
+                                        isNormalMode
+                                            ? 'translate-x-[98px]'
+                                            : 'translate-x-0'
+                                    }`}>
+                                    {isNormalMode ? '🏦' : '🔥'}
+                                </span>
+                                <span
+                                    className={`w-full text-sm font-bold ${
+                                        isNormalMode
+                                            ? 'text-left pl-2'
+                                            : 'text-right pr-3'
+                                    }`}>
+                                    {isNormalMode
+                                        ? 'Normie Mode'
+                                        : 'Degen Mode'}
+                                </span>
+                            </button>
                         </div>
                     </Container>
                     <div className="block md:hidden">
