@@ -26,10 +26,12 @@ import {
 import { Pool, Position, V4PositionManager } from "@uniswap/v4-sdk";
 import { BigNumberish } from "ethers";
 import { useAccount, useCall, useReadContract, useSendTransaction, useWriteContract } from "wagmi";
+import JSBI from "jsbi";
+import next from "next";
 
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
-const poolId = Pool.getPoolId(token0, token1, 4000, 10, ADDRESS_ZERO)
+const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress)
 console.log({poolId});
 
 const V4UseLP = (
@@ -73,26 +75,21 @@ const V4UseLP = (
   }
   const updateAmount0 = async (amount: string) => {
     const pool = await loadPool();
-    // const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
     const amountAParsed = ethers.utils.parseUnits(amount, tokenA.decimals);
-    const ma = maxLiquidityForAmounts(
-      TickMath.getSqrtRatioAtTick(0),
-      TickMath.getSqrtRatioAtTick(-600),
-      TickMath.getSqrtRatioAtTick(600),
-      amountAParsed,
-      MaxUint256,
-      false
-    );
-    const nextPosition = new Position({
+    const rawTickLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18));
+    const rawTickUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18));
+    const mLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)) % 10;
+    const mUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)) % 10;
+    const tickLower = rawTickLower - mLower;
+    const tickUpper = rawTickUpper - mUpper;
+    const nextPosition = Position.fromAmount0({
       pool,
-      liquidity: ma,
-      tickLower: -600,
-      tickUpper: 600,
+      amount0: amountAParsed,
+      tickLower,
+      tickUpper,
+      useFullPrecision: false
     });
-    console.log('update 0', amount);
-    console.log(nextPosition.amount0.toFixed());
-    console.log(nextPosition.amount1.toFixed());
-    onAmountQuoteChange && onAmountQuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), ma.toString());
+    onAmountQuoteChange && onAmountQuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
   }
   const updateAmount1 = async (amount: string) => {
 
