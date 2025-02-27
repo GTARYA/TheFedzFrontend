@@ -50,6 +50,7 @@ import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
 
+let autofillTimeout: NodeJS.Timeout | undefined;
 const V4LiquidityComponent = () => {
   const activeChainId = useChainId();
   const signer = useEthersSigner();
@@ -62,6 +63,9 @@ const V4LiquidityComponent = () => {
   const [tickLower, setTickLower] = useState<number>(-600);
   const [tickUpper, setTickUpper] = useState<number>(600);
 
+  const [amount0, setAmount0] = useState<string>();
+  const [amount0Quote, setAmount0Quote] = useState<string>();
+  const [amount1, setAmount1] = useState<string>();
   const [v4Token0, setV4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
   const [v4Token1, setV4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
   const [tokenA, setTokenA] = useState<Token>(v4Token0);
@@ -77,13 +81,14 @@ const V4LiquidityComponent = () => {
   const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
 
-  const { data: nftbalance, isLoading: balanceLoading } = useContractRead({
-    address: NFT_ADDR as `0x${string}`,
-    abi: erc721Abi,
-    functionName: "balanceOf",
-    args: [address as "0x"],
-    chainId: ChainId
-  });
+  const nftbalance = 1;
+  // const { data: nftbalance, isLoading: balanceLoading } = useContractRead({
+  //   address: NFT_ADDR as `0x${string}`,
+  //   abi: erc721Abi,
+  //   functionName: "balanceOf",
+  //   args: [address as "0x"],
+  //   chainId: ChainId
+  // });
 
 
   const { data: tokenABalance, refetch: refetchTokenABalance } = useBalance({
@@ -98,22 +103,49 @@ const V4LiquidityComponent = () => {
     token: tokenB.address as "0x",
   });
 
+  const [liqudidity, setLiqudidity] = useState<string>();
+  function onAmount0QuoteChange(amount0: string, amount1: string, liqudidity: string) { 
+    setAmount0Quote(amount0);
+    setAmount1(amount1);
+    setLiqudidity(liqudidity);
+  }
   const {
     loading,
     quote,
-    getQuote,
     quoteLoading,
     addLiquidity: addLPS,
     liquidityInfo,
     removeLiquidity,
     removeLiquidityloading,
-  } = useLP(activeChainId,amount, signer, tokenA, tokenB);
+    updateAmount0,
+    updateAmount1,
+  } = useLP(activeChainId,amount, signer, tokenA, tokenB, onAmount0QuoteChange);
+
+  useEffect(() => {
+    if (amount0) {
+      if (autofillTimeout) {
+        console.log('clear')
+        console.log({autofillTimeout})
+        clearTimeout(autofillTimeout);
+      }
+      autofillTimeout = setTimeout(() => {
+        updateAmount0(amount0);
+      }, 700);
+    }
+  }, [amount0]);
+  useEffect(() => {
+    if (amount1) {
+      updateAmount1(amount1);
+    }
+  }, [amount1]);
 
   const addLiquidity = async () => {
     if(Number(nftbalance?.toString()) > 0){
-      await addLPS(amount);
-      refetchTokenABalance();
-      refetchTokenBBalance();
+      if (liqudidity) {
+        await addLPS(liqudidity);
+        refetchTokenABalance();
+        refetchTokenBBalance();
+      }
     }else{
       toast.error("You need to be an NFT Holder to add Liquidity")
     }
@@ -277,13 +309,20 @@ const V4LiquidityComponent = () => {
                         balance={tokenABalance}
                       />
                       <TokenInput
-                        amount={amount}
-                        setAmount={setAmount}
+                        amount={amount0}
+                        setAmount={setAmount0}
                         token={tokenA}
                         setToken={(token: any) => handleTokenSelection(token, true)}
                         options={tokenOptions}
                       />
                     </div>
+                    {
+                      amount0Quote && (
+                        <pre style={{color: "white"}}>
+                          {amount0Quote}
+                        </pre>
+                      )
+                    }
 
                     {/* Toggle Button */}
 
@@ -294,12 +333,8 @@ const V4LiquidityComponent = () => {
                         balance={tokenBBalance}
                       />
                       <TokenInput
-                        amount={
-                          quoteLoading
-                            ? "---" // Show a placeholder text during quote calculation
-                            : Number(quote).toFixed(3) || "0"
-                        }
-                        setAmount={() => {}} // Disable changing amount for output token
+                        amount={amount1}
+                        setAmount={setAmount1} // Disable changing amount for output token
                         token={tokenB}
                         setToken={(token: any) => handleTokenSelection(token, false)}
                         options={tokenOptions}

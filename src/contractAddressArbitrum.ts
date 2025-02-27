@@ -3,7 +3,7 @@
 export const PoolSwapTestAddress = '0x0c284cCfEd9EACB9bF0F79079c78140cD0c213DD';
 // real
 // export const PoolSwapTestAddress = '0xa857555633F521C3E0397c54a0CbF489011ff919';
-export const PoolModifyLiquidityTestAddress = '0x0c284cCfEd9EACB9bF0F79079c78140cD0c213DD';
+export const PoolModifyLiquidityTestAddress = '0xd88F38F930b7952f2DB2432Cb002E7abbF3dD869';
 export const HookAddress = 	'0x0000000000000000000000000000000000000000';
 export const MockUSDTAddress ='0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
 export const MockFUSDAddress = '0x894341be568Eae3697408c420f1d0AcFCE6E55f9';

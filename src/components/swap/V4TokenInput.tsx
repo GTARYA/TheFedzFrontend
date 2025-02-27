@@ -5,18 +5,16 @@ import React from "react";
 import { TokenInfo } from '../../type'
 import { Token } from "@uniswap/sdk-core";
 interface TokenInputProps {
-  amount?: string;
-  quote?: string;
+  amount: string;
   setAmount: (value: string) => void;
-  token: Token | TokenInfo;
+  token: Token;
   setToken: (value: TokenInfo | Token) => void;
   options: { value: any; label: string }[];
   disabled?: boolean;
 }
 
-const TokenInput: React.FC<TokenInputProps> = ({
+const V4TokenInput: React.FC<TokenInputProps> = ({
   amount,
-  quote,
   setAmount,
   token,
   setToken,
@@ -47,6 +45,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           disabled={disabled}
         />
       </div>
+
       {/* Listbox for Token Selection */}
       <Listbox
         value={selectedToken}
@@ -105,4 +104,4 @@ const TokenInput: React.FC<TokenInputProps> = ({
   );
 };
 
-export default TokenInput;
+export default V4TokenInput;
