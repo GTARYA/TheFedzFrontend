@@ -91,7 +91,7 @@ const Navbar = () => {
                     <div className=" lg:hidden">
                         <NetworkSelector />
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 lg:hidden">
                         <div className="block lg:hidden">
                             <ModeBtn />
                         </div>
