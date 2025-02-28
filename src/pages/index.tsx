@@ -19,6 +19,7 @@ import { useMode } from '../context/modeProvider';
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
     const { isNormalMode } = useMode();
+
     // const Web3Form = dynamic(() => import('../components/Web3Form.tsx'), {
     //     ssr: false,
     // });

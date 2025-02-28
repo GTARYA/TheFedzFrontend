@@ -4,10 +4,10 @@ import Container from './Container';
 import { useEffect, useState } from 'react';
 import ConnectButton from './ConnectButton';
 import NetworkSelector from './NetworkSelector/NetworkSelector';
-import { useMode } from '../context/modeProvider';
+import ModeBtn from './ui/ModeBtn';
+
 const Navbar = () => {
     const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false);
-    const { isNormalMode, toggleMode } = useMode();
 
     const handleClick = () => {
         setMenuIsOpen((prev) => !prev);
@@ -25,7 +25,7 @@ const Navbar = () => {
     }, [menuIsOpen]);
 
     return (
-        <header className="bg-gradient-to-b from-[#000000CF] bg-opacity-80 to-transparent z-[11] sticky top-0  backdrop-blur-md">
+        <header className="bg-gradient-to-b from-[#000000CF] bg-opacity-80 to-transparent z-[11] sticky top-0 backdrop-blur-md">
             <Container>
                 <div className="flex items-center justify-between sm:h-[80px] h-[64px]">
                     <Link href="/">
@@ -82,35 +82,11 @@ const Navbar = () => {
                     </ul>
 
                     <div className="hidden lg:flex lg:flex-row lg:gap-3 items-center">
+                        <ModeBtn />
                         <NetworkSelector />
                         <ConnectButton />
 
                         {/* <ConnectButton /> */}
-
-                        <button
-                            onClick={toggleMode}
-                            className={`relative w-[150px] h-12 flex items-center rounded-full border-2 transition-all ${
-                                isNormalMode
-                                    ? 'bg-black border-white text-white'
-                                    : 'bg-gray-300 border-gray-300 text-black'
-                            }`}>
-                            <span
-                                className={`absolute text-2xl left-0 h-full w-12 transition-transform bg-white border-[1px] border-black rounded-full flex items-center justify-center ${
-                                    isNormalMode
-                                        ? 'translate-x-[98px]'
-                                        : 'translate-x-0'
-                                }`}>
-                                {isNormalMode ? '🏦' : '🔥'}
-                            </span>
-                            <span
-                                className={`w-full text-sm font-bold ${
-                                    isNormalMode
-                                        ? 'text-left pl-2'
-                                        : 'text-right pr-3'
-                                }`}>
-                                {isNormalMode ? 'Normie Mode' : 'Degen Mode'}
-                            </span>
-                        </button>
                     </div>
                     <div className=" lg:hidden">
                         <NetworkSelector />
@@ -160,9 +136,9 @@ const Navbar = () => {
                 </div>
             </Container>
             {menuIsOpen && (
-                <div className="fixed top-0 h-[100vh] bg-cover bg-[url(/background/mobile-bg.png)] w-full bg-[#0A0012] z-[-1]">
+                <div className="fixed overflow-y-auto top-0 min-h-[100vh] max-h-[100vh] bg-cover bg-[url(/background/mobile-bg.png)] w-full bg-[#0A0012] z-[-1]">
                     <Container>
-                        <ul className="flex items-center flex-col text-primary py-16">
+                        <ul className="flex items-center flex-col text-primary pt-16 pb-8">
                             <li className="py-3 w-full text-center border-b  border-white/10 mt-6">
                                 <Link
                                     href="/"
@@ -199,34 +175,9 @@ const Navbar = () => {
                                 </Link>
                             </li>
                         </ul>
-                        <div className="mx-auto w-fit flex flex-col justify-center  gap-6">
+                        <div className="mx-auto w-fit flex flex-col items-center justify-center gap-3">
                             <ConnectButton />
-                            <button
-                                onClick={toggleMode}
-                                className={`relative w-[150px] h-12 flex items-center rounded-full border-2 transition-all ${
-                                    isNormalMode
-                                        ? 'bg-black border-white text-white'
-                                        : 'bg-gray-300 border-gray-300 text-black'
-                                }`}>
-                                <span
-                                    className={`absolute text-2xl left-0 h-full w-12 transition-transform bg-white border-[1px] border-black rounded-full flex items-center justify-center ${
-                                        isNormalMode
-                                            ? 'translate-x-[98px]'
-                                            : 'translate-x-0'
-                                    }`}>
-                                    {isNormalMode ? '🏦' : '🔥'}
-                                </span>
-                                <span
-                                    className={`w-full text-sm font-bold ${
-                                        isNormalMode
-                                            ? 'text-left pl-2'
-                                            : 'text-right pr-3'
-                                    }`}>
-                                    {isNormalMode
-                                        ? 'Normie Mode'
-                                        : 'Degen Mode'}
-                                </span>
-                            </button>
+                            <ModeBtn />
                         </div>
                     </Container>
                     <div className="block md:hidden">
