@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
 import { MaxUint256, Percent, Token } from "@uniswap/sdk-core";
-import {maxLiquidityForAmounts, encodeSqrtRatioX96, ADDRESS_ZERO, TickMath } from "@uniswap/v3-sdk";
+import {maxLiquidityForAmounts, nearestUsableTick, encodeSqrtRatioX96, ADDRESS_ZERO, TickMath } from "@uniswap/v3-sdk";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
@@ -31,8 +31,10 @@ import next from "next";
 
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
-const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress)
-console.log({poolId});
+const TICK_SPACING = 10;
+const poolId = Pool.getPoolId(token0, token1, 4000, TICK_SPACING, HookAddress);
+const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)), TICK_SPACING);
+const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)), TICK_SPACING);
 
 const V4UseLP = (
   chainId: number,
@@ -40,7 +42,8 @@ const V4UseLP = (
   signer: any,
   tokenA: Token,
   tokenB: Token,
-  onAmountQuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
+  onAmount0QuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
+  onAmount1QuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
   slippageTolerance = new Percent(4, 100),
 ) => {
   const {address} = useAccount();
@@ -73,12 +76,6 @@ const V4UseLP = (
     );
     return pool;
   }
-  const rawTickLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18));
-  const rawTickUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18));
-  const mLower = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)) % 10;
-  const mUpper = TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)) % 10;
-  const tickLower = rawTickLower - mLower;
-  const tickUpper = rawTickUpper - mUpper;
   const updateAmount0 = async (amount: string) => {
     const pool = await loadPool();
     const amountAParsed = ethers.utils.parseUnits(amount, tokenA.decimals);
@@ -89,12 +86,19 @@ const V4UseLP = (
       tickUpper,
       useFullPrecision: false
     });
-    onAmountQuoteChange && onAmountQuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
+    onAmount0QuoteChange && onAmount0QuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
   }
   const updateAmount1 = async (amount: string) => {
-
+    const pool = await loadPool();
+    const amountAParsed = ethers.utils.parseUnits(amount, tokenB.decimals);
+    const nextPosition = Position.fromAmount1({
+      pool,
+      amount1: amountAParsed,
+      tickLower,
+      tickUpper,
+    });
+    onAmount1QuoteChange && onAmount1QuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
   }
-
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
   const [quoteLoading, setQuoteLoading] = useState(false);
@@ -274,70 +278,70 @@ const V4UseLP = (
     let approvalToastId;
     let removeLiquidityToastId;
     try {
-      const uniswapRouter = new ethers.Contract(
-        UNISWAP_V2_ROUTER_ADDRESS,
-        routerAbi,
-        signer
-      );
+      // const uniswapRouter = new ethers.Contract(
+      //   UNISWAP_V2_ROUTER_ADDRESS,
+      //   routerAbi,
+      //   signer
+      // );
 
-      const lpTokenContract = new ethers.Contract(
-        UNISWAP_V2_PAIR,
-        UNISWAP_PAIR_ABI,
-        signer
-      );
-      const userLPTokens = await lpTokenContract.balanceOf(signer.address);
+      // const lpTokenContract = new ethers.Contract(
+      //   UNISWAP_V2_PAIR,
+      //   UNISWAP_PAIR_ABI,
+      //   signer
+      // );
+      // const userLPTokens = await lpTokenContract.balanceOf(signer.address);
 
-      const lpTokenAmount =
-        (Number(userLPTokens.toString()) * percentToRemove) / 100;
+      // const lpTokenAmount =
+      //   (Number(userLPTokens.toString()) * percentToRemove) / 100;
 
-      if (Number(userLPTokens.toString()) < Number(lpTokenAmount.toString())) {
-        toast.error("Insufficient LP token balance.");
-        setLoading(false);
-        return;
-      }
+      // if (Number(userLPTokens.toString()) < Number(lpTokenAmount.toString())) {
+      //   toast.error("Insufficient LP token balance.");
+      //   setLoading(false);
+      //   return;
+      // }
 
-      approvalToastId = toast.loading("Approving LP Tokens");
+      // approvalToastId = toast.loading("Approving LP Tokens");
 
-      const allowance = await lpTokenContract.allowance(
-        signer.address,
-        UNISWAP_V2_ROUTER_ADDRESS
-      );
-      if (Number(allowance.toString()) < Number(lpTokenAmount.toString())) {
-        const approvalTx = await lpTokenContract.approve(
-          UNISWAP_V2_ROUTER_ADDRESS,
-          lpTokenAmount.toString()
-        );
-        await approvalTx.wait();
-      }
+      // const allowance = await lpTokenContract.allowance(
+      //   signer.address,
+      //   UNISWAP_V2_ROUTER_ADDRESS
+      // );
+      // if (Number(allowance.toString()) < Number(lpTokenAmount.toString())) {
+      //   const approvalTx = await lpTokenContract.approve(
+      //     UNISWAP_V2_ROUTER_ADDRESS,
+      //     lpTokenAmount.toString()
+      //   );
+      //   await approvalTx.wait();
+      // }
 
-      toast.dismiss(approvalToastId);
+      // toast.dismiss(approvalToastId);
 
-      const path = [tokenA.address, tokenB.address];
-      const [reserveB, reserveA] = await lpTokenContract.getReserves();
-      const totalSupply = await lpTokenContract.totalSupply();
-      const minAmountA =
-        (Number(lpTokenAmount) / Number(totalSupply.toString())) *
-        Number(reserveA.toString()) *
-        (1 - slippageTolerance);
-      const minAmountB =
-        (Number(lpTokenAmount) / Number(totalSupply.toString())) *
-        Number(reserveB.toString()) *
-        (1 - slippageTolerance);
+      // const path = [tokenA.address, tokenB.address];
+      // const [reserveB, reserveA] = await lpTokenContract.getReserves();
+      // const totalSupply = await lpTokenContract.totalSupply();
+      // const minAmountA =
+      //   (Number(lpTokenAmount) / Number(totalSupply.toString())) *
+      //   Number(reserveA.toString()) *
+      //   (1 - slippageTolerance);
+      // const minAmountB =
+      //   (Number(lpTokenAmount) / Number(totalSupply.toString())) *
+      //   Number(reserveB.toString()) *
+      //   (1 - slippageTolerance);
 
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
-      removeLiquidityToastId = toast.loading("Removing Liquidity...");
-      const tx = await uniswapRouter.removeLiquidity(
-        tokenA.address,
-        tokenB.address,
-        lpTokenAmount.toFixed(),
-        minAmountA.toFixed(),
-        minAmountB.toFixed(),
-        signer.address,
-        deadline
-      );
+      // const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+      // removeLiquidityToastId = toast.loading("Removing Liquidity...");
+      // const tx = await uniswapRouter.removeLiquidity(
+      //   tokenA.address,
+      //   tokenB.address,
+      //   lpTokenAmount.toFixed(),
+      //   minAmountA.toFixed(),
+      //   minAmountB.toFixed(),
+      //   signer.address,
+      //   deadline
+      // );
 
-      await tx.wait();
-      toast.success("Liquidity Removed Successfully");
+      // await tx.wait();
+      // toast.success("Liquidity Removed Successfully");
     } catch (error) {
       console.error("Error removing liquidity:", error);
       toast.error("Failed to remove liquidity.");
@@ -400,13 +404,13 @@ const V4UseLP = (
     }
   }, [amount, signer, tokenA, tokenB, chainId]);
 
-  function onAmount0QuoteChange(value: string) {
-    setQuoteLoading(true);
-    setQuote("");
-    if (value) {
-      getQuote(value);
-    }
-  }
+  // function onAmount0QuoteChange(value: string) {
+  //   setQuoteLoading(true);
+  //   setQuote("");
+  //   if (value) {
+  //     getQuote(value);
+  //   }
+  // }
 
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
     try {

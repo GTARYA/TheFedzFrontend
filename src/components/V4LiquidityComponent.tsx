@@ -64,8 +64,9 @@ const V4LiquidityComponent = () => {
   const [tickUpper, setTickUpper] = useState<number>(600);
 
   const [amount0, setAmount0] = useState<string>();
-  const [amount0Quote, setAmount0Quote] = useState<string>();
   const [amount1, setAmount1] = useState<string>();
+  const [amount0Quote, setAmount0Quote] = useState<string>();
+  const [amount1Quote, setAmount1Quote] = useState<string>();
   const [v4Token0, setV4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
   const [v4Token1, setV4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
   const [tokenA, setTokenA] = useState<Token>(v4Token0);
@@ -104,9 +105,14 @@ const V4LiquidityComponent = () => {
   });
 
   const [liqudidity, setLiqudidity] = useState<string>();
-  function onAmount0QuoteChange(amount0: string, amount1: string, liqudidity: string) { 
+  function onAmount0QuoteChange(amount0: string, amount1: string, liqudidity: string) {
     setAmount0Quote(amount0);
     setAmount1(amount1);
+    setLiqudidity(liqudidity);
+  }
+  function onAmount1QuoteChange(amount0: string, amount1: string, liqudidity: string) {
+    setAmount0(amount0);
+    setAmount1Quote(amount1);
     setLiqudidity(liqudidity);
   }
   const {
@@ -119,13 +125,12 @@ const V4LiquidityComponent = () => {
     removeLiquidityloading,
     updateAmount0,
     updateAmount1,
-  } = useLP(activeChainId,amount, signer, tokenA, tokenB, onAmount0QuoteChange);
+  } = useLP(activeChainId,amount, signer, tokenA, tokenB, onAmount0QuoteChange, onAmount1QuoteChange);
 
+  
   useEffect(() => {
     if (amount0) {
       if (autofillTimeout) {
-        console.log('clear')
-        console.log({autofillTimeout})
         clearTimeout(autofillTimeout);
       }
       autofillTimeout = setTimeout(() => {
@@ -135,7 +140,12 @@ const V4LiquidityComponent = () => {
   }, [amount0]);
   useEffect(() => {
     if (amount1) {
-      updateAmount1(amount1);
+      if (autofillTimeout) {
+        clearTimeout(autofillTimeout);
+      }
+      autofillTimeout = setTimeout(() => {
+        updateAmount1(amount1);
+      }, 700);
     }
   }, [amount1]);
 

@@ -13,8 +13,6 @@ import V4LiquidityComponent from '../components/V4LiquidityComponent';
 const liquidity = () => {
     const { isConnected } = useAccount();
     const activeChainId = useChainId();
-    console.log({activeChainId});
-    console.log({sepolia})
     return (
         <div className="bg-[#0A0012] relative">
             <Navbar />
