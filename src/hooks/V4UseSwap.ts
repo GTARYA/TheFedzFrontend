@@ -33,7 +33,6 @@ const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress);
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
 const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
-const tickUpper0 = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING);
 const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
 
 console.log({
@@ -108,7 +107,6 @@ const V4UseSwap = (
     const exeuteSwapQuoteCallback = async () => {
       const amountOutMinUnits = ethers.utils.parseUnits(trade.minimumAmountOut(slippageTolerance).toExact(), token1.decimals);
       const amountOutMinimum = amountOutMinUnits.toString();
-      console.log({amountOutMinUnits})
       const tokenAContract = new ethers.Contract(
         token0.address,
         erc20Abi,
@@ -142,7 +140,6 @@ const V4UseSwap = (
           '0x10', [callbackData], deadline
         ]
       })
-      console.log('Affter approve');
     };
     return exeuteSwapQuoteCallback;
   }
@@ -162,8 +159,7 @@ const V4UseSwap = (
   const POOL_MANAGER = '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32';
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
     try {
-
-      console.log({tokenAddress});
+      console.log(`Approving token ${tokenAddress}...`);
       const address = await signer.getAddress();
       const allowanceTransfer = new ethers.Contract(
         PERMIT_2_ADDRESS,
@@ -180,28 +176,14 @@ const V4UseSwap = (
       );
       const decimals = await tokenContract.decimals();
       const amountIn = ethers.utils.parseUnits(amount, decimals);
-      console.log({
-        tokenAddress, amountIn
-      })
       if (amountIn.isZero()) {
+        console.log("Amount is zero. skipping approval...");
         return;
       }
-      console.log({decimals});
-      // token0, address(positionManager), uint160(20), uint48(block.timestamp + 2 hours)
-      console.log({
-        amountIn,
-      })
-      console.log(
-        {permitAllowance, expiration}
-      );
       let approvalToastId;
       const currentUnixTime = Math.ceil(new Date().getTime()/1000);
-      console.log(
-        {
-          permitAllowance
-        }
-      );
       if (permitAllowance < amountIn || expiration < currentUnixTime) {
+        console.log(`approval on permit2`);
         approvalToastId = toast.loading(`Approving Token ${token0.name}`);
         await writeApproveToken0Contract({
           address: PERMIT_2_ADDRESS,
@@ -211,20 +193,22 @@ const V4UseSwap = (
             tokenAddress, POOL_MANAGER, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
           ],
         });
-
-        // const tx = await allowanceTransfer.approve(tokenAddress, PoolModifyLiquidityTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200);
       }
       const allowance = await tokenContract.allowance(
         address,
         PERMIT_2_ADDRESS
       );
-      console.log({allowance});
       if (allowance < amountIn) {
-        const tx = await tokenContract.approve(PERMIT_2_ADDRESS, amountIn);
-        console.log({tx});
+        console.log(`approval on token for permit2`);
+        await writeApproveToken0Contract({
+          address: tokenAddress as `0x${string}`,
+          abi: MockERC20Abi,
+          functionName: "approve",
+          args: [
+            PERMIT_2_ADDRESS, amountIn
+          ],
+        });
       }
-      console.log({allowance});
-      // setIsApproved(true);
     } catch (err) {
       console.log(err);
     }
