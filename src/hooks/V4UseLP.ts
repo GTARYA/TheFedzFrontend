@@ -34,7 +34,7 @@ const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
 const TICK_SPACING = 10;
 const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress);
 const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)), TICK_SPACING);
-const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)), TICK_SPACING);
+const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)), TICK_SPACING) + TICK_SPACING;
 
 const V4UseLP = (
   chainId: number,
