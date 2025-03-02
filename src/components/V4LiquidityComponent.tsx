@@ -49,6 +49,7 @@ import useLP from "../hooks/V4UseLP";
 import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
+import { set } from "mongoose";
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4LiquidityComponent = () => {
@@ -129,7 +130,7 @@ const V4LiquidityComponent = () => {
 
   
   useEffect(() => {
-    if (amount0) {
+    if (amount0 && editingTokenA) {
       if (autofillTimeout) {
         clearTimeout(autofillTimeout);
       }
@@ -139,7 +140,7 @@ const V4LiquidityComponent = () => {
     }
   }, [amount0]);
   useEffect(() => {
-    if (amount1) {
+    if (amount1 && editingTokenB) {
       if (autofillTimeout) {
         clearTimeout(autofillTimeout);
       }
@@ -300,7 +301,8 @@ const V4LiquidityComponent = () => {
     }
   };
 
-
+  const [editingTokenA, setEditingTokenA] = useState(false);
+  const [editingTokenB, setEditingTokenB] = useState(false);
 
   return (
     <div>
@@ -321,6 +323,12 @@ const V4LiquidityComponent = () => {
                       <TokenInput
                         amount={amount0}
                         setAmount={setAmount0}
+                        onFocus={() => {
+                          setEditingTokenA(true);
+                        }}
+                        onBlur={() => {
+                          setEditingTokenA(false);
+                        }}
                         token={tokenA}
                         setToken={(token: any) => handleTokenSelection(token, true)}
                         options={[{
@@ -350,6 +358,12 @@ const V4LiquidityComponent = () => {
                         amount={amount1}
                         setAmount={setAmount1} // Disable changing amount for output token
                         token={tokenB}
+                        onFocus={() => {
+                          setEditingTokenA(true);
+                        }}
+                        onBlur={() => {
+                          setEditingTokenA(false);
+                        }}
                         setToken={(token: any) => handleTokenSelection(token, false)}
                         options={[{
                           value: tokenB,

@@ -12,6 +12,8 @@ interface TokenInputProps {
   setToken: (value: TokenInfo | Token) => void;
   options: { value: any; label: string }[];
   disabled?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
@@ -22,6 +24,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
   setToken,
   options,
   disabled = false,
+  onFocus,
+  onBlur,
 }) => {
   const selectedToken = options.find((option) => option.value === token);
 
@@ -35,6 +39,8 @@ const TokenInput: React.FC<TokenInputProps> = ({
           placeholder="0.0"
           className="outline-none w-2/3 bg-transparent"
           value={amount}
+          onFocus={() => { onFocus ? onFocus() : (() => {})}}
+          onBlur={() => { onBlur ? onBlur() : (() => {})}}
           onChange={(e) => {
             const re = /^[0-9]*\.?[0-9]*$/;
             if (
