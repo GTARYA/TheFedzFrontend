@@ -3,30 +3,18 @@ import {
   useAccount,
   useBalance,
   useReadContract,
-  useWriteContract,
   useChainId,
 } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import {
-  mainnet,
-  arbitrum,
-  bscTestnet,
-  base,
-  bsc,
-  sepolia,
-} from "@reown/appkit/networks";
-import {
   PoolSwapTestAddress,
-  HookAddress,
   MockFUSDAddress,
   MockUSDTAddress,
   TimeSlotSystemAddress,
-} from "../contractAddress";
-import PoolSwapTestAbi from "../abi/PoolSwapTest_abi.json";
+} from "../contractAddressArbitrum";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
-import { getPoolId } from "../misc/v4helpers";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import { MockERC721Address } from "../contractAddress";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
@@ -38,10 +26,8 @@ import ActionWindows from "./ActionWindows";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
-import { TokenInfo } from "../type";
 import V4UseSwap from "../hooks/V4UseSwap";
 import { Token } from "@uniswap/sdk-core";
-import { set } from "mongoose";
 import { poolId } from "../hooks/PoolConsts";
 
 
@@ -55,8 +41,6 @@ const V4SwapComponent = () => {
   const [token1, setToken1] = useState(MockUSDTAddress);
   const [v4Token0, setV4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
   const [v4Token1, setV4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
-  // const [tokenA, setTokenA] = useState<Token>(v4Token0);
-  // const [tokenB, setTokenB] = useState<Token>(v4Token1);
   const [tokenIn, setTokenIn] = useState<Token>(v4Token0);
   const [tokenOut, setTokenOut] = useState<Token>(v4Token1);
   

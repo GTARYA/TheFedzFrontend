@@ -1,13 +1,9 @@
 import { ethers } from "ethers";
-const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 import routerAbi from "../abi/uniswapRouter.json";
-const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
 import erc20Abi from "../abi/erc20.json";
-import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { ChainId } from "../config";
-import { BigintIsh, CurrencyAmount, Percent, Token, TradeType } from "@uniswap/sdk-core";
+import { CurrencyAmount, Percent, Token, TradeType } from "@uniswap/sdk-core";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import { Actions, Pool, Route, Trade, V4Planner } from "@uniswap/v4-sdk";
 import {
@@ -38,6 +34,39 @@ const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TIC
 console.log({
   poolId
 })
+
+const loadPoolBySigner = async (signer: any) => {
+  const stateViewContract = new ethers.Contract(
+    '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+    UniswapStateViewAbi,
+    signer
+  );
+  const liquidity = await stateViewContract.getLiquidity(poolId);
+  const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
+  const tickLow = await stateViewContract.getTickInfo(poolId, tickLower)
+  const tickUp = await stateViewContract.getTickInfo(poolId, tickUpper);
+  const pool = new Pool(
+    token0,
+    token1,
+    FEE,
+    TICK_SPACING,
+    HookAddress,
+    sqrtPriceX96,
+    liquidity,
+    tick,
+    [
+      {
+        index: tickLower,
+        ...tickLow
+      },
+      {
+        index: tickUpper,
+        ...tickUp
+      }
+    ]
+  );
+  return pool;
+}
 const V4UseSwap = (
   chainId:number,
   amount: string,
@@ -59,40 +88,9 @@ const V4UseSwap = (
     isPending: isApprove0Pending,
     writeContractAsync: writeApproveToken0Contract,
   } = useWriteContract();
-  const { sendTransaction } = useSendTransaction()
   
   const loadPool = async () => {
-    const stateViewContract = new ethers.Contract(
-      '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
-      UniswapStateViewAbi,
-      signer
-    );
-    const liquidity = await stateViewContract.getLiquidity(poolId);
-    const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
-    const tickLow = await stateViewContract.getTickInfo(poolId, tickLower)
-    const tickUp = await stateViewContract.getTickInfo(poolId, tickUpper);
-    const pool = new Pool(
-      token0,
-      token1,
-      FEE,
-      TICK_SPACING,
-      HookAddress,
-      sqrtPriceX96,
-      liquidity,
-      tick,
-      [
-        {
-          index: tickLower,
-          ...tickLow
-        },
-        {
-          index: tickUpper,
-          ...tickUp
-        }
-      ]
-    );
-    console.log({pool});
-    return pool;
+    return await loadPoolBySigner(signer);
   }
   const updateAmountIn = async (amount: string) => {
     const pool = await loadPool();
