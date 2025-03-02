@@ -41,13 +41,15 @@ import BalanceDisplay from "./swap/BalanceDisplay";
 import { TokenInfo } from "../type";
 import V4UseSwap from "../hooks/V4UseSwap";
 import { Token } from "@uniswap/sdk-core";
+import { set } from "mongoose";
+import { poolId } from "../hooks/PoolConsts";
 
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4SwapComponent = () => {
   const activeChainId = useChainId();
 
-  const [poolKeyHash, setPoolKeyHash] = useState("");
+  const [poolKeyHash, setPoolKeyHash] = useState(poolId);
   const [amount, setAmount] = useState("1");
   const [token0, setToken0] = useState(MockFUSDAddress);
   const [token1, setToken1] = useState(MockUSDTAddress);
@@ -72,13 +74,13 @@ const V4SwapComponent = () => {
   const [isNFTHolderState, setIsNFTHolderState] = useState(false);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] = useState<Function>(() => {});
   const signer = useEthersSigner();
   const { address } = useAccount();
   // const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
   // const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
-  const { loading, swapExactTokensForTokens, quote, getQuote, quoteLoading, updateAmountIn, updateAmountOut } =
+  const { loading, quote, quoteLoading, updateAmountIn, updateAmountOut } =
   V4UseSwap(activeChainId,amount, signer, tokenIn, tokenOut);
-
   const { data: tokenABalance ,refetch:refetchTokenABalance} = useBalance({
     address,
     chainId: ChainId,
@@ -101,29 +103,6 @@ const V4SwapComponent = () => {
 
   const [hookData, setHookData] = useState<`0x${string}`>("0x0"); // New state for custom hook data
   const [swapError, setSwapError] = useState();
-
-  const MIN_SQRT_PRICE_LIMIT = BigInt("4295128739") + BigInt("1");
-  const MAX_SQRT_PRICE_LIMIT =
-    BigInt("1461446703485210103287273052203988822378723970342") - BigInt("1");
-
-  const {
-    data: writeSwapData,
-    error: writeSwapError,
-    isPending: isSwapPending,
-    writeContract: writeSwapContract,
-  } = useWriteContract();
-  const {
-    data: writeApprove0Data,
-    error: writeApprove0Error,
-    isPending: isApprove0Pending,
-    writeContract: writeApproveToken0Contract,
-  } = useWriteContract();
-  const {
-    data: writeApprove1Data,
-    error: writeApprove1Error,
-    isPending: isApprove1Pending,
-    writeContract: writeApproveToken1Contract,
-  } = useWriteContract();
 
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
@@ -220,37 +199,6 @@ const V4SwapComponent = () => {
     }
   }, [MockFUSDBalance, MockUSDTBalance]);
 
-  const approveFUSD = async () => {
-    try {
-      await writeApproveToken0Contract({
-        address: MockFUSDAddress,
-        abi: MockERC20Abi,
-        functionName: "approve",
-        args: [PoolSwapTestAddress, parseEther(amount)],
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const approveUSDT = async () => {
-    try {
-      await writeApproveToken1Contract({
-        address: MockUSDTAddress,
-        abi: MockERC20Abi,
-        functionName: "approve",
-        args: [PoolSwapTestAddress, parseEther(amount)],
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const tokenOptions = [
-    { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
-    { value: FUSD_ADDR[ChainId], label: "FUSD", decimals: 18 },
-  ];
-
   const handleTokenSelection = (selectedToken: Token, isInput: boolean) => {
     if (isInput) {
       if (selectedToken.address === tokenOut.address) {
@@ -275,75 +223,8 @@ const V4SwapComponent = () => {
   };
 
   const arbSwap = async () => {
-    await swapExactTokensForTokens(amount);
-    refetchTokenABalance();
-    refetchTokenBBalance();
-
+    exeuteSwapQuoteCallback();
   };
-
-  const swap = async () => {
-    try {
-      const result = await writeSwapContract({
-        address: PoolSwapTestAddress,
-        abi: PoolSwapTestAbi,
-        functionName: "swap",
-        args: [
-          {
-            currency0:
-              token0.toLowerCase() < token1.toLowerCase() ? token0 : token1,
-            currency1:
-              token0.toLowerCase() < token1.toLowerCase() ? token1 : token0,
-            fee: Number(swapFee),
-            tickSpacing: Number(tickSpacing),
-            hooks: HookAddress,
-          },
-          {
-            zeroForOne: token0.toLowerCase() < token1.toLowerCase(),
-            amountSpecified: parseEther(amount), // TODO: assumes tokens are always 18 decimals
-            sqrtPriceLimitX96:
-              token0.toLowerCase() < token1.toLowerCase()
-                ? MIN_SQRT_PRICE_LIMIT
-                : MAX_SQRT_PRICE_LIMIT, // unlimited impact
-          },
-          {
-            takeClaims: false,
-            settleUsingBurn: false,
-          },
-          hookData,
-        ],
-      });
-      console.log("Swap transaction sent:", writeSwapData);
-    } catch (error) {
-      console.error("Error in deposit:", error);
-      //setSwapError(error);
-    }
-  };
-
-  useEffect(() => {
-    if (
-      token0 &&
-      token1 &&
-      swapFee !== undefined &&
-      tickSpacing !== undefined &&
-      HookAddress
-    ) {
-      try {
-        const id = getPoolId({
-          currency0: token0,
-          currency1: token1,
-          fee: swapFee,
-          tickSpacing,
-          hooks: HookAddress,
-        });
-        setPoolKeyHash(id);
-      } catch (error) {
-        console.error("Error calculating pool ID:", error);
-        setPoolKeyHash("");
-      }
-    } else {
-      setPoolKeyHash("");
-    }
-  }, [token0, token1, swapFee, tickSpacing, HookAddress]);
 
   const handleMaxClick = () => {
     if (token0.toLowerCase() === MockFUSDAddress.toLowerCase())
@@ -352,13 +233,17 @@ const V4SwapComponent = () => {
       setAmount(formatEther(MockUSDTBalanceState as bigint));
   };
 
+  async function onAmountChange() {
+      const cb = await updateAmountIn(amount);
+      setExecuteSwapQuoteCallback(() => cb);
+  }
   useEffect(() => {
     if (amount) {
       if (autofillTimeout) {
         clearTimeout(autofillTimeout);
       }
       autofillTimeout = setTimeout(() => {
-        updateAmountIn(amount);
+        onAmountChange();
       }, 700);
     }
   }, [amount]);
@@ -474,16 +359,7 @@ const V4SwapComponent = () => {
         <Container className="relative z-[5]">
           <Title>Rounds</Title>
           <div className="flex flex-col md:flex-row gap-8 mt-6 md:mt-9">
-            {/* {address && (
-                            <div className="card w-full bg-base-100 shadow-xl">
-                                <div className="card-body">
-                                    <TimeSlotSystem address={address} />
-                                </div>
-                            </div>
-                        )} */}
-
             <RoundInfos />
-
             <PoolKeyHashDisplay poolKeyHash={poolKeyHash} />
           </div>
         </Container>
