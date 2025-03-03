@@ -73,7 +73,7 @@ const V4SwapComponent = () => {
   // const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
   // const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
   const { loading, quote, quoteLoading, updateAmountIn, updateAmountOut } =
-  V4UseSwap(activeChainId,amount, signer, tokenIn, tokenOut);
+  V4UseSwap(activeChainId,amount, signer, v4Token0, v4Token1);
   const [tokenABalance, setTokenABalance] = useState<string>('-');
   const [tokenBBalance, setTokenBBalance] = useState<string>('-');
 
@@ -234,7 +234,7 @@ const V4SwapComponent = () => {
   };
 
   async function onAmountChange() {
-      const cb = await updateAmountIn(amount);
+      const cb = await updateAmountIn(amount, tokenIn.address === token0);
       setExecuteSwapQuoteCallback(() => cb);
   }
   useEffect(() => {

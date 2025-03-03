@@ -71,8 +71,8 @@ const V4UseSwap = (
   chainId:number,
   amount: string,
   signer: any,
-  tokenIn: Token,
-  tokenOut: Token,
+  token0: Token,
+  token1: Token,
   slippageTolerance = new Percent(4, 100),
 ) => {
   const [loading, setLoading] = useState(false);
@@ -89,21 +89,22 @@ const V4UseSwap = (
   const loadPool = async () => {
     return await loadPoolBySigner(signer);
   }
-  const updateAmountIn = async (amount: string) => {
+  const updateAmountIn = async (amount: string, zeroForOne: boolean = true) => {
     const pool = await loadPool();
-    const zeroForOne = true; // TODO fix
+    const tokenIn = zeroForOne ? token0 : token1;
+    const tokenOut = zeroForOne ? token1 : token0;
     const amountInUnits = ethers.utils.parseUnits(amount, tokenIn.decimals).toString();
     const trade = await Trade.fromRoute(
-      new Route([pool], token0, token1),
-      CurrencyAmount.fromRawAmount(token0, amountInUnits),
+      new Route([pool], tokenIn, tokenOut),
+      CurrencyAmount.fromRawAmount(tokenIn, amountInUnits),
       TradeType.EXACT_INPUT
-    )
-    setQuote(trade.minimumAmountOut(slippageTolerance).toSignificant(6));
+    );
+    setQuote(trade.minimumAmountOut(slippageTolerance).toSignificant(tokenOut.decimals));
     const exeuteSwapQuoteCallback = async () => {
-      const amountOutMinUnits = ethers.utils.parseUnits(trade.minimumAmountOut(slippageTolerance).toExact(), token1.decimals);
+      const amountOutMinUnits = ethers.utils.parseUnits(trade.minimumAmountOut(slippageTolerance).toExact(), tokenOut.decimals);
       const amountOutMinimum = amountOutMinUnits.toString();
       const tokenAContract = new ethers.Contract(
-        token0.address,
+        tokenIn.address,
         erc20Abi,
         signer
       );
@@ -113,16 +114,14 @@ const V4UseSwap = (
           setLoading(false);
           return;
       }
-
-      await approveToken(token0.address, (parseFloat(amount)).toString(), signer);
-
+      await approveToken(tokenIn.address, (parseFloat(amount)).toString(), signer);
       const planner = new V4Planner();
       planner.addTrade(trade);
       planner.addAction(Actions.SETTLE_ALL, [
-        token0.address, ethers.utils.parseUnits(amount, token0.decimals)
+        tokenIn.address, ethers.utils.parseUnits(amount, tokenIn.decimals)
       ]);
       planner.addAction(Actions.TAKE_ALL, [
-        token1.address, amountOutMinimum
+        tokenOut.address, amountOutMinimum
       ]);
       const callbackData = planner.finalize();
       const deadline = Math.ceil(new Date().getTime()/1000) + 7200;
@@ -143,7 +142,7 @@ const V4UseSwap = (
     const pool = await loadPool();
     const trade = await Trade.fromRoute(
       new Route([pool], token0, token1),
-      CurrencyAmount.fromRawAmount(token0, parseInt(ethers.utils.parseUnits(amount, tokenIn.decimals).toString())),
+      CurrencyAmount.fromRawAmount(token0, parseInt(ethers.utils.parseUnits(amount, token0.decimals).toString())),
       TradeType.EXACT_INPUT
     )
     console.log({trade});
