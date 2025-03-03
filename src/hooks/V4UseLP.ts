@@ -9,33 +9,37 @@ import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
-import { MaxUint256, Percent, Token } from "@uniswap/sdk-core";
+import { BigintIsh, MaxUint256, Percent, Token } from "@uniswap/sdk-core";
 import {maxLiquidityForAmounts, nearestUsableTick, encodeSqrtRatioX96, ADDRESS_ZERO, TickMath } from "@uniswap/v3-sdk";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
+import JSBI from 'jsbi';
 
 import {
   HookAddress,
   MockFUSDAddress,
   MockUSDTAddress,
   PoolModifyLiquidityTestAddress,
+  PoolSwapTestAddress,
   TimeSlotSystemAddress,
 } from "../contractAddressArbitrum";
-import { Pool, Position, V4PositionManager } from "@uniswap/v4-sdk";
+import { Pool, Position, RemoveLiquidityOptions, V4PositionManager } from "@uniswap/v4-sdk";
 import { BigNumberish } from "ethers";
 import { useAccount, useCall, useReadContract, useSendTransaction, useWriteContract } from "wagmi";
-import JSBI from "jsbi";
-import next from "next";
+import { getPoolId } from "../misc/v4helpers";
+import { set } from "mongoose";
 
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
 const TICK_SPACING = 10;
 const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress);
-const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(100e6, 105e18)), TICK_SPACING);
-const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(encodeSqrtRatioX96(105e6, 100e18)), TICK_SPACING) + TICK_SPACING;
+const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
+const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
+const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
+const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
 
 let fetchLocked = false;
 // async function fetchPositions(address: string, signer: any, setMyTokenIds: (tokenIds: number[]) => void) {
@@ -208,17 +212,59 @@ const V4UseLP = (
       await approveToken(tokenA.address, amount0Max.toString(), signer);
       await approveToken(tokenB.address, amount1Max.toString(), signer);
 
-      const { calldata, value } = V4PositionManager.addCallParameters(position, {
-        recipient: address as `0x${string}`,
-        slippageTolerance,
-        deadline: Math.ceil(new Date().getTime()/1000) + 7200,
-      });
+      const tokenId = loadMyPosition() || undefined;
+      const callParametersOptions: any = { slippageTolerance, deadline: Math.ceil(new Date().getTime()/1000) + 7200 };
+      if (tokenId) {
+        callParametersOptions.tokenId = tokenId;
+      } else {
+        callParametersOptions.recipient = address;
+      }
+      const { calldata, value } = V4PositionManager.addCallParameters(position, callParametersOptions);
+
+      let nextTokenId = 0;
+      if (!tokenId) {
+        const positionManagerContract = new ethers.Contract(
+          PoolModifyLiquidityTestAddress,
+          [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
+          signer
+        );
+        nextTokenId = parseInt((await positionManagerContract.nextTokenId()).toString()) - 1;
+      }
+
       await sendTransaction({
         to: PoolModifyLiquidityTestAddress,
         data: calldata as `0x${string}`,
         value: BigInt(value),
       });
       toast.success("Liquidity Added Successfully");
+
+      if (!tokenId) {
+        const positionManagerContract = new ethers.Contract(
+          PoolModifyLiquidityTestAddress,
+          [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
+          signer
+        );
+        const totalTokens = parseInt((await positionManagerContract.nextTokenId()).toString()) - 1;
+        for (let i = nextTokenId; i < totalTokens; i++) {
+          try {
+            const owner = await positionManagerContract.ownerOf(i);
+            if (owner === address) {
+              const [positionInfo,] = await positionManagerContract.getPoolAndPositionInfo(i);
+              const id = getPoolId({
+                currency0: positionInfo[0],
+                currency1: positionInfo[1],
+                fee: Number(positionInfo[2]),
+                tickSpacing: positionInfo[3],
+                hooks: positionInfo[4],
+              });
+              if (id === poolId) {
+                storePositionId(i);
+              }
+            }
+          } catch {}
+          storeSrapperLastTokenId(i);
+        }
+      }
     } catch (error) {
       console.error("Error adding liquidity:", error);
       toast.error("Failed to add liquidity.");
@@ -230,75 +276,90 @@ const V4UseLP = (
     }
   };
 
+  const burnPosition = async () => {
+    try {
+      const tokenId = loadMyPosition();
+      console.log(`Burning position ${tokenId}...`);
+      const actions = '0x0311';
+      const params: any[] = [];
+      params.push(ethers.utils.defaultAbiCoder.encode(["uint256", "uint24", "uint24", "bytes"], [tokenId, 0, 0, "0x"]));
+      params.push(ethers.utils.defaultAbiCoder.encode(["address", "address", "address"], [token0.address, token1.address, address]));
+      const callbackData = ethers.utils.defaultAbiCoder.encode(["bytes", "bytes[]"], [actions, params]);
+      await writeApproveToken0Contract({
+        address: PoolModifyLiquidityTestAddress,
+        abi: MockERC721Abi,
+        functionName: "approve",
+        args: [
+          '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32', tokenId
+        ],
+      });
+      await writeApproveToken0Contract({
+        address: PoolModifyLiquidityTestAddress,
+        abi: PoolModifiyLiquidityAbi,
+        functionName: "modifyLiquidities",
+        args: [
+          callbackData, Math.ceil(new Date().getTime()/1000) + 7200
+        ],
+      });
+      deletePositionId();
+      setLiquidityInfo(undefined);
+    } catch(e: any) {
+      throw e;
+    } finally {
+
+    }
+  }
+  // const decreasePosition = async (precents: Percent) => {
+  //   try {
+  //     const tokenId = loadMyPosition();
+  //     console.log(`Burning position ${tokenId}...`);
+  //     const actions = '0x0311';
+  //     const params: any[] = [];
+  //     params.push(ethers.utils.defaultAbiCoder.encode(["uint256", "uint24", "uint24", "bytes"], [tokenId, 0, 0, "0x"]));
+  //     params.push(ethers.utils.defaultAbiCoder.encode(["address", "address", "address"], [token0.address, token1.address, address]));
+  //     const callbackData = ethers.utils.defaultAbiCoder.encode(["bytes", "bytes[]"], [actions, params]);
+  //     await writeApproveToken0Contract({
+  //       address: PoolModifyLiquidityTestAddress,
+  //       abi: MockERC721Abi,
+  //       functionName: "approve",
+  //       args: [
+  //         '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32', tokenId
+  //       ],
+  //     });
+  //     await writeApproveToken0Contract({
+  //       address: PoolModifyLiquidityTestAddress,
+  //       abi: PoolModifiyLiquidityAbi,
+  //       functionName: "modifyLiquidities",
+  //       args: [
+  //         callbackData, Math.ceil(new Date().getTime()/1000) + 7200
+  //       ],
+  //     });
+  //     deletePositionId();
+  //     setLiquidityInfo(undefined);
+  //   } catch(e: any) {
+  //     throw e;
+  //   } finally {
+
+  //   }
+  // }
+
   const removeLiquidity = async (percentToRemove: number) => {
     setRemoveLiquidityloading(true);
     let approvalToastId;
     let removeLiquidityToastId;
     try {
-      // const uniswapRouter = new ethers.Contract(
-      //   UNISWAP_V2_ROUTER_ADDRESS,
-      //   routerAbi,
-      //   signer
-      // );
-
-      // const lpTokenContract = new ethers.Contract(
-      //   UNISWAP_V2_PAIR,
-      //   UNISWAP_PAIR_ABI,
-      //   signer
-      // );
-      // const userLPTokens = await lpTokenContract.balanceOf(signer.address);
-
-      // const lpTokenAmount =
-      //   (Number(userLPTokens.toString()) * percentToRemove) / 100;
-
-      // if (Number(userLPTokens.toString()) < Number(lpTokenAmount.toString())) {
-      //   toast.error("Insufficient LP token balance.");
-      //   setLoading(false);
-      //   return;
-      // }
-
-      // approvalToastId = toast.loading("Approving LP Tokens");
-
-      // const allowance = await lpTokenContract.allowance(
-      //   signer.address,
-      //   UNISWAP_V2_ROUTER_ADDRESS
-      // );
-      // if (Number(allowance.toString()) < Number(lpTokenAmount.toString())) {
-      //   const approvalTx = await lpTokenContract.approve(
-      //     UNISWAP_V2_ROUTER_ADDRESS,
-      //     lpTokenAmount.toString()
-      //   );
-      //   await approvalTx.wait();
-      // }
-
-      // toast.dismiss(approvalToastId);
-
-      // const path = [tokenA.address, tokenB.address];
-      // const [reserveB, reserveA] = await lpTokenContract.getReserves();
-      // const totalSupply = await lpTokenContract.totalSupply();
-      // const minAmountA =
-      //   (Number(lpTokenAmount) / Number(totalSupply.toString())) *
-      //   Number(reserveA.toString()) *
-      //   (1 - slippageTolerance);
-      // const minAmountB =
-      //   (Number(lpTokenAmount) / Number(totalSupply.toString())) *
-      //   Number(reserveB.toString()) *
-      //   (1 - slippageTolerance);
-
-      // const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
-      // removeLiquidityToastId = toast.loading("Removing Liquidity...");
-      // const tx = await uniswapRouter.removeLiquidity(
-      //   tokenA.address,
-      //   tokenB.address,
-      //   lpTokenAmount.toFixed(),
-      //   minAmountA.toFixed(),
-      //   minAmountB.toFixed(),
-      //   signer.address,
-      //   deadline
-      // );
-
-      // await tx.wait();
-      // toast.success("Liquidity Removed Successfully");
+      console.log(`Removing liquidity... ${percentToRemove}%`);
+      const p = Number(percentToRemove);
+      console.log({
+        p
+      })
+      if (p === 100) {
+        // Burn position
+        await burnPosition();
+      } else {
+        // Decrease position
+        // await decreasePosition(p);
+      }
     } catch (error) {
       console.error("Error removing liquidity:", error);
       toast.error("Failed to remove liquidity.");
@@ -311,41 +372,23 @@ const V4UseLP = (
 
   const getLiquidityInfo = async () => {
     try {
-      const pairContract = new ethers.Contract(
-        UNISWAP_V2_PAIR,
-        UNISWAP_PAIR_ABI,
+      const tokenId = loadMyPosition();
+      if (!tokenId) {
+        return;
+      }
+      const stateViewContract = new ethers.Contract(
+        '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+        UniswapStateViewAbi,
         signer
       );
-      const [reserveA, reserveB] = await pairContract.getReserves();
-      const totalSupply = await pairContract.totalSupply();
-      const userLPBalance = await pairContract.balanceOf(
-        await signer.getAddress()
-      );
-      const reserveANum = Number(reserveA);
-      const reserveBNum = Number(reserveB);
-      const totalSupplyNum = Number(totalSupply);
-      const userLPBalanceNum = Number(userLPBalance);
-      const userShare = userLPBalanceNum / totalSupplyNum;
-      const userTokenAReserve = (reserveANum * userShare) / 10 ** 18;
-      const userTokenBReserve = (reserveBNum * userShare) / 10 ** 6;
-
+      const [sqrtPriceX96,] = await stateViewContract.getSlot0(poolId);
+      const Decimal0 = 18;
+      const Decimal1 = 6;
+      const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, PoolModifyLiquidityTestAddress, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
+      const [amount0, amount1] = await getTokenAmounts(parseInt(liquidity.toString()), parseInt(sqrtPriceX96.toString()), tickLower, tickUpper, Decimal0, Decimal1);
       const info = {
-        totalSupply: totalSupplyNum.toFixed(4),
-        userLPBalance: userLPBalanceNum.toFixed(4),
-        userShare: (userShare * 100).toFixed(2),
-        totalTokens: (userTokenAReserve + userTokenBReserve).toFixed(3),
-        tokenA: {
-          totalReserve: reserveANum.toFixed(4),
-          userReserve: Number(userTokenAReserve).toFixed(3),
-          symbol: tokenA.name,
-        },
-        tokenB: {
-          totalReserve: reserveBNum.toFixed(4),
-          userReserve: Number(userTokenBReserve).toFixed(3),
-          symbol: tokenB.name,
-        },
+        tokenId, amount0, amount1
       };
-
       setLiquidityInfo(info); // Store the data in state
       return info;
     } catch (error) {
@@ -353,6 +396,36 @@ const V4UseLP = (
       throw error;
     }
   };
+
+  const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
+
+  function getTickAtSqrtPrice(sqrtPriceX96: number){
+    let tick = Math.floor(Math.log((sqrtPriceX96/parseInt(Q96.toString()))**2)/Math.log(1.0001));
+    return tick;
+  }
+
+  async function getTokenAmounts(liquidity: number, sqrtPriceX96: number, tickLow: number, tickHigh: number, Decimal0: number, Decimal1: number){
+    let sqrtRatioA = Math.sqrt(1.0001**tickLow);
+    let sqrtRatioB = Math.sqrt(1.0001**tickHigh);
+    let currentTick = getTickAtSqrtPrice(sqrtPriceX96);
+    let sqrtPrice = sqrtPriceX96 / parseInt(Q96.toString());
+    let amount0 = 0;
+    let amount1 = 0;
+    if(currentTick < tickLow){
+      amount0 = Math.floor(liquidity*((sqrtRatioB-sqrtRatioA)/(sqrtRatioA*sqrtRatioB)));
+    }
+    else if(currentTick >= tickHigh){
+      amount1 = Math.floor(liquidity*(sqrtRatioB-sqrtRatioA));
+    }
+    else if(currentTick >= tickLow && currentTick < tickHigh){
+      amount0 = Math.floor(liquidity*((sqrtRatioB-sqrtPrice)/(sqrtPrice*sqrtRatioB)));
+      amount1 = Math.floor(liquidity*(sqrtPrice-sqrtRatioA));
+    }
+    let amount0Human = (amount0/(10**Decimal0)).toFixed(Decimal0);
+    let amount1Human = (amount1/(10**Decimal1)).toFixed(Decimal1);
+    return [amount0Human, amount1Human]
+  }
+
 
   useEffect(() => {
     if (signer && chainId == ChainId) {
@@ -449,25 +522,21 @@ function isGraterThanEquals(balanceOfToken: any, amountMax: any) {
     || (balanceOfTokenString.length === amountMaxString.length && balanceOfTokenString >= amountMaxString);
 
 }
-const TOKEN_IDS_KEY = "tokenIds";
+const TOKEN_ID_KEY = "tokenId";
 
-const addToMyPositions = (tokenId: number) => {
-  const tokensIds = loadMyPositions();
-  const index = tokensIds.indexOf(tokenId);
-  if (index === -1) {
-    tokensIds.push(tokenId);
+const storePositionId = (tokenId: number) => {
+  const previousTokenId = loadMyPosition();
+  if (previousTokenId) {
+    console.error('Token Id already exists');
+    return previousTokenId;
   }
-  localStorage.setItem(TOKEN_IDS_KEY, JSON.stringify(tokensIds));
-  return tokensIds;
+  localStorage.setItem(TOKEN_ID_KEY, JSON.stringify(tokenId));
+  return previousTokenId;
 }
-const removeFromMyPositions = (tokenId: number) => {
-  const tokensIds = loadMyPositions();
-  const index = tokensIds.indexOf(tokenId);
-  if (index > -1) {
-    tokensIds.splice(index, 1);
-  }
-  localStorage.setItem(TOKEN_IDS_KEY, JSON.stringify(tokensIds));
-  return tokensIds;
+const deletePositionId = () => {
+  const tokenId = loadMyPosition();
+  localStorage.removeItem(TOKEN_ID_KEY);
+  return tokenId;
 }
 const LAST_SCRAP_TOKEN_ID_KEY = "scraperLastTokenId";
 const storeSrapperLastTokenId = (tokenId: number) => {
@@ -476,7 +545,8 @@ const storeSrapperLastTokenId = (tokenId: number) => {
 const loadScapperLastTokenId = () => {
   return parseInt(localStorage.getItem(LAST_SCRAP_TOKEN_ID_KEY) || '7080');
 }
-const loadMyPositions = () => {
-  return JSON.parse(localStorage.getItem(TOKEN_IDS_KEY) || '[]');
+// 8850
+const loadMyPosition = () => {
+  return JSON.parse(localStorage.getItem(TOKEN_ID_KEY) || '0');
 }
 export default V4UseLP;

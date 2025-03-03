@@ -50,6 +50,13 @@ import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
 import { set } from "mongoose";
+import { encodeSqrtRatioX96, nearestUsableTick, TickMath } from "@uniswap/v3-sdk";
+
+const TICK_SPACING = 10;
+const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
+const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
+const tickLowerNum = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
+const tickUpperNum = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4LiquidityComponent = () => {
@@ -61,8 +68,8 @@ const V4LiquidityComponent = () => {
   const [amount, setAmount] = useState("1");
   const [tickSpacing] = useState(10);
   const [swapFee] = useState(4000);
-  const [tickLower, setTickLower] = useState<number>(-600);
-  const [tickUpper, setTickUpper] = useState<number>(600);
+  const [tickLower, setTickLower] = useState<number>(tickLowerNum);
+  const [tickUpper, setTickUpper] = useState<number>(tickUpperNum);
 
   const [amount0, setAmount0] = useState<string>();
   const [amount1, setAmount1] = useState<string>();
@@ -465,11 +472,10 @@ const V4LiquidityComponent = () => {
                 </div>
               )}
 
-              {liquidityInfo &&
-                Number(liquidityInfo?.userLPBalance || 0) > 0 && (
+              {liquidityInfo && (
                   <div className=" max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8 text-white">
                     <div className="mx-auto text-center text-2xl mb-6">
-                      Your positions
+                      Your positions #{liquidityInfo?.tokenId}
                     </div>
 
                     <div className="space-y-4">
@@ -479,11 +485,11 @@ const V4LiquidityComponent = () => {
                       </div>
                       <div className="flex justify-between">
                         <span>Deposited mFUSD:</span>
-                        <span>{liquidityInfo?.tokenA?.userReserve}</span>
+                        <span>{liquidityInfo?.amount0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Deposited mUSDT:</span>
-                        <span>{liquidityInfo?.tokenB?.userReserve}</span>
+                        <span>{liquidityInfo?.amount1}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Share of pool:</span>
