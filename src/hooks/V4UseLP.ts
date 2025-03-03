@@ -42,43 +42,46 @@ const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TIC
 const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
 
 let fetchLocked = false;
-// async function fetchPositions(address: string, signer: any, setMyTokenIds: (tokenIds: number[]) => void) {
-//   if (fetchLocked) return;
-//   fetchLocked = true;
-//   console.log('fetching positions...');
-//   const positionManagerContract = new ethers.Contract(
-//     PoolModifyLiquidityTestAddress,
-//     [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
-//     signer
-//   );
-//   const totalTokens = parseInt((await positionManagerContract.nextTokenId()).toString()) - 1;
-//   console.log({totalTokens});
-//   const lastTokenId = loadScapperLastTokenId();
-//   for (let i = lastTokenId; i < totalTokens; i++) {
-//     // const tokenId = await positionManagerContract.tokenOfOwnerByIndex(address, i);
-//     try {
-//       const owner = await positionManagerContract.ownerOf(i);
-//       console.log({tokenId: i, owner});
-//       if (owner === address) {
-//         const [positionInfo,] = await positionManagerContract.getPoolAndPositionInfo(i);
-//         console.log({positionInfo});
-//         const id = poolId;
-//         // console.log({id, poolKeyHash  });
-//         // if (id === poolKeyHash) {
-//           setMyTokenIds(addToMyPositions(i));
-//           // storeTokenId(i);
-//           // setTokenId(i);
-//           console.log('ADD TOKEN');
-//           // break;
-//         // }
-//       }
-//     } catch {}
-//     storeSrapperLastTokenId(i);
-//   }
-//   fetchLocked = false;
-//   // const tokenId = await positionManagerContract.tokenOfOwnerByIndex(address, 0);
-//   // console.log({tokenId});
-// }
+async function fetchPositions(address: string, signer: any) {
+  if (fetchLocked) return;
+  fetchLocked = true;
+  console.log('fetching positions...');
+  const positionManagerContract = new ethers.Contract(
+    PoolModifyLiquidityTestAddress,
+    [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
+    signer
+  );
+  const totalTokens = parseInt((await positionManagerContract.nextTokenId()).toString());
+  const lastTokenId = loadScapperLastTokenId();
+  let positionId = 0;
+  for (let i = lastTokenId; i < totalTokens; i++) {
+    try {
+      const owner = await positionManagerContract.ownerOf(i);
+      if (owner === address) {
+        const [positionInfo,] = await positionManagerContract.getPoolAndPositionInfo(i);
+        const positionPoolId = Pool.getPoolId(
+          new Token(42161, positionInfo.currency0, 18, "FUSD", "FUSD"),
+          new Token(42161, positionInfo.currency1, 6, "USDT", "USDT"),
+          positionInfo.fee,
+          positionInfo.tickSpacing,
+          positionInfo.hooks
+        );
+        if (poolId === positionPoolId) {
+          console.log(`Token found ${i}`);
+          positionId = i;
+          break;
+        }
+      }
+    } catch(e) {
+      console.error(e);
+    }
+    finally {
+      storeSrapperLastTokenId(i);
+    }
+  }
+  fetchLocked = false;
+  return positionId;
+}
 
 
 const V4UseLP = (
@@ -229,6 +232,10 @@ const V4UseLP = (
           signer
         );
         nextTokenId = parseInt((await positionManagerContract.nextTokenId()).toString()) - 1;
+        const lastScrapTokenId = loadScapperLastTokenId();
+        if (!lastScrapTokenId) {
+          storeSrapperLastTokenId(nextTokenId);
+        }
       }
 
       await sendTransaction({
@@ -239,30 +246,9 @@ const V4UseLP = (
       toast.success("Liquidity Added Successfully");
 
       if (!tokenId) {
-        const positionManagerContract = new ethers.Contract(
-          PoolModifyLiquidityTestAddress,
-          [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
-          signer
-        );
-        const totalTokens = parseInt((await positionManagerContract.nextTokenId()).toString()) - 1;
-        for (let i = nextTokenId; i < totalTokens; i++) {
-          try {
-            const owner = await positionManagerContract.ownerOf(i);
-            if (owner === address) {
-              const [positionInfo,] = await positionManagerContract.getPoolAndPositionInfo(i);
-              const id = getPoolId({
-                currency0: positionInfo[0],
-                currency1: positionInfo[1],
-                fee: Number(positionInfo[2]),
-                tickSpacing: positionInfo[3],
-                hooks: positionInfo[4],
-              });
-              if (id === poolId) {
-                storePositionId(i);
-              }
-            }
-          } catch {}
-          storeSrapperLastTokenId(i);
+        const newTokenId = await fetchPositions(address as `0x${string}`, signer);
+        if (newTokenId) {
+          storePositionId(newTokenId);
         }
       }
     } catch (error) {
@@ -545,7 +531,7 @@ const storeSrapperLastTokenId = (tokenId: number) => {
   localStorage.setItem(LAST_SCRAP_TOKEN_ID_KEY, tokenId.toString());
 }
 const loadScapperLastTokenId = () => {
-  return parseInt(localStorage.getItem(LAST_SCRAP_TOKEN_ID_KEY) || '7080');
+  return parseInt(localStorage.getItem(LAST_SCRAP_TOKEN_ID_KEY) || '0');
 }
 // 8850
 const loadMyPosition = () => {
