@@ -128,7 +128,6 @@ const V4UseSwap = (
         token1.address, amountOutMinimum
       ]);
       const callbackData = planner.finalize();
-      const UNIVERSAL_ROUTER = '0xA51afAFe0263b40EdaEf0Df8781eA9aa03E381a3';
       const deadline = Math.ceil(new Date().getTime()/1000) + 7200;
       await writeApproveToken0Contract({
         address: UNIVERSAL_ROUTER,
@@ -153,6 +152,7 @@ const V4UseSwap = (
     console.log({trade});
   }
 
+  const UNIVERSAL_ROUTER = '0xA51afAFe0263b40EdaEf0Df8781eA9aa03E381a3';
   const PERMIT_2_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
   const POOL_MANAGER = '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32';
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
@@ -165,7 +165,7 @@ const V4UseSwap = (
         signer
       );
       const [permitAllowance, expiration] = await allowanceTransfer.allowance(
-        address, tokenAddress, POOL_MANAGER
+        address, tokenAddress, UNIVERSAL_ROUTER
       );
       const tokenContract = new ethers.Contract(
         tokenAddress,
