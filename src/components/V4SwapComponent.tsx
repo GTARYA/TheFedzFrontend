@@ -29,12 +29,15 @@ import BalanceDisplay from "./swap/BalanceDisplay";
 import V4UseSwap from "../hooks/V4UseSwap";
 import { Token } from "@uniswap/sdk-core";
 import { poolId } from "../hooks/PoolConsts";
+import { balanceOf } from "../hooks/erc20";
+import { formatBalance } from "../hooks/formatters";
 
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4SwapComponent = () => {
   const activeChainId = useChainId();
 
+  const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState(poolId);
   const [amount, setAmount] = useState("1");
   const [token0, setToken0] = useState(MockFUSDAddress);
@@ -54,28 +57,25 @@ const V4SwapComponent = () => {
   const [MockUSDTBalanceState, setMockUSDTBalanceState] = useState<BigInt>(
     BigInt(0)
   );
+  const signer = useEthersSigner();
 
+  useEffect(() => {
+    if (!mount && signer) {
+      fetchBalancesAndPrint();
+      setMount(true);
+    }
+  }, [mount, signer]);
   const [isNFTHolderState, setIsNFTHolderState] = useState(false);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] = useState<Function>(() => {});
-  const signer = useEthersSigner();
-  const { address } = useAccount();
+  const { address }: { address: `0x${string}` } = useAccount() as any;
   // const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
   // const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
   const { loading, quote, quoteLoading, updateAmountIn, updateAmountOut } =
   V4UseSwap(activeChainId,amount, signer, tokenIn, tokenOut);
-  const { data: tokenABalance ,refetch:refetchTokenABalance} = useBalance({
-    address,
-    chainId: ChainId,
-    token: token0 as "0x",
-  });
-
-  const { data: tokenBBalance, refetch:refetchTokenBBalance} = useBalance({
-    address,
-    chainId: ChainId,
-    token: token1 as "0x",
-  });
+  const [tokenABalance, setTokenABalance] = useState<string>('-');
+  const [tokenBBalance, setTokenBBalance] = useState<string>('-');
 
   // Function to swap tokens
   const switchTokens = () => {
@@ -201,6 +201,22 @@ const V4SwapComponent = () => {
     }
   };
 
+  const fetchBalance = async (tokenAddress: string) => {
+    return await balanceOf(tokenAddress, address, signer);
+  }
+  const fetchBalancesAndPrint = async () => {
+    console.log('fetching balances');
+    setTokenABalance('-');
+    setTokenBBalance('-');
+    const tokenABalance = await fetchBalance(tokenIn.address);
+    const tokenBBalance = await fetchBalance(tokenOut.address);
+    setTokenABalance(formatBalance(tokenABalance, tokenIn.decimals));
+    setTokenBBalance(formatBalance(tokenBBalance, tokenOut.decimals));
+  }
+
+  useEffect(() => {
+    fetchBalancesAndPrint();
+  }, [tokenOut, tokenIn]);
   const handleToggleTokens = () => {
     setTokenIn(tokenOut);
     setTokenOut(tokenIn);
