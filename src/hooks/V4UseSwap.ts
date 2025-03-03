@@ -71,14 +71,17 @@ const V4UseSwap = (
   token1: Token,
   slippageTolerance = new Percent(4, 100),
 ) => {
+  console.log({
+    version: '0.0.2'
+  });
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
   const [quoteLoading, setQuoteLoading] = useState(false);
   const {address} = useAccount();
   const {
-    data: writeApprove0Data,
-    error: writeApprove0Error,
-    isPending: isApprove0Pending,
+    data: writeData,
+    error: writeError,
+    isPending: isPending,
     writeContractAsync: writeToContract,
   } = useWriteContract();
   
@@ -86,6 +89,7 @@ const V4UseSwap = (
     return await loadPoolBySigner(signer);
   }
   const updateAmountIn = async (amount: string, zeroForOne: boolean = true) => {
+    setQuoteLoading(true);
     const pool = await loadPool();
     const tokenIn = zeroForOne ? token0 : token1;
     const tokenOut = zeroForOne ? token1 : token0;
@@ -95,6 +99,7 @@ const V4UseSwap = (
       CurrencyAmount.fromRawAmount(tokenIn, amountInUnits),
       TradeType.EXACT_INPUT
     );
+    setQuoteLoading(false);
     setQuote(trade.minimumAmountOut(new Percent(0, 100)).toSignificant(tokenOut.decimals));
     const exeuteSwapQuoteCallback = async () => {
       const amountOutMinUnits = ethers.utils.parseUnits(trade.minimumAmountOut(slippageTolerance).toExact(), tokenOut.decimals);

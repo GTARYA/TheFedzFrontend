@@ -31,6 +31,7 @@ import { Token } from "@uniswap/sdk-core";
 import { poolId } from "../hooks/PoolConsts";
 import { balanceOf } from "../hooks/erc20";
 import { formatBalance } from "../hooks/formatters";
+import { on } from "events";
 
 
 let autofillTimeout: NodeJS.Timeout | undefined;
@@ -47,21 +48,21 @@ const V4SwapComponent = () => {
   const [tokenIn, setTokenIn] = useState<Token>(v4Token0);
   const [tokenOut, setTokenOut] = useState<Token>(v4Token1);
   const signer = useEthersSigner();
+  const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] = useState<Function>(() => {});
+  const { address }: { address: `0x${string}` } = useAccount() as any;
+  const { loading, quote, quoteLoading, updateAmountIn } = V4UseSwap(activeChainId,amount, signer, v4Token0, v4Token1);
+  const [tokenABalance, setTokenABalance] = useState<string>('-');
+  const [tokenBBalance, setTokenBBalance] = useState<string>('-');
+  const [isNFTHolderState, setIsNFTHolderState] = useState(false);
+  const [isPlayerTurnState, setIsPlayerTurnState] = useState(false);
 
   useEffect(() => {
     if (!mount && signer) {
       fetchBalancesAndPrint();
+      onAmountChange();
       setMount(true);
     }
   }, [mount, signer]);
-  const [isNFTHolderState, setIsNFTHolderState] = useState(false);
-  const [isPlayerTurnState, setIsPlayerTurnState] = useState(false);
-  const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] = useState<Function>(() => {});
-  const { address }: { address: `0x${string}` } = useAccount() as any;
-  const { loading, quote, quoteLoading, updateAmountIn } =
-  V4UseSwap(activeChainId,amount, signer, v4Token0, v4Token1);
-  const [tokenABalance, setTokenABalance] = useState<string>('-');
-  const [tokenBBalance, setTokenBBalance] = useState<string>('-');
 
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
