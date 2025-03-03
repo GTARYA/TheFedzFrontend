@@ -11,13 +11,9 @@ import {
   MockFUSDAddress,
   MockUSDTAddress,
   PoolSwapTestAddress,
-  PoolModifyLiquidityTestAddress,
-  TimeSlotSystemAddress,
 } from "../contractAddressArbitrum";
-import {maxLiquidityForAmounts, encodeSqrtRatioX96, ADDRESS_ZERO, TickMath, nearestUsableTick, SwapQuoter } from "@uniswap/v3-sdk";
-import { Tick, TickConstructorArgs, TickDataProvider } from '@uniswap/v3-sdk';
-import { useAccount, useSendTransaction, useWriteContract } from "wagmi";
-// import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
+import {encodeSqrtRatioX96, TickMath, nearestUsableTick } from "@uniswap/v3-sdk";
+import { useAccount, useWriteContract } from "wagmi";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 
@@ -83,7 +79,7 @@ const V4UseSwap = (
     data: writeApprove0Data,
     error: writeApprove0Error,
     isPending: isApprove0Pending,
-    writeContractAsync: writeApproveToken0Contract,
+    writeContractAsync: writeToContract,
   } = useWriteContract();
   
   const loadPool = async () => {
@@ -125,7 +121,7 @@ const V4UseSwap = (
       ]);
       const callbackData = planner.finalize();
       const deadline = Math.ceil(new Date().getTime()/1000) + 7200;
-      await writeApproveToken0Contract({
+      await writeToContract({
         address: UNIVERSAL_ROUTER,
         abi: routerAbi,
         functionName: "execute",
@@ -181,7 +177,7 @@ const V4UseSwap = (
       if (permitAllowance < amountIn || expiration < currentUnixTime) {
         console.log(`approval on permit2`);
         approvalToastId = toast.loading(`Approving Token ${token0.name}`);
-        await writeApproveToken0Contract({
+        await writeToContract({
           address: PERMIT_2_ADDRESS,
           abi: AllowanceTransferAbi,
           functionName: "approve",
@@ -196,7 +192,7 @@ const V4UseSwap = (
       );
       if (allowance < amountIn) {
         console.log(`approval on token for permit2`);
-        await writeApproveToken0Contract({
+        await writeToContract({
           address: tokenAddress as `0x${string}`,
           abi: MockERC20Abi,
           functionName: "approve",

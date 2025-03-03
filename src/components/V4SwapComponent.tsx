@@ -38,25 +38,14 @@ const V4SwapComponent = () => {
   const activeChainId = useChainId();
 
   const [mount, setMount] = useState(false);
-  const [poolKeyHash, setPoolKeyHash] = useState(poolId);
+  const [poolKeyHash] = useState(poolId);
   const [amount, setAmount] = useState("1");
-  const [token0, setToken0] = useState(MockFUSDAddress);
-  const [token1, setToken1] = useState(MockUSDTAddress);
-  const [v4Token0, setV4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
-  const [v4Token1, setV4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
+  const [token0] = useState(MockFUSDAddress);
+  const [token1] = useState(MockUSDTAddress);
+  const [v4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
+  const [v4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
   const [tokenIn, setTokenIn] = useState<Token>(v4Token0);
   const [tokenOut, setTokenOut] = useState<Token>(v4Token1);
-  
-  const [tickSpacing, setTickSpacing] = useState(60);
-  const [swapFee, setSwapFee] = useState(4000);
-  const [isToken0Approved, setIsToken0Approved] = useState(false);
-  const [isToken1Approved, setIsToken1Approved] = useState(false);
-  const [MockFUSDBalanceState, setMockFUSDBalanceState] = useState<BigInt>(
-    BigInt(0)
-  );
-  const [MockUSDTBalanceState, setMockUSDTBalanceState] = useState<BigInt>(
-    BigInt(0)
-  );
   const signer = useEthersSigner();
 
   useEffect(() => {
@@ -67,26 +56,12 @@ const V4SwapComponent = () => {
   }, [mount, signer]);
   const [isNFTHolderState, setIsNFTHolderState] = useState(false);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] = useState<Function>(() => {});
   const { address }: { address: `0x${string}` } = useAccount() as any;
-  // const [tokenA, setTokenA] = useState<TokenInfo>(USDT_ADDR[ChainId]);
-  // const [tokenB, setTokenB] = useState<TokenInfo>(FUSD_ADDR[ChainId]);
-  const { loading, quote, quoteLoading, updateAmountIn, updateAmountOut } =
+  const { loading, quote, quoteLoading, updateAmountIn } =
   V4UseSwap(activeChainId,amount, signer, v4Token0, v4Token1);
   const [tokenABalance, setTokenABalance] = useState<string>('-');
   const [tokenBBalance, setTokenBBalance] = useState<string>('-');
-
-  // Function to swap tokens
-  const switchTokens = () => {
-    setTimeout(() => {
-      setToken0(token1);
-      setToken1(token0);
-    }, 500); // Adjust this delay to match your rotation animation duration
-  };
-
-  const [hookData, setHookData] = useState<`0x${string}`>("0x0"); // New state for custom hook data
-  const [swapError, setSwapError] = useState();
 
   const { data: isNFTHolder } = useReadContract({
     address: MockERC721Address,
@@ -114,74 +89,6 @@ const V4SwapComponent = () => {
     }
     console.log("is address NFT holder", isNFTHolder);
   }, [isNFTHolder]);
-
-  const { data: token0Allowance } = useReadContract({
-    address: MockFUSDAddress,
-    abi: MockERC20Abi,
-    functionName: "allowance",
-    args: [address, PoolSwapTestAddress],
-  });
-
-  const { data: token1Allowance } = useReadContract({
-    address: MockUSDTAddress,
-    abi: MockERC20Abi,
-    functionName: "allowance",
-    args: [address, PoolSwapTestAddress],
-  });
-
-  const { data: MockFUSDBalance } = useReadContract({
-    address: MockFUSDAddress,
-    abi: MockERC20Abi,
-    functionName: "balanceOf",
-    args: [address],
-  });
-
-  const { data: MockUSDTBalance } = useReadContract({
-    address: MockUSDTAddress,
-    abi: MockERC20Abi,
-    functionName: "balanceOf",
-    args: [address],
-  });
-
-  useEffect(() => {
-    if (token0Allowance != null && token1Allowance != null && amount != null) {
-      try {
-        const amountBigInt = parseEther(amount.toString());
-        const token0AllowanceBigInt = BigInt(token0Allowance.toString());
-        const token1AllowanceBigInt = BigInt(token1Allowance.toString());
-        const isToken0Approved = token0AllowanceBigInt >= amountBigInt;
-        const isToken1Approved = token1AllowanceBigInt >= amountBigInt;
-        setIsToken0Approved(isToken0Approved);
-        setIsToken1Approved(isToken1Approved);
-      } catch (error) {
-        console.error("Error converting values to BigInt:", error);
-        setIsToken0Approved(false);
-        setIsToken1Approved(false);
-      }
-    } else {
-      setIsToken0Approved(false);
-      setIsToken1Approved(false);
-    }
-  }, [token0Allowance, token1Allowance, amount]);
-
-  useEffect(() => {
-    if (MockFUSDBalance != null && MockUSDTBalance != null) {
-      try {
-        const formattedToken0Balance = MockFUSDBalance;
-        const formattedToken1Balance = MockUSDTBalance;
-
-        setMockFUSDBalanceState(formattedToken0Balance as BigInt);
-        setMockUSDTBalanceState(formattedToken1Balance as BigInt);
-      } catch (error) {
-        console.error("Error formatting balance values:", error);
-        setMockFUSDBalanceState(BigInt(0));
-        setMockUSDTBalanceState(BigInt(0));
-      }
-    } else {
-      setMockFUSDBalanceState(BigInt(0));
-      setMockUSDTBalanceState(BigInt(0));
-    }
-  }, [MockFUSDBalance, MockUSDTBalance]);
 
   const handleTokenSelection = (selectedToken: Token, isInput: boolean) => {
     if (isInput) {
@@ -227,10 +134,10 @@ const V4SwapComponent = () => {
   };
 
   const handleMaxClick = () => {
-    if (token0.toLowerCase() === MockFUSDAddress.toLowerCase())
-      setAmount(formatEther(MockFUSDBalanceState as bigint));
-    if (token0.toLowerCase() === MockUSDTAddress.toLowerCase())
-      setAmount(formatEther(MockUSDTBalanceState as bigint));
+    // if (token0.toLowerCase() === MockFUSDAddress.toLowerCase())
+    //   setAmount(formatEther(MockFUSDBalanceState as bigint));
+    // if (token0.toLowerCase() === MockUSDTAddress.toLowerCase())
+    //   setAmount(formatEther(MockUSDTBalanceState as bigint));
   };
 
   async function onAmountChange() {

@@ -51,6 +51,8 @@ import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
 import { set } from "mongoose";
 import { encodeSqrtRatioX96, nearestUsableTick, TickMath } from "@uniswap/v3-sdk";
+import { formatBalance } from "../hooks/formatters";
+import { balanceOf } from "../hooks/erc20";
 
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
@@ -62,6 +64,8 @@ let autofillTimeout: NodeJS.Timeout | undefined;
 const V4LiquidityComponent = () => {
   const activeChainId = useChainId();
   const signer = useEthersSigner();
+  const { address }: { address: `0x${string}` } = useAccount() as any;
+  const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
   const [token1] = useState(MockUSDTAddress);
@@ -86,31 +90,31 @@ const V4LiquidityComponent = () => {
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
   const [tickError, setTickError] = useState<string | null>(null);
 
-  const { address } = useAccount();
   const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
+  const [tokenABalance, setTokenABalance] = useState<string>('-');
+  const [tokenBBalance, setTokenBBalance] = useState<string>('-');
 
   const nftbalance = 1;
-  // const { data: nftbalance, isLoading: balanceLoading } = useContractRead({
-  //   address: NFT_ADDR as `0x${string}`,
-  //   abi: erc721Abi,
-  //   functionName: "balanceOf",
-  //   args: [address as "0x"],
-  //   chainId: ChainId
-  // });
 
-
-  const { data: tokenABalance, refetch: refetchTokenABalance } = useBalance({
-    address,
-    chainId: ChainId,
-    token: tokenA.address as "0x",
-  });
-
-  const { data: tokenBBalance, refetch: refetchTokenBBalance } = useBalance({
-    address,
-    chainId: ChainId,
-    token: tokenB.address as "0x",
-  });
+  useEffect(() => {
+    if (!mount && signer) {
+      fetchBalancesAndPrint();
+      setMount(true);
+    }
+  }, [mount, signer]);
+  const fetchBalance = async (tokenAddress: string) => {
+    return await balanceOf(tokenAddress, address, signer);
+  }
+  const fetchBalancesAndPrint = async () => {
+    console.log('fetching balances');
+    setTokenABalance('-');
+    setTokenBBalance('-');
+    const tokenABalance = await fetchBalance(tokenA.address);
+    const tokenBBalance = await fetchBalance(tokenB.address);
+    setTokenABalance(formatBalance(tokenABalance, tokenA.decimals));
+    setTokenBBalance(formatBalance(tokenBBalance, tokenB.decimals));
+  }
 
   const [liqudidity, setLiqudidity] = useState<string>();
   function onAmount0QuoteChange(amount0: string, amount1: string, liqudidity: string) {
@@ -161,8 +165,7 @@ const V4LiquidityComponent = () => {
     if(Number(nftbalance?.toString()) > 0){
       if (liqudidity) {
         await addLPS(liqudidity);
-        refetchTokenABalance();
-        refetchTokenBBalance();
+        fetchBalancesAndPrint();
       }
     }else{
       toast.error("You need to be an NFT Holder to add Liquidity")
