@@ -154,7 +154,6 @@ const V4UseSwap = (
 
   const UNIVERSAL_ROUTER = '0xA51afAFe0263b40EdaEf0Df8781eA9aa03E381a3';
   const PERMIT_2_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3';
-  const POOL_MANAGER = '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32';
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
     try {
       console.log(`Approving token ${tokenAddress}...`);
@@ -180,6 +179,9 @@ const V4UseSwap = (
       }
       let approvalToastId;
       const currentUnixTime = Math.ceil(new Date().getTime()/1000);
+      console.log({
+        permitAllowance, expiration, currentUnixTime, amountIn
+      });
       if (permitAllowance < amountIn || expiration < currentUnixTime) {
         console.log(`approval on permit2`);
         approvalToastId = toast.loading(`Approving Token ${token0.name}`);
