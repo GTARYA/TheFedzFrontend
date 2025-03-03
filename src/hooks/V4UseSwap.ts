@@ -78,9 +78,6 @@ const V4UseSwap = (
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
   const [quoteLoading, setQuoteLoading] = useState(false);
-  console.log({
-    tickLower, tickUpper
-  });
   const {address} = useAccount();
   const {
     data: writeApprove0Data,
