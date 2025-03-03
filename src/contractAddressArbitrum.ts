@@ -1,6 +1,6 @@
 
 // Addresses of the deployed contracts on Arbitrum
-export const PoolSwapTestAddress = '0x0c284cCfEd9EACB9bF0F79079c78140cD0c213DD';
+export const PoolSwapTestAddress = '0xA51afAFe0263b40EdaEf0Df8781eA9aa03E381a3';
 // real
 // export const PoolSwapTestAddress = '0xa857555633F521C3E0397c54a0CbF489011ff919';
 export const PoolModifyLiquidityTestAddress = '0xd88F38F930b7952f2DB2432Cb002E7abbF3dD869';

@@ -10,6 +10,7 @@ import {
   HookAddress,
   MockFUSDAddress,
   MockUSDTAddress,
+  PoolSwapTestAddress,
   PoolModifyLiquidityTestAddress,
   TimeSlotSystemAddress,
 } from "../contractAddressArbitrum";
@@ -19,7 +20,6 @@ import { useAccount, useSendTransaction, useWriteContract } from "wagmi";
 // import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
-import { PoolSwapTestAddress } from "../contractAddress";
 
 const FEE = 4000;
 const TICK_SPACING = 10;
@@ -117,7 +117,7 @@ const V4UseSwap = (
           return;
       }
 
-      await approveToken(token0.address, (parseFloat(amount)*3).toString(), signer);
+      await approveToken(token0.address, (parseFloat(amount)).toString(), signer);
 
       const planner = new V4Planner();
       planner.addTrade(trade);
@@ -188,7 +188,7 @@ const V4UseSwap = (
           abi: AllowanceTransferAbi,
           functionName: "approve",
           args: [
-            tokenAddress, POOL_MANAGER, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
+            tokenAddress, PoolSwapTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
           ],
         });
       }
