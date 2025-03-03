@@ -95,7 +95,7 @@ const V4UseSwap = (
       CurrencyAmount.fromRawAmount(tokenIn, amountInUnits),
       TradeType.EXACT_INPUT
     );
-    setQuote(trade.minimumAmountOut(slippageTolerance).toSignificant(tokenOut.decimals));
+    setQuote(trade.minimumAmountOut(new Percent(0, 100)).toSignificant(tokenOut.decimals));
     const exeuteSwapQuoteCallback = async () => {
       const amountOutMinUnits = ethers.utils.parseUnits(trade.minimumAmountOut(slippageTolerance).toExact(), tokenOut.decimals);
       const amountOutMinimum = amountOutMinUnits.toString();
