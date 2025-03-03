@@ -345,13 +345,6 @@ const V4LiquidityComponent = () => {
                         }]}
                       />
                     </div>
-                    {
-                      amount0Quote && (
-                        <pre style={{color: "white"}}>
-                          {amount0Quote}
-                        </pre>
-                      )
-                    }
 
                     {/* Toggle Button */}
 
