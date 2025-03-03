@@ -309,39 +309,41 @@ const V4UseLP = (
 
     }
   }
-  // const decreasePosition = async (precents: Percent) => {
-  //   try {
-  //     const tokenId = loadMyPosition();
-  //     console.log(`Burning position ${tokenId}...`);
-  //     const actions = '0x0311';
-  //     const params: any[] = [];
-  //     params.push(ethers.utils.defaultAbiCoder.encode(["uint256", "uint24", "uint24", "bytes"], [tokenId, 0, 0, "0x"]));
-  //     params.push(ethers.utils.defaultAbiCoder.encode(["address", "address", "address"], [token0.address, token1.address, address]));
-  //     const callbackData = ethers.utils.defaultAbiCoder.encode(["bytes", "bytes[]"], [actions, params]);
-  //     await writeApproveToken0Contract({
-  //       address: PoolModifyLiquidityTestAddress,
-  //       abi: MockERC721Abi,
-  //       functionName: "approve",
-  //       args: [
-  //         '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32', tokenId
-  //       ],
-  //     });
-  //     await writeApproveToken0Contract({
-  //       address: PoolModifyLiquidityTestAddress,
-  //       abi: PoolModifiyLiquidityAbi,
-  //       functionName: "modifyLiquidities",
-  //       args: [
-  //         callbackData, Math.ceil(new Date().getTime()/1000) + 7200
-  //       ],
-  //     });
-  //     deletePositionId();
-  //     setLiquidityInfo(undefined);
-  //   } catch(e: any) {
-  //     throw e;
-  //   } finally {
+  const decreasePosition = async (p: number) => {
+    try {
+      const pool = await loadPool();
+      const tokenId = loadMyPosition();
+      const deadline = Math.ceil(new Date().getTime()/1000) + 7200;
+      const stateViewContract = new ethers.Contract(
+        '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+        UniswapStateViewAbi,
+        signer
+      );
+      const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, PoolModifyLiquidityTestAddress, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
+      const position = new Position({
+        pool,
+        liquidity,
+        tickLower,
+        tickUpper,
+      });
+      const partialRemoveOptions: RemoveLiquidityOptions = {
+        tokenId,
+        liquidityPercentage: new Percent(p, 100),
+        slippageTolerance,
+        deadline,
+      }
+      const { calldata, value } = V4PositionManager.removeCallParameters(position, partialRemoveOptions);
+      await sendTransaction({
+        to: PoolModifyLiquidityTestAddress,
+        data: calldata as `0x${string}`,
+        value: BigInt(value),
+      });
+    } catch(e: any) {
+      throw e;
+    } finally {
 
-  //   }
-  // }
+    }
+  }
 
   const removeLiquidity = async (percentToRemove: number) => {
     setRemoveLiquidityloading(true);
@@ -358,7 +360,7 @@ const V4UseLP = (
         await burnPosition();
       } else {
         // Decrease position
-        // await decreasePosition(p);
+        await decreasePosition(p);
       }
     } catch (error) {
       console.error("Error removing liquidity:", error);
