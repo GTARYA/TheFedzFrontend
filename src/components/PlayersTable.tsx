@@ -27,7 +27,7 @@ const PlayersTable: React.FC = () => {
   const [slotDuration, setSlotDuration] = useState('1h');
 
   const fetchNFTs = async () => {
-    const response = await fetch("https://www.thefedz.org/api/getAndUpdateNFTs");
+    const response = await fetch("/api/getAndUpdateNFTs");
     const data = await response.json();
     if (data.success) {
       setNFTs(data.nfts);
