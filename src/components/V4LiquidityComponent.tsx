@@ -1,23 +1,11 @@
 import { useState, useEffect } from "react";
 import {
   useAccount,
-  useBalance,
   useReadContract,
-  useContractWrite,
-  useWriteContract,
-  useWalletClient,
   useChainId,
-  useContractRead,
-  
 } from "wagmi";
-import {erc721Abi} from "viem"
 import {
-  mainnet,
   arbitrum,
-  bscTestnet,
-  base,
-  bsc,
-  sepolia,
 } from "@reown/appkit/networks";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEthersSigner } from "../hooks/useEthersSigner";
@@ -53,6 +41,7 @@ import { set } from "mongoose";
 import { encodeSqrtRatioX96, nearestUsableTick, TickMath } from "@uniswap/v3-sdk";
 import { formatBalance } from "../hooks/formatters";
 import { balanceOf } from "../hooks/erc20";
+import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
@@ -98,11 +87,17 @@ const V4LiquidityComponent = () => {
   const nftbalance = 1;
 
   useEffect(() => {
-    if (!mount && signer) {
+    if (!mount && signer && address) {
       fetchBalancesAndPrint();
+      isNftHolder(address, signer).then((result: boolean) => {
+        setIsNFTHolderState(result);
+      });
+      isActingPlayer(address, signer).then((result: boolean) => {
+        setIsPlayerTurnState(result);
+      });
       setMount(true);
     }
-  }, [mount, signer]);
+  }, [mount, signer, address]);
   const fetchBalance = async (tokenAddress: string) => {
     return await balanceOf(tokenAddress, address, signer);
   }
@@ -181,21 +176,6 @@ const V4LiquidityComponent = () => {
     removeLiquidity(Number(percentToRemove));
   };
 
-  const { data: isNFTHolder } = useReadContract({
-    address: MockERC721Address,
-    abi: MockERC721Abi,
-    functionName: "isNFTHolder",
-    args: [address],
-  });
-  console.log({isNFTHolder})
-
-  useEffect(() => {
-    if (isNFTHolder !== undefined) {
-      setIsNFTHolderState(true);
-      // setIsNFTHolderState(isNFTHolder as boolean);
-    }
-  }, [isNFTHolder]);
-
   useEffect(() => {
     if (tickLower > tickUpper) {
       setTickError("Lower tick cannot be above upper tick!");
@@ -203,21 +183,6 @@ const V4LiquidityComponent = () => {
       setTickError(null);
     }
   }, [tickLower, tickUpper]);
-
-  // const fusdContract = new ether
-  const { data: isPlayerTurn } = useReadContract({
-    address: TimeSlotSystemAddress,
-    abi: TimeSlotSystemAbi,
-    functionName: "canPlayerAct",
-    args: [address],
-  });
-  console.log({isPlayerTurn})
-  useEffect(() => {
-    if (isPlayerTurn !== undefined) {
-      // setIsPlayerTurnState(isPlayerTurn as boolean);
-      setIsPlayerTurnState(true);
-    }
-  }, [isPlayerTurn]);
 
   const { data: token0Allowance } = useReadContract({
     address: MockFUSDAddress,
@@ -321,83 +286,138 @@ const V4LiquidityComponent = () => {
           <Title className="text-center">Add Liquidity</Title>
           <Container>
             <div>
-              {activeChainId == arbitrum.id && (
-                <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
-                  <div className="space-y-10">
-                    {/* Token A Input */}
-                    <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                      <BalanceDisplay
-                        label="Input Token"
-                        balance={tokenABalance}
-                      />
-                      <TokenInput
-                        amount={amount0}
-                        setAmount={setAmount0}
-                        onFocus={() => {
-                          setEditingTokenA(true);
-                        }}
-                        onBlur={() => {
-                          setEditingTokenA(false);
-                        }}
-                        token={tokenA}
-                        setToken={(token: any) => handleTokenSelection(token, true)}
-                        options={[{
-                          value: tokenA,
-                          label: "FUSD",
-                          // decimals: 18,
-                        }]}
-                      />
-                    </div>
+              <div className="max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
+                <div className="space-y-10">
+                  {/* Token A Input */}
+                  <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
+                    <BalanceDisplay
+                      label="Input Token"
+                      balance={tokenABalance}
+                    />
+                    <TokenInput
+                      amount={amount0}
+                      setAmount={setAmount0}
+                      onFocus={() => {
+                        setEditingTokenA(true);
+                      }}
+                      onBlur={() => {
+                        setEditingTokenA(false);
+                      }}
+                      token={tokenA}
+                      setToken={(token: any) => handleTokenSelection(token, true)}
+                      options={[{
+                        value: tokenA,
+                        label: "FUSD",
+                        // decimals: 18,
+                      }]}
+                    />
+                  </div>
 
-                    {/* Toggle Button */}
+                  {/* Toggle Button */}
 
-                    {/* Token B Output */}
-                    <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                      <BalanceDisplay
-                        label="Output Token"
-                        balance={tokenBBalance}
-                      />
-                      <TokenInput
-                        amount={amount1}
-                        setAmount={setAmount1} // Disable changing amount for output token
-                        token={tokenB}
-                        onFocus={() => {
-                          setEditingTokenA(true);
-                        }}
-                        onBlur={() => {
-                          setEditingTokenA(false);
-                        }}
-                        setToken={(token: any) => handleTokenSelection(token, false)}
-                        options={[{
-                          value: tokenB,
-                          label: "USDT",
-                          // decimals: 18,
-                        }]}
-                      />
-                    </div>
-                    <div className="pt-6">
-                      <button
-                        disabled={loading}
-                        onClick={addLiquidity}
-                        className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
-                      >
-                        {loading ? (
-                          <ScaleLoader
-                            height={20}
-                            loading={loading}
-                            color="#ffffff"
-                            className="text-white"
-                            aria-label="Loading Spinner"
-                            data-testid="loader"
-                          />
-                        ) : (
-                          "Add liquidity"
-                        )}
-                      </button>
-                    </div>
+                  {/* Token B Output */}
+                  <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
+                    <BalanceDisplay
+                      label="Output Token"
+                      balance={tokenBBalance}
+                    />
+                    <TokenInput
+                      amount={amount1}
+                      setAmount={setAmount1} // Disable changing amount for output token
+                      token={tokenB}
+                      onFocus={() => {
+                        setEditingTokenA(true);
+                      }}
+                      onBlur={() => {
+                        setEditingTokenA(false);
+                      }}
+                      setToken={(token: any) => handleTokenSelection(token, false)}
+                      options={[{
+                        value: tokenB,
+                        label: "USDT",
+                        // decimals: 18,
+                      }]}
+                    />
+                  </div>
+                  <div className="pt-6">
+                    {
+                      mount && isNFTHolderState && isPlayerTurnState && (
+                        <button
+                          disabled={loading}
+                          onClick={addLiquidity}
+                          className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                        >
+                          {loading ? (
+                            <ScaleLoader
+                              height={20}
+                              loading={loading}
+                              color="#ffffff"
+                              className="text-white"
+                              aria-label="Loading Spinner"
+                              data-testid="loader"
+                            />
+                          ) : (
+                            "Add liquidity"
+                          )}
+                        </button>
+                      )
+                    }
+                    {
+                      mount && (
+                        <>
+                          {
+                            isNFTHolderState ? (
+                              <>
+                                {
+                                  !isPlayerTurnState && (
+                                    <div className="alert alert-error">
+                                      <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="stroke-current shrink-0 h-6 w-6"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                    <span>It is not your Turn to Act !</span>
+                                  </div>
+                                  )
+                                }
+
+                              </>
+                            )
+                            : (
+                                <div className="alert alert-warning">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="stroke-current shrink-0 h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    />
+                                  </svg>
+                                  <span>
+                                    You need to be an NFT Holder to add Liquidity !
+                                  </span>
+                                </div>
+                            )
+                          }
+                        </>
+                      )
+                    }
                   </div>
                 </div>
-              )}
+              </div>
 
               {showModal && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
