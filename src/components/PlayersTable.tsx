@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useReadContracts, useReadContract, useChainId } from "wagmi";
+import { useReadContracts, useReadContract, useChainId, useAccount } from "wagmi";
 import { formatUnits } from "viem";
-import { TimeSlotSystemAddress, MockERC721Address } from "../contractAddress";
+import { TimeSlotSystemAddress, ERC721Address as MockERC721Address } from "../contractAddressArbitrum";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import Image from "next/image";
@@ -17,6 +17,9 @@ import {
 } from "@reown/appkit/networks";
 
 import NFTTableRow from "./nft/NFTTableRow";
+import { formatDuration } from "../hooks/formatters";
+import { useEthersSigner } from "../hooks/useEthersSigner";
+import { fetchActingPlayer, fetchNextActingPlayer, fetchSlotDuration } from "../hooks/fedz";
 type Address = `0x${string}`;
 
 interface NFT {
@@ -26,20 +29,19 @@ interface NFT {
 
 const PlayersTable: React.FC = () => {
   const activeChainId = useChainId();
+  const signer = useEthersSigner();
+  const [mount, setMount] = useState(false);
   const [allNfts, setAllNfts] = useState<NFT[]>([]);
   const [nfts, setNFTs] = useState<any>([]);
+  const [slotDuration, setSlotDuration] = useState('1h');
 
   const fetchNFTs = async () => {
-    const response = await fetch("/api/getAndUpdateNFTs");
+    const response = await fetch("https://www.thefedz.org/api/getAndUpdateNFTs");
     const data = await response.json();
     if (data.success) {
       setNFTs(data.nfts);
     }
   };
-
-  useEffect(() => {
-    fetchNFTs();
-  }, []);
 
   const {
     data: contractData,
@@ -48,20 +50,30 @@ const PlayersTable: React.FC = () => {
   } = useReadContracts({
     contracts: [
       {
-        address: TimeSlotSystemAddress,
-        abi: TimeSlotSystemAbi,
-        functionName: "getPlayDuration",
-      },
-      {
         address: MockERC721Address as `0x${string}`,
         abi: MockERC721Abi,
         functionName: "getAllOwners",
       },
     ],
   });
-
-  const [playDuration, owners] = contractData || [];
-
+  const [owners] = contractData || [];
+  const [actingPlayer, setActingPlayer] = useState<string | null>(null);
+  const [upCommingPlayer, setUpCommingPlayer] = useState<string | null>(null);
+  useEffect(() => {
+    if (!mount && signer) {
+      fetchNFTs();
+      fetchSlotDuration(signer).then((duration) => {
+        setSlotDuration(formatDuration(duration));
+        fetchNextActingPlayer(signer, duration).then((next) => {
+          setUpCommingPlayer(next);
+        });
+      });
+      fetchActingPlayer(signer).then((actingPlayer) => {
+        setActingPlayer(actingPlayer);
+      });
+      setMount(true);
+    }
+  }, [mount, signer]);
   const { data: ownedTokensResult } = useReadContracts({
     // @ts-ignore
     contracts:
@@ -139,12 +151,7 @@ const PlayersTable: React.FC = () => {
                       Play Duration
                     </p>
                     <h3 className="text-base md:text-xl font-bold">
-                      {!playDuration?.error
-                        ? `${Math.floor(
-                            // @ts-ignore
-                            Number(formatUnits(playDuration.result, 0)) / 3600
-                          )}h`
-                        : "1h"}
+                      {slotDuration}
                     </h3>
                   </div>
                 </div>
@@ -194,10 +201,12 @@ const PlayersTable: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {nfts?.map((nft: any, indx: any) => (
+                    {actingPlayer && upCommingPlayer && nfts?.map((nft: any, indx: any) => (
                       <NFTTableRow
                         key={indx}
                         nft={nft}
+                        actingPlayer={actingPlayer}
+                        upCommingPlayer={upCommingPlayer}
                         onPointUpdated={fetchNFTs}
                       />
                     ))}

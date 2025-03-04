@@ -1,509 +1,280 @@
 [
    {
+      "type":"constructor",
       "inputs":[
          {
-            "internalType":"uint256",
-            "name":"_slotDuration",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"_roundDuration",
-            "type":"uint256"
-         },
-         {
-            "internalType":"address",
             "name":"_owner",
-            "type":"address"
+            "type":"address",
+            "internalType":"address"
          },
          {
-            "internalType":"address",
             "name":"_nftContract",
-            "type":"address"
+            "type":"address",
+            "internalType":"address"
          }
       ],
-      "stateMutability":"nonpayable",
-      "type":"constructor"
+      "stateMutability":"nonpayable"
    },
    {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"owner",
-            "type":"address"
-         }
-      ],
-      "name":"OwnableInvalidOwner",
-      "type":"error"
-   },
-   {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"account",
-            "type":"address"
-         }
-      ],
-      "name":"OwnableUnauthorizedAccount",
-      "type":"error"
-   },
-   {
-      "anonymous":false,
-      "inputs":[
-         {
-            "indexed":false,
-            "internalType":"uint256",
-            "name":"startTime",
-            "type":"uint256"
-         }
-      ],
-      "name":"NewRoundStarted",
-      "type":"event"
-   },
-   {
-      "anonymous":false,
-      "inputs":[
-         {
-            "indexed":true,
-            "internalType":"address",
-            "name":"previousOwner",
-            "type":"address"
-         },
-         {
-            "indexed":true,
-            "internalType":"address",
-            "name":"newOwner",
-            "type":"address"
-         }
-      ],
-      "name":"OwnershipTransferred",
-      "type":"event"
-   },
-   {
-      "anonymous":false,
-      "inputs":[
-         {
-            "indexed":false,
-            "internalType":"address",
-            "name":"player",
-            "type":"address"
-         },
-         {
-            "indexed":false,
-            "internalType":"uint256",
-            "name":"slots",
-            "type":"uint256"
-         }
-      ],
-      "name":"PlayerRegistered",
-      "type":"event"
-   },
-   {
-      "anonymous":false,
-      "inputs":[
-         {
-            "indexed":false,
-            "internalType":"address",
-            "name":"player",
-            "type":"address"
-         }
-      ],
-      "name":"PlayerUnregistered",
-      "type":"event"
-   },
-   {
-      "anonymous":false,
-      "inputs":[
-         {
-            "indexed":false,
-            "internalType":"uint256",
-            "name":"endTime",
-            "type":"uint256"
-         },
-         {
-            "indexed":false,
-            "internalType":"uint256",
-            "name":"roundNumber",
-            "type":"uint256"
-         }
-      ],
-      "name":"RoundEnded",
-      "type":"event"
-   },
-   {
-      "anonymous":false,
-      "inputs":[
-         
-      ],
-      "name":"SlotsShuffled",
-      "type":"event"
-   },
-   {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"player",
-            "type":"address"
-         }
-      ],
-      "name":"canPlayerAct",
-      "outputs":[
-         {
-            "internalType":"bool",
-            "name":"",
-            "type":"bool"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         
-      ],
-      "name":"currentRoundNumber",
-      "outputs":[
-         {
-            "internalType":"uint256",
-            "name":"",
-            "type":"uint256"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"player",
-            "type":"address"
-         }
-      ],
-      "name":"getAllActionWindows",
-      "outputs":[
-         {
-            "internalType":"uint256[]",
-            "name":"startTimes",
-            "type":"uint256[]"
-         },
-         {
-            "internalType":"uint256[]",
-            "name":"endTimes",
-            "type":"uint256[]"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         
-      ],
+      "type":"function",
       "name":"getCurrentPlayer",
-      "outputs":[
-         {
-            "internalType":"address",
-            "name":"",
-            "type":"address"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"player",
-            "type":"address"
-         }
-      ],
-      "name":"getNextActionWindow",
-      "outputs":[
-         {
-            "internalType":"uint256",
-            "name":"startTime",
-            "type":"uint256"
-         },
-         {
-            "internalType":"uint256",
-            "name":"endTime",
-            "type":"uint256"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
       "inputs":[
          
       ],
-      "name":"getRoundTimeLeft",
       "outputs":[
          {
-            "internalType":"uint256",
             "name":"",
-            "type":"uint256"
+            "type":"address",
+            "internalType":"address"
          }
       ],
-      "stateMutability":"view",
-      "type":"function"
+      "stateMutability":"view"
    },
    {
+      "type":"function",
+      "name":"getPlayerByTimestamp",
+      "inputs":[
+         {
+            "name":"timestamp",
+            "type":"uint256",
+            "internalType":"uint256"
+         }
+      ],
+      "outputs":[
+         {
+            "name":"",
+            "type":"address",
+            "internalType":"address"
+         }
+      ],
+      "stateMutability":"view"
+   },
+   {
+      "type":"function",
+      "name":"isActiveOn",
+      "inputs":[
+         {
+            "name":"timestamp",
+            "type":"uint256",
+            "internalType":"uint256"
+         }
+      ],
+      "outputs":[
+         {
+            "name":"",
+            "type":"bool",
+            "internalType":"bool"
+         }
+      ],
+      "stateMutability":"view"
+   },
+   {
+      "type":"function",
+      "name":"isStarted",
       "inputs":[
          
       ],
-      "name":"isRoundActive",
       "outputs":[
          {
-            "internalType":"bool",
             "name":"",
-            "type":"bool"
+            "type":"bool",
+            "internalType":"bool"
          }
       ],
-      "stateMutability":"view",
-      "type":"function"
+      "stateMutability":"view"
    },
    {
-      "inputs":[
-         
-      ],
+      "type":"function",
       "name":"nftContract",
-      "outputs":[
-         {
-            "internalType":"contract MockERC721",
-            "name":"",
-            "type":"address"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
       "inputs":[
          
       ],
+      "outputs":[
+         {
+            "name":"",
+            "type":"address",
+            "internalType":"contract TheFedz"
+         }
+      ],
+      "stateMutability":"view"
+   },
+   {
+      "type":"function",
       "name":"owner",
+      "inputs":[
+         
+      ],
       "outputs":[
          {
-            "internalType":"address",
             "name":"",
-            "type":"address"
+            "type":"address",
+            "internalType":"address"
          }
       ],
-      "stateMutability":"view",
-      "type":"function"
+      "stateMutability":"view"
    },
    {
+      "type":"function",
+      "name":"renounceOwnership",
       "inputs":[
-         {
-            "internalType":"uint256",
-            "name":"",
-            "type":"uint256"
-         }
+         
       ],
-      "name":"playerList",
       "outputs":[
-         {
-            "internalType":"address",
-            "name":"",
-            "type":"address"
-         }
+         
       ],
-      "stateMutability":"view",
-      "type":"function"
+      "stateMutability":"nonpayable"
    },
    {
+      "type":"function",
+      "name":"restart",
       "inputs":[
          {
-            "internalType":"address",
-            "name":"",
-            "type":"address"
-         }
-      ],
-      "name":"players",
-      "outputs":[
-         {
-            "internalType":"bool",
-            "name":"isRegistered",
-            "type":"bool"
+            "name":"_slotDuration",
+            "type":"uint256",
+            "internalType":"uint256"
          },
          {
-            "internalType":"uint256",
-            "name":"slots",
-            "type":"uint256"
+            "name":"_startsAt",
+            "type":"uint256",
+            "internalType":"uint256"
          }
       ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         
-      ],
-      "name":"renounceOwnership",
       "outputs":[
          
       ],
-      "stateMutability":"nonpayable",
-      "type":"function"
+      "stateMutability":"nonpayable"
    },
    {
-      "inputs":[
-         
-      ],
-      "name":"roundDuration",
-      "outputs":[
-         {
-            "internalType":"uint256",
-            "name":"",
-            "type":"uint256"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         
-      ],
-      "name":"roundStartTime",
-      "outputs":[
-         {
-            "internalType":"uint256",
-            "name":"",
-            "type":"uint256"
-         }
-      ],
-      "stateMutability":"view",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"_nftContract",
-            "type":"address"
-         }
-      ],
+      "type":"function",
       "name":"setNFTContract",
-      "outputs":[
-         
-      ],
-      "stateMutability":"nonpayable",
-      "type":"function"
-   },
-   {
       "inputs":[
          {
-            "internalType":"uint256",
-            "name":"_roundDuration",
-            "type":"uint256"
+            "name":"_nftContract",
+            "type":"address",
+            "internalType":"address"
          }
       ],
-      "name":"setRoundDuration",
       "outputs":[
          
       ],
-      "stateMutability":"nonpayable",
-      "type":"function"
+      "stateMutability":"nonpayable"
    },
    {
-      "inputs":[
-         {
-            "internalType":"uint256",
-            "name":"_slotDuration",
-            "type":"uint256"
-         }
-      ],
-      "name":"setSlotDuration",
-      "outputs":[
-         
-      ],
-      "stateMutability":"nonpayable",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         
-      ],
+      "type":"function",
       "name":"slotDuration",
+      "inputs":[
+         
+      ],
       "outputs":[
          {
-            "internalType":"uint256",
             "name":"",
-            "type":"uint256"
+            "type":"uint256",
+            "internalType":"uint256"
          }
       ],
-      "stateMutability":"view",
-      "type":"function"
+      "stateMutability":"view"
    },
    {
+      "type":"function",
+      "name":"startsAt",
       "inputs":[
          
       ],
-      "name":"startNewRound",
-      "outputs":[
-         
-      ],
-      "stateMutability":"nonpayable",
-      "type":"function"
-   },
-   {
-      "inputs":[
-         
-      ],
-      "name":"totalSlots",
       "outputs":[
          {
-            "internalType":"uint256",
             "name":"",
-            "type":"uint256"
+            "type":"uint256",
+            "internalType":"uint256"
          }
       ],
-      "stateMutability":"view",
-      "type":"function"
+      "stateMutability":"view"
    },
    {
-      "inputs":[
-         {
-            "internalType":"address",
-            "name":"newOwner",
-            "type":"address"
-         }
-      ],
+      "type":"function",
       "name":"transferOwnership",
-      "outputs":[
-         
-      ],
-      "stateMutability":"nonpayable",
-      "type":"function"
-   },
-   {
       "inputs":[
          {
-            "internalType":"address",
-            "name":"player",
-            "type":"address"
+            "name":"newOwner",
+            "type":"address",
+            "internalType":"address"
          }
       ],
-      "name":"unregisterPlayer",
       "outputs":[
          
       ],
-      "stateMutability":"nonpayable",
-      "type":"function"
+      "stateMutability":"nonpayable"
    },
    {
+      "type":"event",
+      "name":"CurrentSlot",
       "inputs":[
-         
+         {
+            "name":"",
+            "type":"uint256",
+            "indexed":false,
+            "internalType":"uint256"
+         }
       ],
-      "name":"updatePlayerSlots",
-      "outputs":[
-         
+      "anonymous":false
+   },
+   {
+      "type":"event",
+      "name":"OwnershipTransferred",
+      "inputs":[
+         {
+            "name":"previousOwner",
+            "type":"address",
+            "indexed":true,
+            "internalType":"address"
+         },
+         {
+            "name":"newOwner",
+            "type":"address",
+            "indexed":true,
+            "internalType":"address"
+         }
       ],
-      "stateMutability":"nonpayable",
-      "type":"function"
+      "anonymous":false
+   },
+   {
+      "type":"event",
+      "name":"Restart",
+      "inputs":[
+         {
+            "name":"slotDuration",
+            "type":"uint256",
+            "indexed":false,
+            "internalType":"uint256"
+         },
+         {
+            "name":"startsAt",
+            "type":"uint256",
+            "indexed":false,
+            "internalType":"uint256"
+         }
+      ],
+      "anonymous":false
+   },
+   {
+      "type":"error",
+      "name":"OwnableInvalidOwner",
+      "inputs":[
+         {
+            "name":"owner",
+            "type":"address",
+            "internalType":"address"
+         }
+      ]
+   },
+   {
+      "type":"error",
+      "name":"OwnableUnauthorizedAccount",
+      "inputs":[
+         {
+            "name":"account",
+            "type":"address",
+            "internalType":"address"
+         }
+      ]
    }
 ]

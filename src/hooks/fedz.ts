@@ -43,3 +43,30 @@ export async function isActingPlayer(account: string, signer: any) {
     );
     return await timeSlotSystemContract.getCurrentPlayer() === account;
 }
+
+export async function fetchSlotDuration(signer: any) {
+    const timeSlotSystemContract = new ethers.Contract(
+        TimeSlotSystemAddress,
+        TimeSlotSystemAbi,
+        signer
+    );
+    return timeSlotSystemContract.slotDuration();
+}
+
+export async function fetchActingPlayer(signer: any) {
+    const timeSlotSystemContract = new ethers.Contract(
+        TimeSlotSystemAddress,
+        TimeSlotSystemAbi,
+        signer
+    );
+    return timeSlotSystemContract.getCurrentPlayer();
+}
+
+export async function fetchNextActingPlayer(signer: any, duration: bigint) {
+    const timeSlotSystemContract = new ethers.Contract(
+        TimeSlotSystemAddress,
+        TimeSlotSystemAbi,
+        signer
+    );
+    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000) + parseInt(duration.toString()));
+}
