@@ -35,6 +35,15 @@ export async function isNftHolder(account: string, signer: any) {
     return await erc721Contract.balanceOf(account) > BigInt(0);
 }
 
+export async function fetchTokenCount(signer: any) {
+    const erc721Contract = new ethers.Contract(
+        ERC721Address,
+        erc721Abi,
+        signer
+    );
+    return parseInt((await erc721Contract.totalSupply()).toString());
+}
+
 export async function isActingPlayer(account: string, signer: any) {
     const timeSlotSystemContract = new ethers.Contract(
         TimeSlotSystemAddress,

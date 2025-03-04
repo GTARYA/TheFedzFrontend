@@ -1,25 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useReadContracts, useReadContract, useChainId, useAccount } from "wagmi";
-import { formatUnits } from "viem";
-import { TimeSlotSystemAddress, ERC721Address as MockERC721Address } from "../contractAddressArbitrum";
-import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
+import { useReadContracts, useChainId } from "wagmi";
+import { ERC721Address as MockERC721Address } from "../contractAddressArbitrum";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import Image from "next/image";
 import Container from "./Container";
 import Title from "./ui/Title";
-import {
-  mainnet,
-  arbitrum,
-  bscTestnet,
-  base,
-  bsc,
-  sepolia,
-} from "@reown/appkit/networks";
 
 import NFTTableRow from "./nft/NFTTableRow";
 import { formatDuration } from "../hooks/formatters";
 import { useEthersSigner } from "../hooks/useEthersSigner";
-import { fetchActingPlayer, fetchNextActingPlayer, fetchSlotDuration } from "../hooks/fedz";
+import { fetchActingPlayer, fetchNextActingPlayer, fetchSlotDuration, fetchTokenCount } from "../hooks/fedz";
+
 type Address = `0x${string}`;
 
 interface NFT {
@@ -57,8 +48,9 @@ const PlayersTable: React.FC = () => {
     ],
   });
   const [owners] = contractData || [];
-  const [actingPlayer, setActingPlayer] = useState<string | null>(null);
-  const [upCommingPlayer, setUpCommingPlayer] = useState<string | null>(null);
+  const [actingPlayer, setActingPlayer] = useState<string>();
+  const [upCommingPlayer, setUpCommingPlayer] = useState<string>();
+  const [numberOfPlayers, setNumberOfPlayers] = useState<string>('');
   useEffect(() => {
     if (!mount && signer) {
       fetchNFTs();
@@ -70,6 +62,9 @@ const PlayersTable: React.FC = () => {
       });
       fetchActingPlayer(signer).then((actingPlayer) => {
         setActingPlayer(actingPlayer);
+      });
+      fetchTokenCount(signer).then((count) => {
+        setNumberOfPlayers(count.toString());
       });
       setMount(true);
     }
@@ -112,11 +107,6 @@ const PlayersTable: React.FC = () => {
       </div>
     );
 
-  const numberOfPlayers = owners?.result
-    ? (owners.result as Address[]).length
-    : 0;
-  const numberOfPlays = allNfts.length;
-
   return (
     <div suppressHydrationWarning>
       <section className="pb-[50px] md:pb-[75px] relative">
@@ -132,16 +122,6 @@ const PlayersTable: React.FC = () => {
                     </p>
                     <h3 className="text-base md:text-xl font-bold">
                       {numberOfPlayers}
-                    </h3>
-                  </div>
-                </div>
-                <div className="w-full text-sm md:text-xl text-primary">
-                  <div className="px-14 py-4 border-b border-white/10">
-                    <p className="text-sm md:text-lg font-normal text-primary mb-2">
-                      Number of Plays
-                    </p>
-                    <h3 className="text-base md:text-xl font-bold">
-                      {numberOfPlays}
                     </h3>
                   </div>
                 </div>

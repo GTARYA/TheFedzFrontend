@@ -54,8 +54,8 @@ const V4SwapComponent = () => {
   const { loading, quote, quoteLoading, updateAmountIn } = V4UseSwap(activeChainId,amount, signer, v4Token0, v4Token1);
   const [tokenABalance, setTokenABalance] = useState<string>('-');
   const [tokenBBalance, setTokenBBalance] = useState<string>('-');
-  const [isNFTHolderState, setIsNFTHolderState] = useState(false);
-  const [isPlayerTurnState, setIsPlayerTurnState] = useState(false);
+  const [isNFTHolderState, setIsNFTHolderState] = useState(true);
+  const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
 
   useEffect(() => {
     if (!mount && signer && address) {
