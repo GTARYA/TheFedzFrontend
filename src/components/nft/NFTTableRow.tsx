@@ -80,7 +80,6 @@ const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated, actingPl
       }}
     >
       <td>
-        {actingPlayer}
         <Image
           src={nft.image}
           alt="nft"
