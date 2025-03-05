@@ -112,6 +112,16 @@ const V4UseLP = (
     );
     const liquidity = await stateViewContract.getLiquidity(poolId);
     const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
+    console.log({
+      token0,
+      token1,
+      fee: 4000,
+      tickSpacing: 10,
+      HookAddress,
+      sqrtPriceX96,
+      liquidity,
+      tick
+    });
     const pool = new Pool(
       token0,
       token1,
@@ -183,6 +193,11 @@ const V4UseLP = (
     let liquidityToastId;
     try {
       const pool = await loadPool();
+      console.log({
+        liquidity,
+        tickLower,
+        tickUpper,
+      });
       const position = new Position({
         pool,
         liquidity,
