@@ -525,7 +525,10 @@ function isGraterThanEquals(balanceOfToken: any, amountMax: any) {
     || (balanceOfTokenString.length === amountMaxString.length && balanceOfTokenString >= amountMaxString);
 
 }
-const TOKEN_ID_KEY = "tokenId";
+
+const HOOK_ADDRESS_KEY = 'hookAddress';
+
+const TOKEN_ID_KEY = `tokenId`;
 
 const storePositionId = (tokenId: number) => {
   const previousTokenId = loadMyPosition();
@@ -548,8 +551,12 @@ const storeSrapperLastTokenId = (tokenId: number) => {
 const loadScapperLastTokenId = () => {
   return parseInt(localStorage.getItem(LAST_SCRAP_TOKEN_ID_KEY) || '0');
 }
-// 8850
 const loadMyPosition = () => {
+  const cachedHookAddress = localStorage.getItem(HOOK_ADDRESS_KEY) || '0x00';
+  if (cachedHookAddress !== HookAddress) {
+    localStorage.clear();
+    localStorage.setItem(HOOK_ADDRESS_KEY, HookAddress);
+  }
   return JSON.parse(localStorage.getItem(TOKEN_ID_KEY) || '0');
 }
 export default V4UseLP;

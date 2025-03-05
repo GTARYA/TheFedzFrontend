@@ -94,11 +94,17 @@ const V4UseSwap = (
     const tokenIn = zeroForOne ? token0 : token1;
     const tokenOut = zeroForOne ? token1 : token0;
     const amountInUnits = ethers.utils.parseUnits(amount, tokenIn.decimals).toString();
+    console.log({
+      tokenIn, tokenOut, amountInUnits
+    });
     const trade = await Trade.fromRoute(
       new Route([pool], tokenIn, tokenOut),
       CurrencyAmount.fromRawAmount(tokenIn, amountInUnits),
       TradeType.EXACT_INPUT
     );
+    console.log({
+      trade
+    });
     setQuoteLoading(false);
     setQuote(trade.minimumAmountOut(new Percent(0, 100)).toSignificant(tokenOut.decimals));
     const exeuteSwapQuoteCallback = async () => {
