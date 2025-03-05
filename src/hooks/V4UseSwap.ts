@@ -41,6 +41,26 @@ const loadPoolBySigner = async (signer: any) => {
   const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
   const tickLow = await stateViewContract.getTickInfo(poolId, tickLower)
   const tickUp = await stateViewContract.getTickInfo(poolId, tickUpper);
+  console.log({
+    token0,
+    token1,
+    FEE,
+    TICK_SPACING,
+    HookAddress,
+    sqrtPriceX96,
+    liquidity,
+    tick,
+    ticks: [
+      {
+        index: tickLower,
+        ...tickLow
+      },
+      {
+        index: tickUpper,
+        ...tickUp
+      }
+    ]
+  });
   const pool = new Pool(
     token0,
     token1,
