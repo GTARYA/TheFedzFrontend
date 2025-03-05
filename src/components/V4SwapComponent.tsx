@@ -38,7 +38,6 @@ import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4SwapComponent = () => {
   const activeChainId = useChainId();
-
   const [mount, setMount] = useState(false);
   const [poolKeyHash] = useState(poolId);
   const [amount, setAmount] = useState("1");
@@ -62,32 +61,14 @@ const V4SwapComponent = () => {
       fetchBalancesAndPrint();
       onAmountChange();
       isNftHolder(address, signer).then((result: boolean) => {
-        setIsNFTHolderState(result || address === '0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd');
+        setIsNFTHolderState(result);
       });
       isActingPlayer(address, signer).then((result: boolean) => {
-        setIsPlayerTurnState(result || address === '0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd');
+        setIsPlayerTurnState(result);
       });
       setMount(true);
     }
   }, [mount, signer, address]);
-
-  const handleTokenSelection = (selectedToken: Token, isInput: boolean) => {
-    if (isInput) {
-      if (selectedToken.address === tokenOut.address) {
-        setTokenIn(tokenOut);
-        setTokenOut(tokenIn);
-      } else {
-        setTokenIn(selectedToken);
-      }
-    } else {
-      if (selectedToken.address === tokenIn.address) {
-        setTokenIn(tokenIn);
-        setTokenOut(tokenOut);
-      } else {
-        setTokenOut(selectedToken);
-      }
-    }
-  };
 
   const fetchBalance = async (tokenAddress: string) => {
     return await balanceOf(tokenAddress, address, signer);
@@ -114,17 +95,11 @@ const V4SwapComponent = () => {
     exeuteSwapQuoteCallback();
   };
 
-  const handleMaxClick = () => {
-    // if (token0.toLowerCase() === MockFUSDAddress.toLowerCase())
-    //   setAmount(formatEther(MockFUSDBalanceState as bigint));
-    // if (token0.toLowerCase() === MockUSDTAddress.toLowerCase())
-    //   setAmount(formatEther(MockUSDTBalanceState as bigint));
-  };
-
   async function onAmountChange() {
       const cb = await updateAmountIn(amount, tokenIn.address === token0);
       setExecuteSwapQuoteCallback(() => cb);
   }
+
   useEffect(() => {
     if (amount) {
       if (autofillTimeout) {
@@ -150,7 +125,7 @@ const V4SwapComponent = () => {
                   amount={amount}
                   setAmount={setAmount}
                   token={tokenIn}
-                  setToken={(token: any) => handleTokenSelection(token, true)}
+                  setToken={(token: any) => {}}
                   options={[{
                     value: tokenIn,
                     label: tokenIn.symbol || '-',
@@ -197,7 +172,7 @@ const V4SwapComponent = () => {
                   }
                   setAmount={() => {}} // Disable changing amount for output token
                   token={tokenOut}
-                  setToken={(token: any) => handleTokenSelection(token, false)}
+                  setToken={(token: any) => {}}
                   options={[{
                     value: tokenOut,
                     label: tokenOut.symbol || '-',
