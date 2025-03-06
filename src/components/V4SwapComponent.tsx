@@ -85,6 +85,7 @@ const V4SwapComponent = () => {
 
   useEffect(() => {
     fetchBalancesAndPrint();
+    onAmountChange();
   }, [tokenOut, tokenIn]);
   const handleToggleTokens = () => {
     setTokenIn(tokenOut);
@@ -183,14 +184,14 @@ const V4SwapComponent = () => {
                 {
                   mount && isNFTHolderState && isPlayerTurnState && (
                     <button
-                    disabled={loading}
+                    disabled={quoteLoading || loading}
                       onClick={arbSwap}
                       className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
                     >
-                      {loading ? (
+                      {quoteLoading || loading ? (
                         <ScaleLoader
                           height={20}
-                          loading={loading}
+                          loading={quoteLoading || loading}
                           color="#ffffff"
                           className="text-white"
                           aria-label="Loading Spinner"
