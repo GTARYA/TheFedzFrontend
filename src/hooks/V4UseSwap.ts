@@ -92,7 +92,8 @@ const V4UseSwap = (
   slippageTolerance = new Percent(4, 100),
 ) => {
   console.log({
-    version: '0.0.2'
+    version: '0.0.2',
+    test: true
   });
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
@@ -114,17 +115,11 @@ const V4UseSwap = (
     const tokenIn = zeroForOne ? token0 : token1;
     const tokenOut = zeroForOne ? token1 : token0;
     const amountInUnits = ethers.utils.parseUnits(amount, tokenIn.decimals).toString();
-    console.log({
-      tokenIn, tokenOut, amountInUnits
-    });
     const trade = await Trade.fromRoute(
       new Route([pool], tokenIn, tokenOut),
       CurrencyAmount.fromRawAmount(tokenIn, amountInUnits),
       TradeType.EXACT_INPUT
     );
-    console.log({
-      trade
-    });
     setQuoteLoading(false);
     setQuote(trade.minimumAmountOut(new Percent(0, 100)).toSignificant(tokenOut.decimals));
     const exeuteSwapQuoteCallback = async () => {
@@ -216,6 +211,7 @@ const V4UseSwap = (
             tokenAddress, PoolSwapTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
           ],
         });
+        toast.dismiss(approvalToastId);
       }
       const allowance = await tokenContract.allowance(
         address,

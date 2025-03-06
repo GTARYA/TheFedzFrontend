@@ -97,10 +97,10 @@ const V4UseLP = (
   const {address} = useAccount();
   const account = useAccount();
   const {
-    data: writeApprove0Data,
-    error: writeApprove0Error,
-    isPending: isApprove0Pending,
-    writeContractAsync: writeApproveToken0Contract,
+    data: writeData,
+    error: writeError,
+    isPending: isPending,
+    writeContractAsync: writeContract,
   } = useWriteContract();
   const { sendTransactionAsync: sendTransaction } = useSendTransaction()
 
@@ -286,7 +286,7 @@ const V4UseLP = (
       params.push(ethers.utils.defaultAbiCoder.encode(["uint256", "uint24", "uint24", "bytes"], [tokenId, 0, 0, "0x"]));
       params.push(ethers.utils.defaultAbiCoder.encode(["address", "address", "address"], [token0.address, token1.address, address]));
       const callbackData = ethers.utils.defaultAbiCoder.encode(["bytes", "bytes[]"], [actions, params]);
-      await writeApproveToken0Contract({
+      await writeContract({
         address: PoolModifyLiquidityTestAddress,
         abi: MockERC721Abi,
         functionName: "approve",
@@ -294,7 +294,7 @@ const V4UseLP = (
           '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32', tokenId
         ],
       });
-      await writeApproveToken0Contract({
+      await writeContract({
         address: PoolModifyLiquidityTestAddress,
         abi: PoolModifiyLiquidityAbi,
         functionName: "modifyLiquidities",
@@ -437,14 +437,6 @@ const V4UseLP = (
     }
   }, [amount, signer, tokenA, tokenB, chainId]);
 
-  // function onAmount0QuoteChange(value: string) {
-  //   setQuoteLoading(true);
-  //   setQuote("");
-  //   if (value) {
-  //     getQuote(value);
-  //   }
-  // }
-
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
     try {
       console.log(`Approving token ${tokenAddress}...`);
@@ -473,7 +465,7 @@ const V4UseLP = (
       if (permitAllowance < amountIn || expiration < currentUnixTime) {
         console.log(`approval on permit2`);
         approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
-        await writeApproveToken0Contract({
+        await writeContract({
           address: PERMIT_2_ADDRESS,
           abi: AllowanceTransferAbi,
           functionName: "approve",
@@ -481,6 +473,7 @@ const V4UseLP = (
             tokenAddress, PoolModifyLiquidityTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
           ],
         });
+        toast.dismiss(approvalToastId);
       }
       const allowance = await tokenContract.allowance(
         address,
@@ -488,7 +481,7 @@ const V4UseLP = (
       );
       if (allowance < amountIn) {
         console.log(`approval on token for permit2`);
-        await writeApproveToken0Contract({
+        await writeContract({
           address: tokenAddress as `0x${string}`,
           abi: MockERC20Abi,
           functionName: "approve",
