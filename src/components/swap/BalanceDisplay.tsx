@@ -1,3 +1,4 @@
+import { formatEther } from "ethers";
 
 interface BalanceDisplayProps {
   label: string;
@@ -9,7 +10,9 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({ label, balance }) => (
     <span className="text-sm sm:text-base">{label}</span>
     <span className="text-sm sm:text-base">
       Balance :
-      {balance}
+      {Number(balance?.formatted ?? 0).toLocaleString("en-US", {
+        maximumFractionDigits: 2,
+      })}
     </span>
   </div>
 );

@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
 const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 import routerAbi from "../abi/uniswapRouter.json";
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
@@ -29,7 +29,7 @@ const useSwap = (
         signer
       );
 
-      const inputAmountParsed = ethers.utils.parseUnits(inputAmount, tokenA.decimals);
+      const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
 
       const uniswapPair = new ethers.Contract(
@@ -37,13 +37,15 @@ const useSwap = (
         UNISWAP_PAIR_ABI,
         signer
       );
-      const amountsOut = await uniswapRouter.getAmountsOut(
-        inputAmountParsed,
-        path
-      );
-      const outputAmount = ethers.utils.formatUnits(amountsOut[1], tokenB.decimals);
-      setQuote(outputAmount.toString()); // Update the quote in state
-      return outputAmount;
+      const [reserveA, reserveB] = await uniswapPair.getReserves();
+
+      const adjustedReserveA = Number(reserveA.toString()) / 10 ** 18;
+      const adjustedReserveB = Number(reserveB.toString()) / 10 ** 6;
+      const priceA = adjustedReserveB / adjustedReserveA;
+      const priceB = adjustedReserveA / adjustedReserveB;
+      let quote = tokenA.decimals === 6 ? priceB : priceA;
+      const final = quote * Number(inputAmount)
+      setQuote(final.toString());
     } catch (error) {
       console.error("Error getting quote:", error);
       return null;
@@ -76,7 +78,7 @@ const useSwap = (
       signer
     );
     const balanceOfBigInt = await tokenAContract.balanceOf(signer.address);
-    const balanceOf = ethers.utils.formatUnits(balanceOfBigInt, tokenA.decimals);
+    const balanceOf = formatUnits(balanceOfBigInt, tokenA.decimals);
 
     if (parseFloat(balanceOf) < parseFloat(amount)) {
       toast.error("Insufficient balance for this swap.");
@@ -85,7 +87,7 @@ const useSwap = (
     }
 
     approvalToastId = toast.loading("Checking allowance...");
-    const amountInParsed = ethers.utils.parseUnits(amount, tokenA.decimals);
+    const amountInParsed = ethers.parseUnits(amount, tokenA.decimals);
 
     const currentAllowance = await tokenAContract.allowance(
       signer.address,
