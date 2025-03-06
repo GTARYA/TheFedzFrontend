@@ -33,7 +33,7 @@ const VideoPlayer = () => {
                                 loop
                                 className="w-full h-full object-cover">
                                 <source
-                                    src="./video/Explainer.mp4"
+                                    src="/video/Explainer.mp4"
                                     type="video/mp4"
                                 />
                             </video>

@@ -12,9 +12,14 @@ import { useEffect, useState } from 'react';
 import VideoPlayer from '../components/VideoPlayer';
 import VideoPlayerMobile from '../components/VideoPlayerMobile';
 import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
+import SwapAnimation from '../components/SwapAnimation';
+import FAQSection from '../components/FAQSection';
+import { useMode } from '../context/modeProvider';
 
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
+    const { isNormalMode } = useMode();
+
     // const Web3Form = dynamic(() => import('../components/Web3Form.tsx'), {
     //     ssr: false,
     // });
@@ -50,20 +55,32 @@ const Home: NextPage = () => {
 
                     <Container className="z-[6] relative">
                         <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
-                            <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
-                                Bank Run Mitigation{' '}
-                                <span
-                                    data-text="Stable"
-                                    className="neon-text font-semibold">
-                                    Stable
-                                </span>{' '}
-                                Coin
-                            </h1>
+                            {isNormalMode ? (
+                                <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
+                                    FUSD{' '}
+                                    <span
+                                        data-text="Stable"
+                                        className="neon-text font-semibold">
+                                        Stable
+                                    </span>{' '}
+                                    Coin
+                                </h1>
+                            ) : (
+                                <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
+                                    Bank Run Mitigation{' '}
+                                    <span
+                                        data-text="Stable"
+                                        className="neon-text font-semibold">
+                                        Stable
+                                    </span>{' '}
+                                    Coin
+                                </h1>
+                            )}
+
                             <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
-                                FUSD is an under-collateralized stablecoin
-                                issued by The Fedz - A DeFi stability mechanism
-                                designed to ensure the financial stability of
-                                under-collateralized assets.
+                                {isNormalMode
+                                    ? 'Superior Yield. Robust Stability. Deeper Liquidity.'
+                                    : 'FUSD is an under-collateralized stablecoin issued by The Fedz - A DeFi stability mechanism designed to ensure the financial stability of under-collateralized assets.'}
                             </p>
                             <div className="flex items-center gap-4 justify-center py-6">
                                 <PrimaryBtn onClick={() => setShowForm(true)}>
@@ -78,7 +95,7 @@ const Home: NextPage = () => {
                                     </PrimaryBtn>
                                 </a>
                             </div>
-                            <div className="flex items-center justify-center gap-10 md:mt-0 mt-[120px]">
+                            <div className="flex items-center justify-center gap-10 mt-0">
                                 <img
                                     src="/background/pony-left.png"
                                     alt="pony"
@@ -98,15 +115,16 @@ const Home: NextPage = () => {
                         </section>
                     </Container>
                     <img
-                        className="absolute md:bottom-[10px] bottom-[30px] translate-y-1/2 w-full left-1/2 -translate-x-1/2 z-[4] max-h-[240px]"
+                        className="absolute md:bottom-[10px] bottom-[20px] z-[4] translate-y-1/2 w-full left-1/2 -translate-x-1/2 max-h-[240px]"
                         src="/background/hero-bottom.png"
                         alt="bg"
                     />
-                    <img
+
+                    {/* <img
                         className="block md:hidden absolute left-[30px] top-[460px] z-[4] max-w-[100px]"
                         src="/background/pony-left.png"
                         alt="bg"
-                    />
+                    /> */}
 
                     <div className="block md:hidden">
                         <img
@@ -137,8 +155,41 @@ const Home: NextPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14"></div>
+                <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14 relative">
+                    <div className="absolute bg-[#140025] -top-[5px] z-[5] w-full h-[10px]"></div>
+                </div>
 
+                <section className="relative">
+                    <Container className="!max-w-full !p-0">
+                        <div className="bg-gradient-to-b from-[#0A0012] to-[#000000]">
+                            <Subtitle className="mx-auto relative z-[10]">
+                                FUSD is Issued By
+                            </Subtitle>
+                            <Title className="text-center pt-1 relative z-[10]">
+                                The Fedz
+                            </Title>
+                        </div>
+
+                        <SwapAnimation />
+
+                        <div className="bg-gradient-to-b from-[#000000] to-[#0A0012] h-[50px] md:h-[100px]"></div>
+                    </Container>
+                    <img
+                        src="/cursor/5.png"
+                        alt="eppilse"
+                        className="absolute bottom-[92%] md:bottom-[60%] left-0 md:left-[40px] max-w-[50px] md:max-w-[80px]"
+                    />
+                    <img
+                        src="/cursor/7.png"
+                        alt="eppilse"
+                        className="absolute bottom-[10%] md:bottom-[50%] right-[60px] max-w-[50px] md:max-w-[80px]"
+                    />
+                    <img
+                        src="/cursor/6.png"
+                        alt="eppilse"
+                        className="absolute hidden lg:block top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
+                    />
+                </section>
                 <main className="relative z-[10]">
                     <section
                         className="relative overflow-hidden md:pb-[75px] pb-[50px]"
@@ -250,16 +301,24 @@ const Home: NextPage = () => {
                                     </Subtitle>
                                     <Title>Our Mission</Title>
                                     <p className="pt-4 pb-6 text-sm sm:text-base text-primary/80">
-                                        Our mission is to enable the broader 
-                                        adoption of cryptocurrency by pioneering 
-                                        a modern fractional reserve financial mechanism.<br />
-                                        We aim to mitigate bank runs and 
-                                        ensure the stability of FUSD with minimal capital requirements, 
-                                        setting a new standard for financial efficiency and resilience.
+                                        Our mission is to enable the broader
+                                        adoption of cryptocurrency by pioneering
+                                        a modern fractional reserve financial
+                                        mechanism.
+                                        <br />
+                                        We aim to mitigate bank runs and ensure
+                                        the stability of FUSD with minimal
+                                        capital requirements, setting a new
+                                        standard for financial efficiency and
+                                        resilience.
                                     </p>
-                                <PrimaryBtn onClick={() => window.location.href = "https://Blog.TheFedz.org"}>
-                                Read More
-                                </PrimaryBtn>
+                                    <PrimaryBtn
+                                        onClick={() =>
+                                            (window.location.href =
+                                                'https://Blog.TheFedz.org')
+                                        }>
+                                        Read More
+                                    </PrimaryBtn>
                                 </div>
                                 <div className="relative z-[5]">
                                     <img
@@ -447,9 +506,13 @@ const Home: NextPage = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                <PrimaryBtn onClick={() => window.location.href = "https://Blog.TheFedz.org"}>
-                                Read More
-                                </PrimaryBtn>
+                                    <PrimaryBtn
+                                        onClick={() =>
+                                            (window.location.href =
+                                                'https://Blog.TheFedz.org')
+                                        }>
+                                        Read More
+                                    </PrimaryBtn>
                                 </div>
                             </div>
                         </Container>
@@ -469,6 +532,18 @@ const Home: NextPage = () => {
                             alt="eppilse"
                             className="absolute top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
                         />
+                    </section>
+
+                    <section className="relative z-[5] py-[50px] md:py-[75px]">
+                        <Container className="relative z-[5]">
+                            <Subtitle className="mx-auto mb-1">
+                                Go Brrrr with Confidence
+                            </Subtitle>
+                            <Title className="text-center mb-5">
+                                The Fedz FAQ
+                            </Title>
+                            <FAQSection />
+                        </Container>
                     </section>
 
                     <section className="relative py-[50px] md:py-[75px] bg-gradient-to-b from-[#0A0012] to-[#0A0012] via-[#04152F78]">

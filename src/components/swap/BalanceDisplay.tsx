@@ -1,4 +1,3 @@
-
 interface BalanceDisplayProps {
   label: string;
   balance?: any;
