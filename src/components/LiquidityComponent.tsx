@@ -358,7 +358,7 @@ const LiquidityComponent = () => {
                         amount={amount}
                         setAmount={setAmount}
                         token={tokenA}
-                        setToken={(token: any) => handleTokenSelection(token, true)}
+                        setToken={(token) => handleTokenSelection(token, true)}
                         options={tokenOptions}
                       />
                     </div>
@@ -379,7 +379,7 @@ const LiquidityComponent = () => {
                         }
                         setAmount={() => {}} // Disable changing amount for output token
                         token={tokenB}
-                        setToken={(token: any) => handleTokenSelection(token, false)}
+                        setToken={(token) => handleTokenSelection(token, false)}
                         options={tokenOptions}
                       />
                     </div>

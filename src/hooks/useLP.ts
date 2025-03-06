@@ -1,6 +1,4 @@
-// import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
-const { ethers, JsonRpcProvider } = require('ethers');
-
+import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
 const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
 import routerAbi from "../abi/uniswapRouter.json";
@@ -11,14 +9,13 @@ import { toast } from "sonner";
 import { formatEther as formatEtherViem } from "viem";
 import { TokenInfo } from "../type";
 import { ChainId } from "../config";
-import { Token } from "@uniswap/sdk-core";
 
 const useLP = (
   chainId: number,
   amount: string,
   signer: any,
-  tokenA: Token | TokenInfo,
-  tokenB: Token | TokenInfo,
+  tokenA: TokenInfo,
+  tokenB: TokenInfo,
   slippageTolerance = 0.04
 ) => {
   const [loading, setLoading] = useState(false);
@@ -36,7 +33,7 @@ const useLP = (
         signer
       );
 
-      const inputAmountParsed = ethers.utils.parseUnits(inputAmount, tokenA.decimals);
+      const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
 
       const uniswapPair = new ethers.Contract(
@@ -71,7 +68,7 @@ const useLP = (
         routerAbi,
         signer
       );
-      const inputAmountParsed = ethers.utils.parseUnits(inputAmount, tokenA.decimals);
+      const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
       const amountsOut = await uniswapRouter.getAmountsOut(
         inputAmountParsed,
@@ -95,7 +92,7 @@ const useLP = (
       const priceB = adjustedReserveA / adjustedReserveB;
       let quote = tokenA.decimals === 6 ? priceB : priceA;
       const quoteOutput = quote * Number(inputAmount);
-      const amountBParsed = ethers.utils.parseUnits(quoteOutput.toFixed(5), tokenB.decimals);
+      const amountBParsed = parseUnits(quoteOutput.toFixed(5), tokenB.decimals);
 
       const tokenAContract = new ethers.Contract(
         tokenA.address,
