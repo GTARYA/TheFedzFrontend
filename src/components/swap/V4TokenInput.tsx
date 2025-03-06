@@ -5,27 +5,21 @@ import React from "react";
 import { TokenInfo } from '../../type'
 import { Token } from "@uniswap/sdk-core";
 interface TokenInputProps {
-  amount?: string;
-  quote?: string;
+  amount: string;
   setAmount: (value: string) => void;
-  token: Token | TokenInfo;
+  token: Token;
   setToken: (value: TokenInfo | Token) => void;
   options: { value: any; label: string }[];
   disabled?: boolean;
-  onFocus?: () => void;
-  onBlur?: () => void;
 }
 
-const TokenInput: React.FC<TokenInputProps> = ({
+const V4TokenInput: React.FC<TokenInputProps> = ({
   amount,
-  quote,
   setAmount,
   token,
   setToken,
   options,
   disabled = false,
-  onFocus,
-  onBlur,
 }) => {
   const selectedToken = options.find((option) => option.value === token);
 
@@ -39,8 +33,6 @@ const TokenInput: React.FC<TokenInputProps> = ({
           placeholder="0.0"
           className="outline-none w-2/3 bg-transparent"
           value={amount}
-          onFocus={() => { onFocus ? onFocus() : (() => {})}}
-          onBlur={() => { onBlur ? onBlur() : (() => {})}}
           onChange={(e) => {
             const re = /^[0-9]*\.?[0-9]*$/;
             if (
@@ -53,6 +45,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
           disabled={disabled}
         />
       </div>
+
       {/* Listbox for Token Selection */}
       <Listbox
         value={selectedToken}
@@ -69,7 +62,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
               "focus:outline-none focus:ring-2 !gap-3 focus:ring-offset-2 focus:ring-white"
             )}
           >
-            {`${selectedToken?.label}` || "Select a token"}
+            {`m${selectedToken?.label}` || "Select a token"}
             <ChevronDownIcon
               className="pointer-events-none absolute  right-2 h-5 w-5 text-white/60"
               aria-hidden="true"
@@ -99,7 +92,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
                       {selected && (
                         <CheckIcon className="h-5 w-5 text-green-400" />
                       )}
-                      <span>{option.label}</span>
+                      <span>m{option.label}</span>
                     </div>
                   )}
                 </Listbox.Option>
@@ -111,4 +104,4 @@ const TokenInput: React.FC<TokenInputProps> = ({
   );
 };
 
-export default TokenInput;
+export default V4TokenInput;

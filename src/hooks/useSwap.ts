@@ -1,4 +1,4 @@
-import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
+import { ethers } from "ethers";
 const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 import routerAbi from "../abi/uniswapRouter.json";
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
@@ -29,7 +29,7 @@ const useSwap = (
         signer
       );
 
-      const inputAmountParsed = parseUnits(inputAmount, tokenA.decimals);
+      const inputAmountParsed = ethers.utils.parseUnits(inputAmount, tokenA.decimals);
       const path = [tokenA.address, tokenB.address];
 
       const uniswapPair = new ethers.Contract(
@@ -41,7 +41,7 @@ const useSwap = (
         inputAmountParsed,
         path
       );
-      const outputAmount = formatUnits(amountsOut[1], tokenB.decimals);
+      const outputAmount = ethers.utils.formatUnits(amountsOut[1], tokenB.decimals);
       setQuote(outputAmount.toString()); // Update the quote in state
       return outputAmount;
     } catch (error) {
@@ -76,7 +76,7 @@ const useSwap = (
       signer
     );
     const balanceOfBigInt = await tokenAContract.balanceOf(signer.address);
-    const balanceOf = formatUnits(balanceOfBigInt, tokenA.decimals);
+    const balanceOf = ethers.utils.formatUnits(balanceOfBigInt, tokenA.decimals);
 
     if (parseFloat(balanceOf) < parseFloat(amount)) {
       toast.error("Insufficient balance for this swap.");
@@ -85,7 +85,7 @@ const useSwap = (
     }
 
     approvalToastId = toast.loading("Checking allowance...");
-    const amountInParsed = ethers.parseUnits(amount, tokenA.decimals);
+    const amountInParsed = ethers.utils.parseUnits(amount, tokenA.decimals);
 
     const currentAllowance = await tokenAContract.allowance(
       signer.address,

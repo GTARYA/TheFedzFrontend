@@ -366,7 +366,7 @@ const SwapComponent = () => {
                     amount={amount}
                     setAmount={setAmount}
                     token={tokenA}
-                    setToken={(token) => handleTokenSelection(token, true)}
+                    setToken={(token: any) => handleTokenSelection(token, true)}
                     options={tokenOptions}
                   />
                 </div>
@@ -406,11 +406,11 @@ const SwapComponent = () => {
                     amount={
                       quoteLoading
                         ? "---" // Show a placeholder text during quote calculation
-                        : Number(quote).toFixed(3) || "0"
+                        : Number(quote).toFixed(6) || "0"
                     }
                     setAmount={() => {}} // Disable changing amount for output token
                     token={tokenB}
-                    setToken={(token) => handleTokenSelection(token, false)}
+                    setToken={(token: any) => handleTokenSelection(token, false)}
                     options={tokenOptions}
                   />
                 </div>

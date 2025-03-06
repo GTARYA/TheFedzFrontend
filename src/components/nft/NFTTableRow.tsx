@@ -12,10 +12,12 @@ interface NFTTableRowProps {
     owner?: string;
     point: number;
   };
+  actingPlayer?: string;
+  upCommingPlayer?: string;
   onPointUpdated: () => void; // Callback to refresh data
 }
 
-const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated }) => {
+const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated, actingPlayer, upCommingPlayer }) => {
   const { address } = useAccount();
   const [isEditing, setIsEditing] = useState(false);
   const [newPoint, setNewPoint] = useState(nft.point);
@@ -69,8 +71,13 @@ const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated }) => {
       className={`border-none ${
         address?.toLocaleLowerCase() == owner?.toLocaleLowerCase()
           ? "bg-[#4a88ed8a]"
-          : ""
+          : ''
       }`}
+      style={{
+        border: owner?.toLocaleLowerCase() == actingPlayer?.toLocaleLowerCase() ? "4px solid rgb(74, 237, 96)" : (
+            owner?.toLocaleLowerCase() == upCommingPlayer?.toLocaleLowerCase() ? "4px solid rgb(237, 212, 74)" : ""
+          )
+      }}
     >
       <td>
         <Image

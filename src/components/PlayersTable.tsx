@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useReadContracts, useReadContract, useChainId } from "wagmi";
-import { formatUnits } from "viem";
-import { TimeSlotSystemAddress, MockERC721Address } from "../contractAddress";
-import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
+import { useReadContracts, useChainId } from "wagmi";
+import { ERC721Address as MockERC721Address } from "../contractAddressArbitrum";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import Image from "next/image";
 import Container from "./Container";
 import Title from "./ui/Title";
-import {
-  mainnet,
-  arbitrum,
-  bscTestnet,
-  base,
-  bsc,
-  sepolia,
-} from "@reown/appkit/networks";
 
 import NFTTableRow from "./nft/NFTTableRow";
+import { formatDuration } from "../hooks/formatters";
+import { useEthersSigner } from "../hooks/useEthersSigner";
+import { fetchActingPlayer, fetchNextActingPlayer, fetchSlotDuration, fetchTokenCount } from "../hooks/fedz";
+
 type Address = `0x${string}`;
 
 interface NFT {
@@ -26,8 +20,11 @@ interface NFT {
 
 const PlayersTable: React.FC = () => {
   const activeChainId = useChainId();
+  const signer = useEthersSigner();
+  const [mount, setMount] = useState(false);
   const [allNfts, setAllNfts] = useState<NFT[]>([]);
   const [nfts, setNFTs] = useState<any>([]);
+  const [slotDuration, setSlotDuration] = useState('1h');
 
   const fetchNFTs = async () => {
     const response = await fetch("/api/getAndUpdateNFTs");
@@ -37,10 +34,6 @@ const PlayersTable: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNFTs();
-  }, []);
-
   const {
     data: contractData,
     isError,
@@ -48,20 +41,34 @@ const PlayersTable: React.FC = () => {
   } = useReadContracts({
     contracts: [
       {
-        address: TimeSlotSystemAddress,
-        abi: TimeSlotSystemAbi,
-        functionName: "getPlayDuration",
-      },
-      {
         address: MockERC721Address as `0x${string}`,
         abi: MockERC721Abi,
         functionName: "getAllOwners",
       },
     ],
   });
-
-  const [playDuration, owners] = contractData || [];
-
+  const [owners] = contractData || [];
+  const [actingPlayer, setActingPlayer] = useState<string>();
+  const [upCommingPlayer, setUpCommingPlayer] = useState<string>();
+  const [numberOfPlayers, setNumberOfPlayers] = useState<string>('');
+  useEffect(() => {
+    if (!mount && signer) {
+      fetchNFTs();
+      fetchSlotDuration(signer).then((duration) => {
+        setSlotDuration(formatDuration(duration));
+        fetchNextActingPlayer(signer, duration).then((next) => {
+          setUpCommingPlayer(next);
+        });
+      });
+      fetchActingPlayer(signer).then((actingPlayer) => {
+        setActingPlayer(actingPlayer);
+      });
+      fetchTokenCount(signer).then((count) => {
+        setNumberOfPlayers(count.toString());
+      });
+      setMount(true);
+    }
+  }, [mount, signer]);
   const { data: ownedTokensResult } = useReadContracts({
     // @ts-ignore
     contracts:
@@ -100,11 +107,6 @@ const PlayersTable: React.FC = () => {
       </div>
     );
 
-  const numberOfPlayers = owners?.result
-    ? (owners.result as Address[]).length
-    : 0;
-  const numberOfPlays = allNfts.length;
-
   return (
     <div suppressHydrationWarning>
       <section className="pb-[50px] md:pb-[75px] relative">
@@ -124,27 +126,12 @@ const PlayersTable: React.FC = () => {
                   </div>
                 </div>
                 <div className="w-full text-sm md:text-xl text-primary">
-                  <div className="px-14 py-4 border-b border-white/10">
-                    <p className="text-sm md:text-lg font-normal text-primary mb-2">
-                      Number of Plays
-                    </p>
-                    <h3 className="text-base md:text-xl font-bold">
-                      {numberOfPlays}
-                    </h3>
-                  </div>
-                </div>
-                <div className="w-full text-sm md:text-xl text-primary">
                   <div className="px-14 py-4">
                     <p className="text-sm md:text-lg font-normal text-primary mb-2">
                       Play Duration
                     </p>
                     <h3 className="text-base md:text-xl font-bold">
-                      {!playDuration?.error
-                        ? `${Math.floor(
-                            // @ts-ignore
-                            Number(formatUnits(playDuration.result, 0)) / 3600
-                          )}h`
-                        : "1h"}
+                      {slotDuration}
                     </h3>
                   </div>
                 </div>
@@ -194,10 +181,12 @@ const PlayersTable: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {nfts?.map((nft: any, indx: any) => (
+                    {actingPlayer && upCommingPlayer && nfts?.map((nft: any, indx: any) => (
                       <NFTTableRow
                         key={indx}
                         nft={nft}
+                        actingPlayer={actingPlayer}
+                        upCommingPlayer={upCommingPlayer}
                         onPointUpdated={fetchNFTs}
                       />
                     ))}
