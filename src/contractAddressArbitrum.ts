@@ -7,7 +7,7 @@ export const PoolModifyLiquidityTestAddress = '0xd88F38F930b7952f2DB2432Cb002E7a
 export const HookAddress = 	'0x986522646bF8F57d3b28C5808edE9B1E5ccA0ac0';
 export const MockUSDTAddress ='0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
 export const MockFUSDAddress = '0x894341be568Eae3697408c420f1d0AcFCE6E55f9';
-export const TimeSlotSystemAddress = '0x019893F241c58aCEfA1E5BA291b807a0c415A7b3';
+export const TimeSlotSystemAddress = '0x8b7373Ff3692B6a4aA9499BbACFacFd4C81A8724';
 export const ERC721Address = '0xE073a53a2Ba1709e2c8F481f1D7dbabA1eF611FD';
 
 
