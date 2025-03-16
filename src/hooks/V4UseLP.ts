@@ -31,6 +31,9 @@ import { BigNumberish } from "ethers";
 import { useAccount, useCall, useReadContract, useSendTransaction, useWriteContract } from "wagmi";
 import { getPoolId } from "../misc/v4helpers";
 import { set } from "mongoose";
+import { nextRoundAnnouncedNeeded } from "./fedz";
+import { write } from "fs";
+import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
@@ -189,15 +192,18 @@ const V4UseLP = (
 
   const addLiquidity = async (liquidity: string) => {
     setLoading(true);
+    if (await nextRoundAnnouncedNeeded(address as `0x${string}`, signer)) {
+      await writeContract({
+        address: TimeSlotSystemAddress,
+        abi: TimeSlotSystemAbi,
+        functionName: 'unlockRound',
+        args: []
+      });
+    }
     let approvalToastId;
     let liquidityToastId;
     try {
       const pool = await loadPool();
-      console.log({
-        liquidity,
-        tickLower,
-        tickUpper,
-      });
       const position = new Position({
         pool,
         liquidity,

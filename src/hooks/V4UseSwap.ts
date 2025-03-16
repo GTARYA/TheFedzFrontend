@@ -11,11 +11,14 @@ import {
   MockFUSDAddress,
   MockUSDTAddress,
   PoolSwapTestAddress,
+  TimeSlotSystemAddress,
 } from "../contractAddressArbitrum";
 import {encodeSqrtRatioX96, TickMath, nearestUsableTick } from "@uniswap/v3-sdk";
 import { useAccount, useWriteContract } from "wagmi";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
+import { nextRoundAnnouncedNeeded } from "./fedz";
+import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 
 const FEE = 4000;
 const TICK_SPACING = 10;
@@ -111,6 +114,14 @@ const V4UseSwap = (
   }
   const updateAmountIn = async (amount: string, zeroForOne: boolean = true) => {
     setQuoteLoading(true);
+    if (await nextRoundAnnouncedNeeded(address as `0x${string}`, signer)) {
+      await writeToContract({
+        address: TimeSlotSystemAddress,
+        abi: TimeSlotSystemAbi,
+        functionName: 'unlockRound',
+        args: []
+      });
+    }
     const pool = await loadPool();
     const tokenIn = zeroForOne ? token0 : token1;
     const tokenOut = zeroForOne ? token1 : token0;

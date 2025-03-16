@@ -44,13 +44,26 @@ export async function fetchTokenCount(signer: any) {
     return parseInt((await erc721Contract.totalSupply()).toString());
 }
 
-export async function isActingPlayer(account: string, signer: any) {
+export async function nextRoundAnnouncedNeeded(account: string, signer: any) {
     const timeSlotSystemContract = new ethers.Contract(
         TimeSlotSystemAddress,
         TimeSlotSystemAbi,
         signer
     );
-    return await timeSlotSystemContract.getCurrentPlayer() === account;
+    return await playerByCurrentTimestamp(signer) === account && await timeSlotSystemContract.isRoundLocked();
+}
+
+async function playerByCurrentTimestamp(signer: any) {
+    const timeSlotSystemContract = new ethers.Contract(
+        TimeSlotSystemAddress,
+        TimeSlotSystemAbi,
+        signer
+    );
+    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000));
+}
+
+export async function isActingPlayer(account: string, signer: any) {
+    return await playerByCurrentTimestamp(signer) === account;
 }
 
 export async function fetchSlotDuration(signer: any) {
@@ -68,7 +81,7 @@ export async function fetchActingPlayer(signer: any) {
         TimeSlotSystemAbi,
         signer
     );
-    return timeSlotSystemContract.getCurrentPlayer();
+    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000));
 }
 
 export async function fetchNextActingPlayer(signer: any, duration: bigint) {
