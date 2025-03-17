@@ -7,8 +7,12 @@ export const PoolModifyLiquidityTestAddress = '0xd88F38F930b7952f2DB2432Cb002E7a
 export const HookAddress = 	'0x986522646bF8F57d3b28C5808edE9B1E5ccA0ac0';
 export const MockUSDTAddress ='0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9';
 export const MockFUSDAddress = '0x894341be568Eae3697408c420f1d0AcFCE6E55f9';
-export const TimeSlotSystemAddress = '0x2a3E3A5D164FE0667c92896987857E32Ae53E198';
+export const TimeSlotSystemAddress = '0xbF378EfFB797Eeeab306506f8b03A3A7bfcBfe28';
 export const ERC721Address = '0xE073a53a2Ba1709e2c8F481f1D7dbabA1eF611FD';
 
+console.log({
+    HookAddress,
+    TimeSlotSystemAddress
+});
 
 // pool id 69855343FD06923D51D23179ECB3F1BAF48434CCAE082841C11821370A89D007
