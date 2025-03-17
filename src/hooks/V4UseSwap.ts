@@ -114,16 +114,6 @@ const V4UseSwap = (
   }
   const updateAmountIn = async (amount: string, zeroForOne: boolean = true) => {
     setQuoteLoading(true);
-    if (await nextRoundAnnouncedNeeded(signer)) {
-      let unlockToastId = toast.loading("Unlocking round...");
-      await writeToContract({
-        address: TimeSlotSystemAddress,
-        abi: TimeSlotSystemAbi,
-        functionName: 'unlockRound',
-        args: []
-      });
-      toast.dismiss(unlockToastId);
-    }
     const pool = await loadPool();
     const tokenIn = zeroForOne ? token0 : token1;
     const tokenOut = zeroForOne ? token1 : token0;
@@ -136,6 +126,16 @@ const V4UseSwap = (
     setQuoteLoading(false);
     setQuote(trade.minimumAmountOut(new Percent(0, 100)).toSignificant(tokenOut.decimals));
     const exeuteSwapQuoteCallback = async () => {
+      if (await nextRoundAnnouncedNeeded(signer)) {
+        let unlockToastId = toast.loading("Unlocking round...");
+        await writeToContract({
+          address: TimeSlotSystemAddress,
+          abi: TimeSlotSystemAbi,
+          functionName: 'unlockRound',
+          args: []
+        });
+        toast.dismiss(unlockToastId);
+      }
       const amountOutMinUnits = ethers.utils.parseUnits(trade.minimumAmountOut(slippageTolerance).toExact(), tokenOut.decimals);
       const amountOutMinimum = amountOutMinUnits.toString();
       const tokenAContract = new ethers.Contract(
