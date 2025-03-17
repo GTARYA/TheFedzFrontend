@@ -114,13 +114,15 @@ const V4UseSwap = (
   }
   const updateAmountIn = async (amount: string, zeroForOne: boolean = true) => {
     setQuoteLoading(true);
-    if (await nextRoundAnnouncedNeeded(address as `0x${string}`, signer)) {
+    if (await nextRoundAnnouncedNeeded(signer)) {
+      let unlockToastId = toast.loading("Unlocking round...");
       await writeToContract({
         address: TimeSlotSystemAddress,
         abi: TimeSlotSystemAbi,
         functionName: 'unlockRound',
         args: []
       });
+      toast.dismiss(unlockToastId);
     }
     const pool = await loadPool();
     const tokenIn = zeroForOne ? token0 : token1;

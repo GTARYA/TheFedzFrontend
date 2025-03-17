@@ -192,16 +192,19 @@ const V4UseLP = (
 
   const addLiquidity = async (liquidity: string) => {
     setLoading(true);
-    if (await nextRoundAnnouncedNeeded(address as `0x${string}`, signer)) {
+    let unlockToastId;
+    let approvalToastId;
+    let liquidityToastId;
+    if (await nextRoundAnnouncedNeeded(signer)) {
+      unlockToastId = toast.info("Unlocking next round...");
       await writeContract({
         address: TimeSlotSystemAddress,
         abi: TimeSlotSystemAbi,
         functionName: 'unlockRound',
         args: []
       });
+      toast.dismiss(unlockToastId);
     }
-    let approvalToastId;
-    let liquidityToastId;
     try {
       const pool = await loadPool();
       const position = new Position({
@@ -497,7 +500,7 @@ const V4UseLP = (
         });
       }
     } catch (err) {
-      console.log(err);
+      throw err;
     }
   };
 

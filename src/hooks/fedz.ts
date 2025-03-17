@@ -44,13 +44,13 @@ export async function fetchTokenCount(signer: any) {
     return parseInt((await erc721Contract.totalSupply()).toString());
 }
 
-export async function nextRoundAnnouncedNeeded(account: string, signer: any) {
+export async function nextRoundAnnouncedNeeded(signer: any) {
     const timeSlotSystemContract = new ethers.Contract(
         TimeSlotSystemAddress,
         TimeSlotSystemAbi,
         signer
     );
-    return await playerByCurrentTimestamp(signer) === account && await timeSlotSystemContract.isRoundLocked();
+    return await timeSlotSystemContract.isLocked();
 }
 
 async function playerByCurrentTimestamp(signer: any) {
