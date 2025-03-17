@@ -11,6 +11,7 @@ export const TimeSlotSystemAddress = '0xbF378EfFB797Eeeab306506f8b03A3A7bfcBfe28
 export const ERC721Address = '0xE073a53a2Ba1709e2c8F481f1D7dbabA1eF611FD';
 
 console.log({
+    HookAddress,
     TimeSlotSystemAddress
 });
 
