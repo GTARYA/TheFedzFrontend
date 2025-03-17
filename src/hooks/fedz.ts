@@ -72,7 +72,11 @@ export async function fetchSlotDuration(signer: any) {
         TimeSlotSystemAbi,
         signer
     );
-    return timeSlotSystemContract.slotDuration();
+    const [currentRound, nextRound] = await timeSlotSystemContract.rounds();
+    if (currentRound.slotDuration > BigInt(0)) {
+        return currentRound.slotDuration;
+    }
+    return nextRound.slotDuration;
 }
 
 export async function fetchActingPlayer(signer: any) {
@@ -81,7 +85,9 @@ export async function fetchActingPlayer(signer: any) {
         TimeSlotSystemAbi,
         signer
     );
-    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000));
+    const [currentRound, nextRound] = await timeSlotSystemContract.rounds();
+    const spare = parseInt(currentRound.startsAt.toString()) - Math.round(new Date().getTime()/1000);
+    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000) + (spare > 0 ? spare : 0));
 }
 
 export async function fetchNextActingPlayer(signer: any, duration: bigint) {
@@ -90,5 +96,7 @@ export async function fetchNextActingPlayer(signer: any, duration: bigint) {
         TimeSlotSystemAbi,
         signer
     );
-    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000) + parseInt(duration.toString()));
+    const [currentRound, nextRound] = await timeSlotSystemContract.rounds();
+    const spare = parseInt(currentRound.startsAt.toString()) - Math.round(new Date().getTime()/1000);
+    return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000) + (spare > 0 ? spare : 0) + parseInt(duration.toString()));
 }
