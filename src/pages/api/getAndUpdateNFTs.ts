@@ -10,7 +10,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await dbConnect();
 
     if (req.method === "GET") {
-      const nfts = await NftModel.find({}).sort({ tokenId: 1 }).collation({ locale: "en", numericOrdering: true });
+
+      const { sortBy, sortOrder } = req.query;
+
+      let sort: Record<string, any> = { tokenId: 1 };
+      let order = 1; 
+
+      // Ensure sortBy is a valid string and fallback to "tokenId" if invalid or undefined
+      const sortField = typeof sortBy === "string" ? sortBy : "tokenId";
+
+      // If provided, adjust sorting by the "sortBy" and "sortOrder" query params
+      if (sortField && (sortField === "tokenId" || sortField === "bestTurnsTime")) {
+        sort = { [sortField]: order };
+      }
+
+      if (sortOrder === "desc") {
+        order = -1;
+      }
+
+      sort = { ...sort, [sortField]: order };
+      const nfts = await NftModel.find({})
+      .sort(sort)  
+      .collation({ locale: "en", numericOrdering: true });
+
+
       res.status(200).json({
         success: true,
         message: "NFT point updated successfully.",

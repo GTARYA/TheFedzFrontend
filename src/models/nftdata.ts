@@ -6,6 +6,9 @@ export interface INFT extends Document {
   image: string;
   name: string;
   point: number;
+  bestTurnsTime?: number;  // Add bestTurnsTime as an optional field
+  owner?:string
+
 }
 
 const nftdata: Schema = new Schema({
@@ -13,6 +16,8 @@ const nftdata: Schema = new Schema({
   image: { type: String, required: false },
   name: { type: String, required: false },
   point: { type: Number, default: 0 },
+  bestTurnsTime: { type: Number, default: null },
+  owner: { type: String, required: false }, 
 });
 
 console.log(mongoose.models); // This will help you debug model registration

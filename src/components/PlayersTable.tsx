@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useReadContracts, useChainId } from "wagmi";
 import { ERC721Address as MockERC721Address } from "../contractAddressArbitrum";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import Image from "next/image";
 import Container from "./Container";
 import Title from "./ui/Title";
+import SortSelector from "./nft/SortSelector";
 
 import NFTTableRow from "./nft/NFTTableRow";
 import { formatDuration } from "../hooks/formatters";
 import { useEthersSigner } from "../hooks/useEthersSigner";
-import { fetchActingPlayer, fetchNextActingPlayer, fetchSlotDuration, fetchTokenCount } from "../hooks/fedz";
+import {
+  fetchActingPlayer,
+  fetchNextActingPlayer,
+  fetchSlotDuration,
+  fetchTokenCount,
+  getPlayersTurnOrder,
+} from "../hooks/fedz";
 
 type Address = `0x${string}`;
 
@@ -24,12 +31,18 @@ const PlayersTable: React.FC = () => {
   const [mount, setMount] = useState(false);
   const [allNfts, setAllNfts] = useState<NFT[]>([]);
   const [nfts, setNFTs] = useState<any>([]);
-  const [slotDuration, setSlotDuration] = useState('1h');
+  const [slotDuration, setSlotDuration] = useState("1h");
 
-  const fetchNFTs = async () => {
-    const response = await fetch("/api/getAndUpdateNFTs");
+  const fetchNFTs = async (
+    sortBy: string = "bestTurnsTime",
+    sortOrder: string = "asc"
+  ) => {
+    const response = await fetch(
+      `/api/getAndUpdateNFTs?sortBy=${sortBy}&sortOrder=${sortOrder}`
+    );
     const data = await response.json();
     if (data.success) {
+      console.log(data.nfts);
       setNFTs(data.nfts);
     }
   };
@@ -50,10 +63,15 @@ const PlayersTable: React.FC = () => {
   const [owners] = contractData || [];
   const [actingPlayer, setActingPlayer] = useState<string>();
   const [upCommingPlayer, setUpCommingPlayer] = useState<string>();
-  const [numberOfPlayers, setNumberOfPlayers] = useState<string>('');
+  const [numberOfPlayers, setNumberOfPlayers] = useState<string>("");
+
+  useEffect(() => {
+    if (signer) {
+      fetchNFTs("bestTurnsTime");
+    }
+  }, [signer]);
   useEffect(() => {
     if (!mount && signer) {
-      fetchNFTs();
       fetchSlotDuration(signer).then((duration) => {
         setSlotDuration(formatDuration(duration));
         fetchNextActingPlayer(signer, duration).then((next) => {
@@ -106,6 +124,10 @@ const PlayersTable: React.FC = () => {
         Error fetching players information
       </div>
     );
+
+  const handleSortChange = (sortBy: string) => {
+    fetchNFTs(sortBy);
+  };
 
   return (
     <div suppressHydrationWarning>
@@ -164,7 +186,11 @@ const PlayersTable: React.FC = () => {
 
       <section className="py-[50px] md:py-[75px] relative">
         <Container className="relative z-[5]">
-          <Title>All Plays</Title>
+          <div className="flex flex-row justify-between items-center">
+            <Title>All Plays</Title>
+            <SortSelector onSortChange={handleSortChange} />
+          </div>
+
           <div className="card w-full mt-5 md:mt-10 bg-white/5 border-white/20 border-[1px] shadow-xl relative overflow-hidden">
             {
               <div
@@ -181,15 +207,17 @@ const PlayersTable: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {actingPlayer && upCommingPlayer && nfts?.map((nft: any, indx: any) => (
-                      <NFTTableRow
-                        key={indx}
-                        nft={nft}
-                        actingPlayer={actingPlayer}
-                        upCommingPlayer={upCommingPlayer}
-                        onPointUpdated={fetchNFTs}
-                      />
-                    ))}
+                    {actingPlayer &&
+                      upCommingPlayer &&
+                      nfts?.map((nft: any, indx: any) => (
+                        <NFTTableRow
+                          key={indx}
+                          nft={nft}
+                          actingPlayer={actingPlayer}
+                          upCommingPlayer={upCommingPlayer}
+                          onPointUpdated={fetchNFTs}
+                        />
+                      ))}
                   </tbody>
                 </table>
               </div>

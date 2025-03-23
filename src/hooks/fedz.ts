@@ -100,3 +100,33 @@ export async function fetchNextActingPlayer(signer: any, duration: bigint) {
     const spare = parseInt(currentRound.startsAt.toString()) - Math.round(new Date().getTime()/1000);
     return timeSlotSystemContract.getPlayerByTimestamp(Math.round(new Date().getTime()/1000) + (spare > 0 ? spare : 0) + parseInt(duration.toString()));
 }
+
+
+export async function getPlayersTurnOrder(signer: any) {
+    const timeSlotSystemContract = new ethers.Contract(
+        TimeSlotSystemAddress,
+        TimeSlotSystemAbi,
+        signer
+    );
+
+    // Fetch the current round and next round data
+    const [currentRound, nextRound] = await timeSlotSystemContract.rounds();
+
+
+    const players = [];
+    for (let timestamp = Number(currentRound.startsAt.toString()); timestamp <= Number(nextRound.startsAt.toString()); timestamp += Number(currentRound.slotDuration.toString())) {
+        const player = await timeSlotSystemContract.getPlayerByTimestamp(timestamp);
+    
+        // Create a Date object from the timestamp
+        const date = new Date(timestamp * 1000); // Multiply by 1000 to convert from seconds to milliseconds
+        
+        // Format the date as needed, e.g., using toLocaleString() for human-readable date
+        const formattedDate = date.toLocaleString(); // Customize this format if needed
+    
+        // Push player and timestamp along with the formatted date
+        players.push({ player, timestamp, formattedDate });
+    }
+    
+    // Sort players by their next turn (timestamp)
+    return players.sort((a, b) => a.timestamp - b.timestamp); // Sorting players by their next turn timestamp
+}
