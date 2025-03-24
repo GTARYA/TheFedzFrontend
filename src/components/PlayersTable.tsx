@@ -6,7 +6,7 @@ import Image from "next/image";
 import Container from "./Container";
 import Title from "./ui/Title";
 import SortSelector from "./nft/SortSelector";
-
+import { getLatestEventForTurn } from "../hooks/fedz";
 import NFTTableRow from "./nft/NFTTableRow";
 import { formatDuration } from "../hooks/formatters";
 import { useEthersSigner } from "../hooks/useEthersSigner";
@@ -30,20 +30,14 @@ const PlayersTable: React.FC = () => {
   const signer = useEthersSigner();
   const [mount, setMount] = useState(false);
   const [allNfts, setAllNfts] = useState<NFT[]>([]);
-  const [nfts, setNFTs] = useState<any>([]);
   const [slotDuration, setSlotDuration] = useState("1h");
 
-  const fetchNFTs = async (
-    sortBy: string = "bestTurnsTime",
-    sortOrder: string = "asc"
-  ) => {
-    const response = await fetch(
-      `/api/getAndUpdateNFTs?sortBy=${sortBy}&sortOrder=${sortOrder}`
-    );
-    const data = await response.json();
-    if (data.success) {
-      console.log(data.nfts);
-      setNFTs(data.nfts);
+
+  const [nfts, setNFTs] = useState<any>([]);
+  const fetchNFTs = async () => {
+    const data = await getLatestEventForTurn();
+    if (data) {
+      setNFTs(data);
     }
   };
 
@@ -66,10 +60,9 @@ const PlayersTable: React.FC = () => {
   const [numberOfPlayers, setNumberOfPlayers] = useState<string>("");
 
   useEffect(() => {
-    if (signer) {
-      fetchNFTs("bestTurnsTime");
-    }
-  }, [signer]);
+    fetchNFTs();
+  }, []);
+
   useEffect(() => {
     if (!mount && signer) {
       fetchSlotDuration(signer).then((duration) => {
@@ -125,9 +118,16 @@ const PlayersTable: React.FC = () => {
       </div>
     );
 
-  const handleSortChange = (sortBy: string) => {
-    fetchNFTs(sortBy);
-  };
+    const handleSortChange = (sortBy: string) => {
+      const sortedNFTs = [...nfts].sort((a, b) => {
+        if (sortBy === "tokenId") {
+          return Number(a.tokenId) - Number(b.tokenId); 
+        }
+        return a.timestamp - b.timestamp; 
+      });
+  
+      setNFTs(sortedNFTs);
+    };
 
   return (
     <div suppressHydrationWarning>
@@ -207,8 +207,7 @@ const PlayersTable: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {actingPlayer &&
-                      upCommingPlayer &&
+                    {
                       nfts?.map((nft: any, indx: any) => (
                         <NFTTableRow
                           key={indx}

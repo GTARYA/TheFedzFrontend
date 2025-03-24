@@ -7,14 +7,14 @@ interface SortSelectorProps {
 }
 
 const SortSelector: React.FC<SortSelectorProps> = ({ onSortChange }) => {
-  const [playersSort, setPlayersSort] = useState("bestTurnsTime");
+  const [playersSort, setPlayersSort] = useState("timestamp");
   const sortOrder = [
-    { name: "Turn Order", value: "bestTurnsTime" },
+    { name: "Turn Order", value: "timestamp" },
     { name: "ID Order", value: "tokenId" },
  
   ];
 
-  const handleSortChange = (sortValue: string) => {
+  const handleSortChange = (sortValue:string) => {
     setPlayersSort(sortValue);
     onSortChange(sortValue);
   };
@@ -22,15 +22,15 @@ const SortSelector: React.FC<SortSelectorProps> = ({ onSortChange }) => {
   return (
     <Menu as="div" className="relative inline-block text-left w-fit z-[100]">
       <div>
-        <Menu.Button className="flex items-center justify-between w-full hover:bg-[#191919] h-[40px] rounded-xl outline-none pl-2 pr-4 py-1 bg-[#191919]">
+        <Menu.Button className="flex space-x-2 items-center justify-between w-full hover:bg-[#191919] h-[40px] rounded-xl outline-none pl-2 pr-4 py-1 bg-[#292929]">
           <div className="flex items-center">
-            <span className="ml-2.5 text-sm font-medium text-white">
+            <span className="ml-3.5 text-white font-semibold text-base md:text-lg">
               {sortOrder.find((e) => e.value === playersSort)?.name || "Sort"}{" "}
               {/* Display current sort */}
             </span>
           </div>
           <ChevronDownIcon
-            className="-mr-1 h-6 w-6 text-[#7E7E7F]"
+            className="-mr-2.5 h-6 w-6 text-[#7E7E7F]"
             aria-hidden="true"
           />
         </Menu.Button>
@@ -55,7 +55,7 @@ const SortSelector: React.FC<SortSelectorProps> = ({ onSortChange }) => {
                 className="flex items-center px-3 py-2 cursor-pointer hover:bg-white/5 transition-all"
                 onClick={() => handleSortChange(e.value)}
               >
-                <span className="ml-2.5 text-sm font-medium">{e.name}</span>
+                <span className="ml-3 font-semibold text-base md:text-lg">{e.name}</span>
               </div>
             </Menu.Item>
           ))}

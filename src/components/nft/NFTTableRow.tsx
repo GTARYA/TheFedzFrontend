@@ -100,8 +100,8 @@ const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated, actingPl
             onChange={(e) => setNewPoint(Number(e.target.value))}
             className=" p-1 border-white/10 border-[1px] rounded outline-none w-2/3 bg-transparent px-3 py-2"
           />
-        ) : (
-          nft.point
+        ) : ( 
+           nft.point  
         )}
       </td>
 
