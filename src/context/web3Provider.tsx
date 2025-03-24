@@ -3,6 +3,7 @@
 import { wagmiAdapter, projectId, networks } from "../config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createAppKit } from "@reown/appkit/react";
+import TurnNotification from "../components/nft/TurnNotification";
 import {
   mainnet,
   bscTestnet,
@@ -55,6 +56,7 @@ function ContextProvider({
       initialState={initialState}
     >
            <Toaster />
+           <TurnNotification/>
            <SonnarToaster position="top-right" richColors/>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>

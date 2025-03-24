@@ -1,4 +1,5 @@
 import { erc721Abi } from "viem";
+import erc721ABI from "../abi/NFTABI.json"
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import {
   TimeSlotSystemAddress,
@@ -108,7 +109,39 @@ export async function fetchNextActingPlayer(signer: any, duration: bigint) {
   );
 }
 
-export async function getLatestEventForTurn() {
+export async function listMyNFTs(address: string) {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://arb1.arbitrum.io/rpc"
+    );
+    const contract = new ethers.Contract(ERC721Address, erc721ABI, provider);
+    const nftHexArray = await contract.listMyNFTs(address); // Returns hex token IDs
+    const nfts = nftHexArray.map((hex: string) => Number(ethers.BigNumber.from(hex).toString()));
+
+    return nfts;
+  } catch (error) {
+    console.error("Error fetching NFTs:", error);
+    return [];
+  }
+}
+
+interface TurnOrderEntry {
+  name: string;
+  tokenId: number;
+  timestamp: number;
+  image: string;
+  point: number;
+}
+
+interface LatestEventResponse {
+  turnOrder: TurnOrderEntry[];
+  slotDuration: number;
+  startsAt: number;
+  roundNumber:number
+}
+
+export async function getLatestEventForTurn(): Promise<LatestEventResponse> {
+
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       "https://arb1.arbitrum.io/rpc"
@@ -128,12 +161,14 @@ export async function getLatestEventForTurn() {
 
     if (events.length === 0) {
       console.log("No recent NextRoundAnnouncement events found.");
-      return [];
+      return { turnOrder: [], slotDuration: 0, startsAt: 0,roundNumber:0 };
     }
+
 
     const latestEvent = events[events.length - 1].args;
     const slotDuration = Number(latestEvent.slotDuration);
     const startsAt = Number(latestEvent.startsAt);
+    const roundNumber = Number(latestEvent.roundNumber);
 
     const nftPointsMap = new Map(
       nftPointsResponse.map((nft: any) => [Number(nft.tokenId), nft.point])
@@ -147,15 +182,20 @@ export async function getLatestEventForTurn() {
           tokenId,
           timestamp: startsAt + index * slotDuration,
           image: `https://ipfs.raribleuserdata.com/ipfs/QmcQLjVn2qTgobAEFrQyDBUbsaWz2YYE6FLcoaDAdavtbk/${tokenId}.webp`,
-          point: nftPointsMap.get(tokenId) || 0, // Default to 0 if not found
+          point: nftPointsMap.get(tokenId) || 0, 
         };
       }
     );
 
-    return turnOrder;
+    return {turnOrder,slotDuration,startsAt,roundNumber};
   } catch (error) {
     console.error("Error fetching latest event:", error);
-    return [];
+    return {
+      turnOrder:[],
+      slotDuration:0,
+      startsAt:0,
+      roundNumber:0
+    };
   }
 }
 export async function getPlayersTurnOrder(signer: any) {

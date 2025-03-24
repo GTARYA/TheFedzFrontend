@@ -35,9 +35,9 @@ const PlayersTable: React.FC = () => {
 
   const [nfts, setNFTs] = useState<any>([]);
   const fetchNFTs = async () => {
-    const data = await getLatestEventForTurn();
+    const data:any = await getLatestEventForTurn();
     if (data) {
-      setNFTs(data);
+      setNFTs(data.turnOrder);
     }
   };
 
@@ -65,6 +65,12 @@ const PlayersTable: React.FC = () => {
 
   useEffect(() => {
     if (!mount && signer) {
+      const da =  getPlayersTurnOrder(signer).then((e)=>{
+        console.log(e);
+        
+      })
+      console.log(da,"da");
+      
       fetchSlotDuration(signer).then((duration) => {
         setSlotDuration(formatDuration(duration));
         fetchNextActingPlayer(signer, duration).then((next) => {
