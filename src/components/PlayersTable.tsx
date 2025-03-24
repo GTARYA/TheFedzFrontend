@@ -68,8 +68,6 @@ const PlayersTable: React.FC = () => {
       fetchSlotDuration(signer).then((duration) => {
         setSlotDuration(formatDuration(duration));
         fetchNextActingPlayer(signer, duration).then((next) => {
-          console.log(next,"next");
-          
           setUpCommingPlayer(next);
         });
       });

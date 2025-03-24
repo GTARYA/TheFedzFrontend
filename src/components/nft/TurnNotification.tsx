@@ -11,18 +11,14 @@ import { Fragment } from "react";
 import { BorderBeam } from "../ui/BorderBeam";
 import { XMarkIcon, XCircleIcon } from "@heroicons/react/20/solid";
 const TurnNotification = () => {
-  const { isConnected,address } = useAccount();
-  // const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032";
+  const { isConnected ,address} = useAccount();
+  // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   const [userTurn, setUserTurn] = useState<any | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  
-  // const [days, setDays] = useState(0);
-  // const [hours, setHours] = useState(0);
-  // const [minutes, setMinutes] = useState(0);
-
 
   const [slotDuration, setSlotDuration] = useState(0);
   const [roundNumber, setRoundNumber] = useState(0);
+
   useEffect(() => {
     const checkUserTurn = async () => {
       if (!address) return;
@@ -35,10 +31,21 @@ const TurnNotification = () => {
       setRoundNumber(turnList.roundNumber);
 
       if (!turnList.turnOrder || !myNFTs.length) return;
+
+      const roundEndTime =
+        turnList.startsAt + turnList.slotDuration * turnList.turnOrder.length;
+
+      const currentTime = Math.floor(Date.now() / 1000); 
+      if (currentTime >= roundEndTime) {
+        console.log("Round has ended. Not displaying user turn.");
+        return;
+      }
+
       const userTokenIds = new Set(myNFTs.map((tokenId: any) => tokenId));
       const userNFTs = turnList.turnOrder.filter((nft: any) =>
         userTokenIds.has(nft.tokenId)
       );
+
       if (!userNFTs.length) return;
       const closestNFT = userNFTs.reduce((prev, curr) =>
         prev.timestamp < curr.timestamp ? prev : curr
@@ -115,7 +122,7 @@ const TurnNotification = () => {
                 size={400}
                 className="from-transparent via-[#33ffdd] to-transparent"
               />
-        
+
               <img
                 src="/blue-glare4.png"
                 alt="eppilse"
