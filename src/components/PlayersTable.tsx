@@ -65,15 +65,11 @@ const PlayersTable: React.FC = () => {
 
   useEffect(() => {
     if (!mount && signer) {
-      const da =  getPlayersTurnOrder(signer).then((e)=>{
-        console.log(e);
-        
-      })
-      console.log(da,"da");
-      
       fetchSlotDuration(signer).then((duration) => {
         setSlotDuration(formatDuration(duration));
         fetchNextActingPlayer(signer, duration).then((next) => {
+          console.log(next,"next");
+          
           setUpCommingPlayer(next);
         });
       });

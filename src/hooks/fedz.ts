@@ -154,39 +154,50 @@ export async function getLatestEventForTurn(): Promise<LatestEventResponse> {
 
     const filter = contract.filters.NextRoundAnnouncement();
 
-    const [events, nftPointsResponse] = await Promise.all([
+    const [events, nftPointsResponse,roundData] = await Promise.all([
       contract.queryFilter(filter),
       axios.get("/api/getAndUpdateNFTs").then((res) => res.data.nfts),
+       contract.rounds()
     ]);
+
+    const [currentRound, nextRound] = roundData;
+
 
     if (events.length === 0) {
       console.log("No recent NextRoundAnnouncement events found.");
       return { turnOrder: [], slotDuration: 0, startsAt: 0,roundNumber:0 };
     }
+    
+    // Find the event that matches the current round
+    const matchedEvent = events
+      .map((event:any) => event.args)
+      .find((event:any) => Number(event.roundNumber) === Number(currentRound.roundNumber.toString()));
 
-
-    const latestEvent = events[events.length - 1].args;
-    const slotDuration = Number(latestEvent.slotDuration);
-    const startsAt = Number(latestEvent.startsAt);
-    const roundNumber = Number(latestEvent.roundNumber);
-
-    const nftPointsMap = new Map(
-      nftPointsResponse.map((nft: any) => [Number(nft.tokenId), nft.point])
-    );
-
-    const turnOrder = latestEvent.turnOrder.map(
-      (tokenHex: string, index: number) => {
-        const tokenId = Number(ethers.BigNumber.from(tokenHex).toString());
-        return {
-          name: `The Fedz #${tokenId}`,
-          tokenId,
-          timestamp: startsAt + index * slotDuration,
-          image: `https://ipfs.raribleuserdata.com/ipfs/QmcQLjVn2qTgobAEFrQyDBUbsaWz2YYE6FLcoaDAdavtbk/${tokenId}.webp`,
-          point: nftPointsMap.get(tokenId) || 0, 
-        };
+      if (!matchedEvent) {
+        console.log("No event found for the current round.");
+        return { turnOrder: [], slotDuration: 0, startsAt: 0, roundNumber: 0 };
       }
-    );
 
+      const slotDuration = Number(matchedEvent.slotDuration);
+      const startsAt = Number(matchedEvent.startsAt);
+      const roundNumber = Number(matchedEvent.roundNumber);
+  
+      const nftPointsMap = new Map(
+        nftPointsResponse.map((nft: any) => [Number(nft.tokenId), nft.point])
+      );
+  
+      const turnOrder = matchedEvent.turnOrder.map(
+        (tokenHex: string, index: number) => {
+          const tokenId = Number(ethers.BigNumber.from(tokenHex).toString());
+          return {
+            name: `The Fedz #${tokenId}`,
+            tokenId,
+            timestamp: startsAt + index * slotDuration,
+            image: `https://ipfs.raribleuserdata.com/ipfs/QmcQLjVn2qTgobAEFrQyDBUbsaWz2YYE6FLcoaDAdavtbk/${tokenId}.webp`,
+            point: nftPointsMap.get(tokenId) || 0,
+          };
+        }
+      );
     return {turnOrder,slotDuration,startsAt,roundNumber};
   } catch (error) {
     console.error("Error fetching latest event:", error);

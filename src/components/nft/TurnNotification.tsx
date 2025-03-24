@@ -15,10 +15,12 @@ const TurnNotification = () => {
   // const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032";
   const [userTurn, setUserTurn] = useState<any | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  
+  // const [days, setDays] = useState(0);
+  // const [hours, setHours] = useState(0);
+  // const [minutes, setMinutes] = useState(0);
 
-  const [days, setDays] = useState(0);
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
+
   const [slotDuration, setSlotDuration] = useState(0);
   const [roundNumber, setRoundNumber] = useState(0);
   useEffect(() => {
