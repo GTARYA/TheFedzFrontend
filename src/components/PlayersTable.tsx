@@ -61,7 +61,7 @@ const PlayersTable: React.FC = () => {
 
   useEffect(() => {
     fetchNFTs();
-  }, []);
+  }, [upCommingPlayer,numberOfPlayers]);
 
   useEffect(() => {
     if (!mount && signer) {
