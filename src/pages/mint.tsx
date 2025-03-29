@@ -45,6 +45,8 @@ function MintPage({}: Props) {
   } = useBalance({
     address: address,
   });
+
+  
   const { data: walletClient } = useWalletClient();
   const {
     data: totalSupply,

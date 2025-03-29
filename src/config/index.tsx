@@ -22,6 +22,9 @@ export const SUPPORTED_NETWORK = [
 export const ChainId = arbitrum.id;  
 export const OWNER_WALLET = "0x833e421145863237e9B372dbA99EcF49C98956fb"
 
+
+
+
 export const ChainInfo: Record<chainId, { config: any; icon: string ,name:string}> = {
   [42161]: {
     config: arbitrum,
@@ -67,9 +70,6 @@ export const wagmiAdapter = new WagmiAdapter({
     [arbitrum.id]: http("https://arb1.arbitrum.io/rpc"),
   },
 });
-
-
-
 
 
 
