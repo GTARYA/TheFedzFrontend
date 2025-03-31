@@ -95,6 +95,13 @@ function stake({}: Props) {
   const handleWithdraw = async () => {
     if (!stakingData.staked) return toast.info("You haven't staked any NFT.");
     await withdraw(Number(stakingData?.staked?.nftId));
+
+    await UpdateData();
+
+    setTimeout(async () => {
+      await UpdateData();
+    }, 10000); //
+    
   };
 
   const redeem = async () => {
