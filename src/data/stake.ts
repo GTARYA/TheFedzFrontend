@@ -65,7 +65,6 @@ export const contractStakingData = async (user?: string) => {
   try {
     let data: StakedNFTResponse | undefined = undefined;
 
-    // Execute GraphQL query only if the user is provided
     if (user) {
       const query = gql`
         query GetStakedData($user: String!) {
@@ -107,7 +106,6 @@ export const contractStakingData = async (user?: string) => {
     const timestamp = Math.floor(Date.now() / 1000);
     const Round = await timeSlotSystemContract.rounds();
 
-    // Ensure Round has data before accessing indexes
     const activeRound = Round?.[0]?.[0]?.toString();
 
     const rewardsPromise =
@@ -123,12 +121,15 @@ export const contractStakingData = async (user?: string) => {
           )
         : Promise.resolve(ethers.BigNumber.from(0));
 
-    const [rewards, apr, cap, redeemedByPlayerAndRound] = await Promise.all([
+    const [rewards, apr, cap, redeemedByPlayerAndRound,redeemedByRound] = await Promise.all([
       rewardsPromise,
       stakingContract.apr(),
       SbFUSDVaultContract.redemptionCap(),
       redeemedPromise,
+      SbFUSDVaultContract.redeemedByRound(activeRound)
     ]);
+
+    
 
     return {
       rewards: ethers.utils.formatUnits(rewards, 18),
@@ -139,6 +140,10 @@ export const contractStakingData = async (user?: string) => {
         18
       ),
       staked,
+      redeemedByRound:ethers.utils.formatUnits(
+        redeemedByRound,
+        18
+      )
     };
   } catch (error) {
     console.error("Error fetching contract data:", error);
@@ -148,6 +153,7 @@ export const contractStakingData = async (user?: string) => {
       cap: "0",
       redeemedByPlayerAndRound: "0",
       staked: null,
+      redeemedByRound:""
     };
   }
 };

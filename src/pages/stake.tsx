@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { fetchNFTsForOwner } from "../data/stake";
+import Footer from '../components/Footer';
 import Navbar from "../components/Navbar";
 import { InfoLine } from "../components/stake/InfoLine";
 import { BorderBeam } from "../components/ui/BorderBeam";
@@ -12,9 +13,11 @@ import { FUSD_TOKEN_ADDR, SBFUSD_ADDR, STAKING_ADDR } from "../config/staking";
 import stakingABI from "../abi/LpStaking.json";
 import { contractStakingData } from "../data/stake";
 import { StakedNFT } from "../data/stake";
+import { useAppKit } from '@reown/appkit/react';
 type Props = {};
 
 function stake({}: Props) {
+  const { open, close } = useAppKit();
   const { address } = useAccount();
   const signer = useEthersSigner();
   const [nftData, setNftData] = useState<any>(null);
@@ -26,11 +29,13 @@ function stake({}: Props) {
     cap: string;
     redeemedByPlayerAndRound: string;
     staked: StakedNFT | null;
+    redeemedByRound: string;
   }>({
     rewards: "0",
     apr: "0",
     cap: "0",
     redeemedByPlayerAndRound: "0",
+    redeemedByRound: "0",
     staked: null,
   });
 
@@ -79,17 +84,18 @@ function stake({}: Props) {
   };
 
   useEffect(() => {
-      UpdateData();
+    UpdateData();
   }, [address]);
 
   const handleStake = async () => {
+    if(!address) return open();
     if (!nftData) return toast.info("You don't have LP token");
     await stake(nftData.tokenId);
     await UpdateData();
 
     setTimeout(async () => {
       await UpdateData();
-    }, 10000); //
+    }, 10000 / 2); //
   };
 
   const handleWithdraw = async () => {
@@ -100,8 +106,7 @@ function stake({}: Props) {
 
     setTimeout(async () => {
       await UpdateData();
-    }, 10000); //
-    
+    }, 10000 / 2); //
   };
 
   const redeem = async () => {
@@ -198,33 +203,45 @@ function stake({}: Props) {
           </div>
         </div>
 
-        <div className="md:max-w-xl mx-auto border-[#ffffff17] border rounded-2xl mt-8 py-3 px-5 relative ">
+        <div className="md:max-w-xl mx-auto border-[#ffffff17] border rounded-2xl mt-8 relative ">
+          <div className="px-4 md:px-7 py-4 w-full bg-gradient-to-r from-[#fff0] to-[#ffffff17] border-[#ffffff17] border-b  rounded-2xl ">
+            <h1 className="text-lg tracking-wide text-white md:text-2xl font-extrabold flex flex-row items-end py-1 gap-5">
+              Burn sbFUSD
+            </h1>
+            <p className="flex flex-row  gap-3 text-gray-400">Print FUSD</p>
+          </div>
+
           <BorderBeam
             duration={8}
             size={400}
             className="from-transparent via-[#33ffdd] to-transparent"
           />
 
-          <div className="text-white uppercase text-center text-xl font-medium py-2">
-            Burn sbFUSD to mint FUSD
-          </div>
-
-          <div className="py-3">
+          <div className="p-5 md:p-7">
             <InfoLine
               text="sbFUSD balance"
               load={sbFusdBalanceLoading}
-              value={Number(sbFusdBalanceData?.formatted ??0).toFixed(2)}
+              value={Number(sbFusdBalanceData?.formatted ?? 0).toFixed(2)}
+            />
+
+            <InfoLine
+              text="New FUSD Printed"
+              load={stakingData.apr == "0"}
+              value={Number(stakingData.redeemedByRound)}
             />
           </div>
-          <button
-            disabled={loading}
-            onClick={() => redeem()}
-            className="bg-lightblue w-full uppercase  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
-          >
-            Mint FUSDT
-          </button>
+          <div className="p-5 md:p-7">
+            <button
+              disabled={loading}
+              onClick={() => redeem()}
+              className="bg-lightblue w-full   text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
+            >
+              Print FUSD
+            </button>
+          </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
