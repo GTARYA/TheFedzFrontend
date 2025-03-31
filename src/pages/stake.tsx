@@ -1,6 +1,6 @@
-import React,{useState,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAccount,useBalance,useReadContracts } from "wagmi";
+import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { fetchNFTsForOwner } from "../data/stake";
 import Navbar from "../components/Navbar";
 import { InfoLine } from "../components/stake/InfoLine";
@@ -8,8 +8,10 @@ import { BorderBeam } from "../components/ui/BorderBeam";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import useStake from "../hooks/useStake";
 import { toast } from "sonner";
-import { FUSD_TOKEN_ADDR ,SBFUSD_ADDR,STAKING_ADDR} from "../config/staking";
-import stakingABI from "../abi/LpStaking.json"
+import { FUSD_TOKEN_ADDR, SBFUSD_ADDR, STAKING_ADDR } from "../config/staking";
+import stakingABI from "../abi/LpStaking.json";
+import { contractStakingData } from "../data/stake";
+import { StakedNFT } from "../data/stake";
 type Props = {};
 
 function stake({}: Props) {
@@ -18,6 +20,19 @@ function stake({}: Props) {
   const [nftData, setNftData] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
   const { loading, burnToken, stake, withdraw } = useStake(signer);
+  const [stakingData, setStakingData] = useState<{
+    rewards: string;
+    apr: string;
+    cap: string;
+    redeemedByPlayerAndRound: string;
+    staked: StakedNFT | null;
+  }>({
+    rewards: "0",
+    apr: "0",
+    cap: "0",
+    redeemedByPlayerAndRound: "0",
+    staked: null,
+  });
 
   const {
     data: sbFusdBalanceData,
@@ -25,7 +40,7 @@ function stake({}: Props) {
     refetch: refetchSbFusdBalance,
   } = useBalance({
     address: address,
-    token:SBFUSD_ADDR as "0x"
+    token: SBFUSD_ADDR as "0x",
   });
 
   const {
@@ -34,13 +49,10 @@ function stake({}: Props) {
     refetch: refetchFusdBalance,
   } = useBalance({
     address: address,
-    token:FUSD_TOKEN_ADDR as "0x"
+    token: FUSD_TOKEN_ADDR as "0x",
   });
 
-
-
-
- useEffect(() => {
+  useEffect(() => {
     const fetchNFTs = async () => {
       if (!address) return;
 
@@ -59,12 +71,37 @@ function stake({}: Props) {
     fetchNFTs();
   }, [address]);
 
+  const UpdateData = async () => {
+    const data = await contractStakingData(address);
+    if (data) {
+      setStakingData(data);
+    }
+  };
+
+  useEffect(() => {
+      UpdateData();
+  }, [address]);
+
   const handleStake = async () => {
-    console.log(nftData);
-
     if (!nftData) return toast.info("You don't have LP token");
-
     await stake(nftData.tokenId);
+    await UpdateData();
+
+    setTimeout(async () => {
+      await UpdateData();
+    }, 10000); //
+  };
+
+  const handleWithdraw = async () => {
+    if (!stakingData.staked) return toast.info("You haven't staked any NFT.");
+    await withdraw(Number(stakingData?.staked?.nftId));
+  };
+
+  const redeem = async () => {
+    if (!sbFusdBalanceData) return;
+    if (Number(sbFusdBalanceData.formatted) <= 0)
+      return toast.info("Low Balance");
+    await burnToken(sbFusdBalanceData?.formatted);
   };
 
   return (
@@ -87,11 +124,40 @@ function stake({}: Props) {
           </div>
 
           <div className="p-5 md:p-7 flex flex-col gap-y-3">
-            <InfoLine text="APR" load={false} value={0} />
+            <InfoLine
+              text="APR"
+              load={stakingData.apr == "0"}
+              value={`${stakingData.apr}%`}
+            />
 
-            <InfoLine text="FUSD balance." load={fusdBalanceLoading} value={Number(fusdBalanceData?.formatted).toFixed(2)} />
-            <InfoLine text="Reward" load={false} value={0} />
-            <InfoLine text="Cap" load={false} value={0} />
+            <InfoLine
+              text="FUSD balance."
+              load={fusdBalanceLoading}
+              value={Number(fusdBalanceData?.formatted ?? 0).toFixed(2)}
+            />
+            <InfoLine
+              text="Reward"
+              load={stakingData.apr == "0"}
+              value={
+                parseFloat(stakingData.rewards) < 0.01
+                  ? "<0.01"
+                  : stakingData.rewards
+              }
+            />
+
+            <InfoLine
+              text="Cap"
+              load={stakingData.apr == "0"}
+              value={stakingData.cap}
+            />
+
+            {stakingData.staked && (
+              <InfoLine
+                text="Staked LP ID"
+                load={stakingData.apr == "0"}
+                value={`#${stakingData.staked?.nftId}`}
+              />
+            )}
           </div>
 
           {/* <div className="grid grid-cols-2 px-5 md:px-7 gap-5   ">
@@ -114,13 +180,13 @@ function stake({}: Props) {
 
           <div className=" mx-auto gap-4 items-center p-5 md:p-7 ">
             <button
-              disabled={loading}
+              disabled={loading || stakingData.apr == "0"}
               onClick={() => {
-                handleStake();
+                stakingData.staked ? handleWithdraw() : handleStake();
               }}
               className="bg-lightblue w-full  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
             >
-              Stake
+              {stakingData.staked ? "Withdraw" : "Stake"}
             </button>
           </div>
         </div>
@@ -137,10 +203,17 @@ function stake({}: Props) {
           </div>
 
           <div className="py-3">
-          
-            <InfoLine text="sbFUSD balance" load={sbFusdBalanceLoading} value={Number(sbFusdBalanceData?.formatted).toFixed(2)} />
+            <InfoLine
+              text="sbFUSD balance"
+              load={sbFusdBalanceLoading}
+              value={Number(sbFusdBalanceData?.formatted ??0).toFixed(2)}
+            />
           </div>
-          <button className="bg-lightblue w-full uppercase  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50">
+          <button
+            disabled={loading}
+            onClick={() => redeem()}
+            className="bg-lightblue w-full uppercase  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
+          >
             Mint FUSDT
           </button>
         </div>
