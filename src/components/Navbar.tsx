@@ -58,13 +58,22 @@ const Navbar = () => {
                                 Earn
                             </Link>
                         </li>
-                        <li>
+                        {/* <li>
                             <Link
                                 href="/nft"
                                 className="text-primary leading-6 text-[16px]">
                                 Owners
                             </Link>
+                        </li> */}
+
+                              <li>
+                            <Link
+                                href="/stake"
+                                className="text-primary leading-6 text-[16px]">
+                                Stake
+                            </Link>
                         </li>
+
                         <li>
                             <Link
                                 href="/players"
