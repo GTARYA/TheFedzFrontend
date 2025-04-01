@@ -173,6 +173,15 @@ const Navbar = () => {
                                     Liquidity
                                 </Link>
                             </li>
+                            
+
+                            <li>
+                            <Link
+                                href="/stake"
+                                className="text-primary leading-6 md:text-[24px] text-[16px]">
+                                Stake
+                            </Link>
+                        </li>
                             <li className="py-3 w-full text-center border-b  border-white/10">
                                 <Link
                                     href="/nft"
