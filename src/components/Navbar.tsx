@@ -166,14 +166,14 @@ const Navbar = () => {
                                     Swap
                                 </Link>
                             </li>
+                            
                             <li className="py-3 w-full text-center border-b  border-white/10">
                                 <Link
                                     href="/liquidity"
                                     className="text-primary leading-6 md:text-[24px] text-[16px]">
-                                    Liquidity
+                                    Earn
                                 </Link>
                             </li>
-                            
 
                             <li className="py-3 w-full text-center border-b  border-white/10">
                             <Link
@@ -182,20 +182,29 @@ const Navbar = () => {
                                 Stake
                             </Link>
                         </li>
-                            <li className="py-3 w-full text-center border-b  border-white/10">
+                            {/* <li className="py-3 w-full text-center border-b  border-white/10">
                                 <Link
                                     href="/nft"
                                     className="text-primary leading-6 md:text-[24px] text-[16px]">
                                     NFTs
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="py-3 w-full text-center">
                                 <Link
                                     href="/players"
                                     className="text-primary leading-6 md:text-[24px] text-[16px]">
-                                    Players
+                                    Status
                                 </Link>
                             </li>
+
+
+                            <li className="py-3 w-full text-center">
+                            <Link
+                                href="https://Blog.TheFedz.org"
+                                className="text-primary leading-6 md:text-[24px] text-[16px]">
+                                Blog
+                            </Link>
+                        </li>
                         </ul>
                         <div className="mx-auto w-fit flex flex-col items-center justify-center gap-3">
                             <ConnectButton />
