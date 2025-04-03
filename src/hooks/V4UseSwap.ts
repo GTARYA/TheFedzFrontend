@@ -130,7 +130,7 @@ const V4UseSwap = (
         signer
       );
       const balanceOfTokenA = await tokenAContract.balanceOf(address);
-      if (!isGraterThanEquals(balanceOfTokenA, amountInUnits)) {
+      if (isGraterThanEquals(amountInUnits, balanceOfTokenA)) {
           toast.error("Insufficient balance A");
           setLoading(false);
           return;
