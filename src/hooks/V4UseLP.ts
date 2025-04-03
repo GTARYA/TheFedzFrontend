@@ -226,12 +226,12 @@ const V4UseLP = (
         signer
       );
       const balanceOfTokenB = await tokenBContract.balanceOf(address);
-      if (!isGraterThanEquals(balanceOfTokenA, amount0Max)) {
+      if (isGraterThanEquals(amount0Max, balanceOfTokenA)) {
           toast.error("Insufficient balance A");
           setLoading(false);
           return;
       }
-      if (!isGraterThanEquals(balanceOfTokenB, amount1Max)) {
+      if (isGraterThanEquals(amount1Max, balanceOfTokenB)) {
         toast.error("Insufficient balance B");
         setLoading(false);
         return;
