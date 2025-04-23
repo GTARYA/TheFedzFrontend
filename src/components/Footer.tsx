@@ -22,22 +22,25 @@ const Footer = () => {
                         <div className="mt-10 flex flex-col gap-3 items-center md:items-start">
                             <h3 className="font-semibold">Follow Us</h3>
                             <ul className="flex items-center gap-4">
-                            <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
-                                <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
-                                    <svg
-                                        width="21"
-                                        height="21"
-                                        viewBox="0 0 21 21"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M6.50975 4.29392C6.50953 4.73811 6.33287 5.16401 6.01863 5.47794C5.70438 5.79187 5.2783 5.96811 4.83412 5.96788C4.38993 5.96766 3.96403 5.791 3.6501 5.47675C3.33617 5.16251 3.15993 4.73643 3.16016 4.29225C3.16038 3.84806 3.33704 3.42216 3.65129 3.10823C3.96553 2.7943 4.39161 2.61806 4.83579 2.61829C5.27998 2.61851 5.70588 2.79517 6.01981 3.10942C6.33374 3.42366 6.50998 3.84974 6.50975 4.29392ZM6.56 7.20807H3.2104V17.6923H6.56V7.20807ZM11.8524 7.20807H8.51951V17.6923H11.8189V12.1906C11.8189 9.12572 15.8133 8.841 15.8133 12.1906V17.6923H19.121V11.0517C19.121 5.88498 13.209 6.07758 11.8189 8.6149L11.8524 7.20807Z"
-                                            fill="#4A88ED"
-                                        />
-                                    </svg>
-                                </li>
+                                <a
+                                    href="https://www.linkedin.com/company/the-fedz/"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
+                                        <svg
+                                            width="21"
+                                            height="21"
+                                            viewBox="0 0 21 21"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M6.50975 4.29392C6.50953 4.73811 6.33287 5.16401 6.01863 5.47794C5.70438 5.79187 5.2783 5.96811 4.83412 5.96788C4.38993 5.96766 3.96403 5.791 3.6501 5.47675C3.33617 5.16251 3.15993 4.73643 3.16016 4.29225C3.16038 3.84806 3.33704 3.42216 3.65129 3.10823C3.96553 2.7943 4.39161 2.61806 4.83579 2.61829C5.27998 2.61851 5.70588 2.79517 6.01981 3.10942C6.33374 3.42366 6.50998 3.84974 6.50975 4.29392ZM6.56 7.20807H3.2104V17.6923H6.56V7.20807ZM11.8524 7.20807H8.51951V17.6923H11.8189V12.1906C11.8189 9.12572 15.8133 8.841 15.8133 12.1906V17.6923H19.121V11.0517C19.121 5.88498 13.209 6.07758 11.8189 8.6149L11.8524 7.20807Z"
+                                                fill="#4A88ED"
+                                            />
+                                        </svg>
+                                    </li>
                                 </a>
-                                 <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
+                                {/* <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
@@ -51,8 +54,8 @@ const Footer = () => {
                                         />
                                     </svg>
                                 </li>
-                    </a>
-                     <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
+                    </a> */}
+                                {/* <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
                                 <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
                                     <svg
                                         width="21"
@@ -66,25 +69,27 @@ const Footer = () => {
                                         />
                                     </svg>
                                 </li>
+                                </a> */}
+                                <a
+                                    href="https://x.com/TheFedzNFT"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
+                                        <svg
+                                            width="21"
+                                            height="21"
+                                            viewBox="0 0 21 21"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <g>
+                                                <path
+                                                    d="M16.1892 1.04773H19.2716L12.5389 8.76269L20.4599 19.2612H14.2585L9.4012 12.8927L3.84296 19.2612H0.759232L7.96045 11.0086L0.362305 1.04773H6.72194L11.112 6.86724L16.1892 1.04773ZM15.1089 17.4122H16.8172L5.79242 2.79999H3.96103L15.1089 17.4122Z"
+                                                    fill="#4A88ED"
+                                                />
+                                            </g>
+                                        </svg>
+                                    </li>
                                 </a>
-                                 <a href="https://x.com/TheFedzNFT" target="_blank" rel="noopener noreferrer">
-                                <li className="cursor-pointer hover:opacity-85 p-1 w-9 h-9 bg-transparent border-[1px] border-[#4A88ED] rounded-full flex items-center justify-center">
-                                    <svg
-                                        width="21"
-                                        height="21"
-                                        viewBox="0 0 21 21"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <g>
-                                            <path
-                                                d="M16.1892 1.04773H19.2716L12.5389 8.76269L20.4599 19.2612H14.2585L9.4012 12.8927L3.84296 19.2612H0.759232L7.96045 11.0086L0.362305 1.04773H6.72194L11.112 6.86724L16.1892 1.04773ZM15.1089 17.4122H16.8172L5.79242 2.79999H3.96103L15.1089 17.4122Z"
-                                                fill="#4A88ED"
-                                            />
-                                        </g>
-                                    </svg>
-                                </li>
-                                </a>
-
                             </ul>
                         </div>
                     </div>
@@ -101,7 +106,9 @@ const Footer = () => {
                         <div>
                             <h2 className="font-semibold mb-4">Information</h2>
                             <div className="flex flex-col gap-3">
-                                <p>Terms & Conditions</p>
+                                <a href="/terms-of-use" target="_blank">
+                                    Terms & Conditions
+                                </a>
                                 <p>Privacy Policy</p>
                             </div>
                         </div>
@@ -120,7 +127,7 @@ const Footer = () => {
                                             fill="#4A88ED"
                                         />
                                     </svg>
-                                    TheFedzNFT@gmail.com
+                                    Info@TheFedz.org
                                 </p>
                                 <p className="flex items-center gap-2">
                                     <svg
