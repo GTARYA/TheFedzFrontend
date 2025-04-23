@@ -15,6 +15,7 @@ import JoinUsForm from '../components/JoinUsForm/JoinUsForm';
 import SwapAnimation from '../components/SwapAnimation';
 import FAQSection from '../components/FAQSection';
 import { useMode } from '../context/modeProvider';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
     const [showForm, setShowForm] = useState(false);
@@ -312,13 +313,11 @@ const Home: NextPage = () => {
                                         standard for financial efficiency and
                                         resilience.
                                     </p>
-                                    <PrimaryBtn
-                                        onClick={() =>
-                                            (window.location.href =
-                                                'https://Blog.TheFedz.org')
-                                        }>
-                                        Read More
-                                    </PrimaryBtn>
+                                    <a
+                                        target="_blank"
+                                        href="https://Blog.TheFedz.org">
+                                        <PrimaryBtn>Read More</PrimaryBtn>
+                                    </a>
                                 </div>
                                 <div className="relative z-[5]">
                                     <img
@@ -506,13 +505,11 @@ const Home: NextPage = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                    <PrimaryBtn
-                                        onClick={() =>
-                                            (window.location.href =
-                                                'https://Blog.TheFedz.org')
-                                        }>
-                                        Read More
-                                    </PrimaryBtn>
+                                    <a
+                                        target="_blank"
+                                        href="https://the-fedz.gitbook.io/the-fedz">
+                                        <PrimaryBtn>Read More</PrimaryBtn>
+                                    </a>
                                 </div>
                             </div>
                         </Container>
