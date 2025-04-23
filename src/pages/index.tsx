@@ -312,13 +312,11 @@ const Home: NextPage = () => {
                                         standard for financial efficiency and
                                         resilience.
                                     </p>
-                                    <PrimaryBtn
-                                        onClick={() =>
-                                            (window.location.href =
-                                                'https://Blog.TheFedz.org')
-                                        }>
-                                        Read More
-                                    </PrimaryBtn>
+                                    <a
+                                        target="_blank"
+                                        href="https://Blog.TheFedz.org">
+                                        <PrimaryBtn>Read More</PrimaryBtn>
+                                    </a>
                                 </div>
                                 <div className="relative z-[5]">
                                     <img
@@ -506,13 +504,11 @@ const Home: NextPage = () => {
                                             </div>
                                         </li>
                                     </ul>
-                                    <PrimaryBtn
-                                        onClick={() =>
-                                            (window.location.href =
-                                                'https://Blog.TheFedz.org')
-                                        }>
-                                        Read More
-                                    </PrimaryBtn>
+                                    <a
+                                        target="_blank"
+                                        href="https://the-fedz.gitbook.io/the-fedz">
+                                        <PrimaryBtn>Read More</PrimaryBtn>
+                                    </a>
                                 </div>
                             </div>
                         </Container>
