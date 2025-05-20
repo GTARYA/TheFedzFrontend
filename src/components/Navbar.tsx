@@ -104,6 +104,12 @@ const Navbar = () => {
                                             className="text-primary leading-6 text-[16px]">
                                             Research
                                         </Link>
+                                        <Link
+                                            target="_blank"
+                                            href="https://the-fedz.gitbook.io/the-fedz"
+                                            className="text-primary leading-6 text-[16px]">
+                                            Gitbook
+                                        </Link>
                                     </div>
                                 )}
                             </div>
