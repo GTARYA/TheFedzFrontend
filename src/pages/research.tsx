@@ -22,14 +22,14 @@ export default function Endorsements() {
             imageSrc: '/research/research_2.png',
             quote: 'What excites me about The Fedz is its structured approach to mitigating systemic risk in under-collateralized stablecoins—a long-missing piece in decentralized finance.',
         },
-        {
-            name: 'Gal Danino',
-            title: 'Game Theorist | Crypto Strategist | Research Collaborator',
-            imageAlt: 'Gal Danino',
-            link: 'https://www.linkedin.com/in/galdanino/',
-            imageSrc: '/research/research_3.png',
-            quote: 'Game theory has always been about incentives and belief. Crypto lets us test those models live, with real consequences. The Fedz is a bold case study.',
-        },
+        // {
+        //     name: 'Gal Danino',
+        //     title: 'Game Theorist | Crypto Strategist | Research Collaborator',
+        //     imageAlt: 'Gal Danino',
+        //     link: 'https://www.linkedin.com/in/galdanino/',
+        //     imageSrc: '/research/research_3.png',
+        //     quote: 'Game theory has always been about incentives and belief. Crypto lets us test those models live, with real consequences. The Fedz is a bold case study.',
+        // },
     ];
 
     return (
