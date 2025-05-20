@@ -73,14 +73,10 @@ const V4SwapComponent = () => {
 //0xe2d084a729df207afea549782ed1b9b2054244c3f70dcb27eb3f766063d8d9b7
   const { data:swapEvent, isLoading, isError } = useQuery<SwapEvent[]>({
     queryKey: ['swaps',poolKeyHash,address],
-    queryFn: () => fetchSwapsFromSubgraph(poolKeyHash,"0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032"),
+    queryFn: () => fetchSwapsFromSubgraph(poolKeyHash,address ?? null),
     enabled: !!poolKeyHash , // only run when both are available
     staleTime: 1000 * 60 * 5, // optional: cache for 5 minutes
   });
-
-  console.log(swapEvent,"swapEvent");
-  
-
 
 
 
@@ -312,42 +308,46 @@ const V4SwapComponent = () => {
       </section>
 
             <Container>
-        <div className="overflow-hidden p-[30px] md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
-          <div className="relative z-[5]">
-            <Subtitle className="mb-1">Status</Subtitle>
-            <Title>Action Windows</Title>
-            <div className="overflow-x-auto mt-10 md:mt-14">
-              <table className="min-w-full text-primary px-6 table-auto">
-                <thead>
-                  <tr className="text-left text-base md:text-xl font-bold">
-                  <th className="py-4 pr-4">Time</th>
-                  {!address &&    <th className="pr-4">User</th>}
-                 
-                    <th className="pr-4">Type</th>
-                    <th className="pr-4">Amount</th>
-                
-                  </tr>
-                </thead>
-                <tbody>
-                   {swapEvent?.map((item, i) => (
-                    <SwapEventRow key={i} data={item} address={address} />
-                  ))} 
-                </tbody>
-              </table>
-            </div>
-          </div>
+            <div className="overflow-hidden p-[30px] md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
+  <div className="relative z-[5]">
+    <Subtitle className="mb-1">Status</Subtitle>
+    <Title>Action Windows</Title>
+    <div className="overflow-x-auto mt-10 md:mt-14">
+      {isLoading ? (
+        <div className="text-center py-10 text-lg text-white">Loading...</div>
+      ) : !swapEvent || swapEvent.length === 0 ? (
+        <div className="text-center py-10 text-lg text-white">No event found</div>
+      ) : (
+        <table className="min-w-full text-primary px-6 table-auto">
+          <thead>
+            <tr className="text-left text-base md:text-xl font-bold">
+              <th className="py-4 pr-4">Time</th>
+              {!address && <th className="pr-4">User</th>}
+              <th className="pr-4">Type</th>
+              <th className="pr-4">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {swapEvent.map((item, i) => (
+              <SwapEventRow key={i} data={item} address={address} />
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </div>
 
-          <img
-            src="/blue-glare4.png"
-            alt="eppilse"
-            className="absolute -bottom-[130%] right-0 pointer-events-none"
-          />
-          <img
-            src="/blue-glare2.png"
-            alt="eppilse"
-            className="absolute top-0 left-0 pointer-events-none"
-          />
-        </div>
+  <img
+    src="/blue-glare4.png"
+    alt="eppilse"
+    className="absolute -bottom-[130%] right-0 pointer-events-none"
+  />
+  <img
+    src="/blue-glare2.png"
+    alt="eppilse"
+    className="absolute top-0 left-0 pointer-events-none"
+  />
+</div>
         
       </Container>
 
