@@ -6,7 +6,7 @@ import {
   ERC721Address,
 } from "../contractAddressArbitrum";
 import axios from "axios";
-
+import { TurnOrderEntry ,LatestEventResponse} from "../type";
 const { ethers } = require("ethers");
 
 class NotNFTHolderError extends Error {
@@ -125,20 +125,6 @@ export async function listMyNFTs(address: string) {
   }
 }
 
-interface TurnOrderEntry {
-  name: string;
-  tokenId: number;
-  timestamp: number;
-  image: string;
-  point: number;
-}
-
-interface LatestEventResponse {
-  turnOrder: TurnOrderEntry[];
-  slotDuration: number;
-  startsAt: number;
-  roundNumber:number
-}
 
 export async function getLatestEventForTurn(): Promise<LatestEventResponse> {
 
@@ -157,7 +143,7 @@ export async function getLatestEventForTurn(): Promise<LatestEventResponse> {
     const [events, nftPointsResponse,roundData] = await Promise.all([
       contract.queryFilter(filter),
       axios.get("/api/getAndUpdateNFTs").then((res) => res.data.nfts),
-       contract.rounds()
+      contract.rounds()
     ]);
 
     const [currentRound, nextRound] = roundData;
@@ -189,12 +175,15 @@ export async function getLatestEventForTurn(): Promise<LatestEventResponse> {
       const turnOrder = matchedEvent.turnOrder.map(
         (tokenHex: string, index: number) => {
           const tokenId = Number(ethers.BigNumber.from(tokenHex).toString());
+           const  startTime  = (startsAt + index * slotDuration);
           return {
             name: `The Fedz #${tokenId}`,
             tokenId,
-            timestamp: startsAt + index * slotDuration,
+            timestamp: startTime,
             image: `https://ipfs.raribleuserdata.com/ipfs/QmcQLjVn2qTgobAEFrQyDBUbsaWz2YYE6FLcoaDAdavtbk/${tokenId}.webp`,
             point: nftPointsMap.get(tokenId) || 0,
+            startTime:startTime,
+            endTime:startTime + slotDuration
           };
         }
       );
@@ -205,7 +194,7 @@ export async function getLatestEventForTurn(): Promise<LatestEventResponse> {
       turnOrder:[],
       slotDuration:0,
       startsAt:0,
-      roundNumber:0
+      roundNumber:0,
     };
   }
 }

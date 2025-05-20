@@ -57,6 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { new: true }
       );
 
+    
+
       if (!updatedNFT) {
         res.status(400).json({
           success: false,

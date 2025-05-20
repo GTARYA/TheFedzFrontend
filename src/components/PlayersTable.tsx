@@ -10,6 +10,7 @@ import { getLatestEventForTurn } from "../hooks/fedz";
 import NFTTableRow from "./nft/NFTTableRow";
 import { formatDuration } from "../hooks/formatters";
 import { useEthersSigner } from "../hooks/useEthersSigner";
+import { web3Provider } from "../utils/provider";
 import {
   fetchActingPlayer,
   fetchNextActingPlayer,
@@ -32,10 +33,9 @@ const PlayersTable: React.FC = () => {
   const [allNfts, setAllNfts] = useState<NFT[]>([]);
   const [slotDuration, setSlotDuration] = useState("1h");
 
-
   const [nfts, setNFTs] = useState<any>([]);
   const fetchNFTs = async () => {
-    const data:any = await getLatestEventForTurn();
+    const data: any = await getLatestEventForTurn();
     if (data) {
       setNFTs(data.turnOrder);
     }
@@ -61,20 +61,20 @@ const PlayersTable: React.FC = () => {
 
   useEffect(() => {
     fetchNFTs();
-  }, [upCommingPlayer,numberOfPlayers]);
+  }, [upCommingPlayer, numberOfPlayers]);
 
   useEffect(() => {
-    if (!mount && signer) {
-      fetchSlotDuration(signer).then((duration) => {
+    if (!mount) {
+      fetchSlotDuration(web3Provider).then((duration) => {
         setSlotDuration(formatDuration(duration));
-        fetchNextActingPlayer(signer, duration).then((next) => {
+        fetchNextActingPlayer(web3Provider, duration).then((next) => {
           setUpCommingPlayer(next);
         });
       });
-      fetchActingPlayer(signer).then((actingPlayer) => {
+      fetchActingPlayer(web3Provider).then((actingPlayer) => {
         setActingPlayer(actingPlayer);
       });
-      fetchTokenCount(signer).then((count) => {
+      fetchTokenCount(web3Provider).then((count) => {
         setNumberOfPlayers(count.toString());
       });
       setMount(true);
@@ -118,20 +118,20 @@ const PlayersTable: React.FC = () => {
       </div>
     );
 
-    const handleSortChange = (sortBy: string) => {
-      const sortedNFTs = [...nfts].sort((a, b) => {
-        if (sortBy === "tokenId") {
-          return Number(a.tokenId) - Number(b.tokenId); 
-        }
-        return a.timestamp - b.timestamp; 
-      });
-  
-      setNFTs(sortedNFTs);
-    };
+  const handleSortChange = (sortBy: string) => {
+    const sortedNFTs = [...nfts].sort((a, b) => {
+      if (sortBy === "tokenId") {
+        return Number(a.tokenId) - Number(b.tokenId);
+      }
+      return a.timestamp - b.timestamp;
+    });
+
+    setNFTs(sortedNFTs);
+  };
 
   return (
     <div suppressHydrationWarning>
-      <section className="pb-[50px] md:pb-[75px] relative">
+      <section className="pb-[50px] md:pb-[75px] relative mt-16">
         <Container>
           <div className="card w-full bg-white/5 border-white/20 border-[1px] shadow-xl relative overflow-hidden">
             <div className="py-5 md:py-12 relative z-[5]">
@@ -207,16 +207,15 @@ const PlayersTable: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {
-                      nfts?.map((nft: any, indx: any) => (
-                        <NFTTableRow
-                          key={indx}
-                          nft={nft}
-                          actingPlayer={actingPlayer}
-                          upCommingPlayer={upCommingPlayer}
-                          onPointUpdated={fetchNFTs}
-                        />
-                      ))}
+                    {nfts?.map((nft: any, indx: any) => (
+                      <NFTTableRow
+                        key={indx}
+                        nft={nft}
+                        actingPlayer={actingPlayer}
+                        upCommingPlayer={upCommingPlayer}
+                        onPointUpdated={fetchNFTs}
+                      />
+                    ))}
                   </tbody>
                 </table>
               </div>

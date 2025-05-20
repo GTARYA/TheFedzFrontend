@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { CurrencyAmount, Percent, Token, TradeType } from "@uniswap/sdk-core";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import { Actions, Pool, Route, Trade, V4Planner } from "@uniswap/v4-sdk";
+import { web3Provider } from "../utils/provider";
 import {
   HookAddress,
   MockFUSDAddress,
@@ -20,6 +21,7 @@ import MockERC20Abi from "../abi/MockERC20_abi.json";
 import { nextRoundAnnouncedNeeded } from "./fedz";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 
+
 const FEE = 4000;
 const TICK_SPACING = 10;
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
@@ -30,9 +32,6 @@ const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
 const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
 const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
 
-console.log({
-  poolId
-})
 
 const loadPoolBySigner = async (signer: any) => {
   const stateViewContract = new ethers.Contract(
@@ -40,12 +39,23 @@ const loadPoolBySigner = async (signer: any) => {
     UniswapStateViewAbi,
     signer
   );
+
   const liquidity = await stateViewContract.getLiquidity(poolId);
   const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
-  const tickLow = await stateViewContract.getTickInfo(poolId, tickLower)
-  const tickUp = await stateViewContract.getTickInfo(poolId, tickUpper);
+
+
+  // const tickLow = await stateViewContract.getTickInfo(poolId, tickLower)
+  // const tickUp = await stateViewContract.getTickInfo(poolId, tickUpper);
+  // const tickUpper1 = -276840;
+  // const tickUp1 = await stateViewContract.getTickInfo(poolId, tickUpper1);
+
   const tickUpper1 = -276840;
-  const tickUp1 = await stateViewContract.getTickInfo(poolId, tickUpper1);
+  const [tickLow, tickUp, tickUp1] = await Promise.all([
+    stateViewContract.getTickInfo(poolId, tickLower),
+    stateViewContract.getTickInfo(poolId, tickUpper),
+    stateViewContract.getTickInfo(poolId, tickUpper1),
+  ]);
+
   const pool = new Pool(
     token0,
     token1,
@@ -96,10 +106,12 @@ const V4UseSwap = (
   } = useWriteContract();
   
   const loadPool = async () => {
-    return await loadPoolBySigner(signer);
+    return await loadPoolBySigner(web3Provider);
   }
-  const updateAmountIn = async (amount: string, zeroForOne: boolean = true) => {
+  const updateAmountIn = async (amount: string, zeroForOne: boolean = true,signer:any) => {
     setQuoteLoading(true);
+    console.log("loading....");
+    
     const pool = await loadPool();
     const tokenIn = zeroForOne ? token0 : token1;
     const tokenOut = zeroForOne ? token1 : token0;
@@ -111,7 +123,11 @@ const V4UseSwap = (
     );
     setQuoteLoading(false);
     setQuote(trade.minimumAmountOut(new Percent(0, 100)).toSignificant(tokenOut.decimals));
+    console.log("loading.... ended");
+ 
+
     const exeuteSwapQuoteCallback = async () => {
+      if(!signer) return;
       if (await nextRoundAnnouncedNeeded(signer)) {
         let unlockToastId = toast.loading("Unlocking round...");
         await writeToContract({

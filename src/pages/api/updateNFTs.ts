@@ -39,7 +39,7 @@ export default async function handler(
       if (!existingNFT) {
         const newNFT = new NftModel({
           tokenId: nft.tokenId,
-          image: `https://ipfs.raribleuserdata.com/ipfs/QmcQLjVn2qTgobAEFrQyDBUbsaWz2YYE6FLcoaDAdavtbk/${nft.tokenId}.webp`,
+          image: `https://iporg/api/updateNFTsfs.raribleuserdata.com/ipfs/QmcQLjVn2qTgobAEFrQyDBUbsaWz2YYE6FLcoaDAdavtbk/${nft.tokenId}.webp`,
           name: `The Fedz #${nft.tokenId}`,
           point: 0,
         });

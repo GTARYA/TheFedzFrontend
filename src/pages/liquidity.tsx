@@ -18,7 +18,9 @@ const liquidity = () => {
             <Navbar />
 
             <main className="md:mt-14 mt-10 min-h-[80vh] relative z-1">
-                {isConnected ? (
+
+           < V4LiquidityComponent />
+                {/* {isConnected ? (
                     sepolia.id === activeChainId ? (
                         <LiquidityComponent />
                     ) : (<V4LiquidityComponent />)
@@ -32,7 +34,7 @@ const liquidity = () => {
                             feature.
                         </p>
                     </div>
-                )}
+                )} */}
             </main>
             <Footer />
         </div>

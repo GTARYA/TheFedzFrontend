@@ -17,7 +17,7 @@ import MockERC20Abi from "../abi/MockERC20_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import JSBI from 'jsbi';
-
+import { web3Provider } from "../utils/provider";
 import {
   HookAddress,
   MockFUSDAddress,
@@ -97,6 +97,7 @@ const V4UseLP = (
   onAmount1QuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
   slippageTolerance = new Percent(4, 100),
 ) => {
+
   const {address} = useAccount();
   const account = useAccount();
   const {
@@ -111,7 +112,7 @@ const V4UseLP = (
     const stateViewContract = new ethers.Contract(
       '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
       UniswapStateViewAbi,
-      signer
+      web3Provider
     );
     const liquidity = await stateViewContract.getLiquidity(poolId);
     const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
@@ -137,9 +138,10 @@ const V4UseLP = (
     );
     return pool;
   }
-  const updateAmount0 = async (amount: string) => {
+  const updateAmount0 = async (amountA: string) => {
+    console.log("update - updateAmount0");
     const pool = await loadPool();
-    const amountAParsed = ethers.utils.parseUnits(amount, tokenA.decimals);
+    const amountAParsed = ethers.utils.parseUnits(amountA, tokenA.decimals);
     const nextPosition = Position.fromAmount0({
       pool,
       amount0: amountAParsed,
@@ -149,9 +151,11 @@ const V4UseLP = (
     });
     onAmount0QuoteChange && onAmount0QuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
   }
-  const updateAmount1 = async (amount: string) => {
+  const updateAmount1 = async (amountB: string) => {
+    console.log("update - updateAmount1");
+    
     const pool = await loadPool();
-    const amountAParsed = ethers.utils.parseUnits(amount, tokenB.decimals);
+    const amountAParsed = ethers.utils.parseUnits(amountB, tokenB.decimals);
     const nextPosition = Position.fromAmount1({
       pool,
       amount1: amountAParsed,

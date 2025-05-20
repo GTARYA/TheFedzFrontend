@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
-import {
-  useAccount,
-  useBalance,
-  useReadContract,
-  useChainId,
-} from "wagmi";
+import { useAccount, useBalance, useReadContract, useChainId } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import ScaleLoader from "react-spinners/ScaleLoader";
+import { useAppKit } from "@reown/appkit/react";
 import {
   PoolSwapTestAddress,
   MockFUSDAddress,
@@ -33,26 +29,39 @@ import { balanceOf } from "../hooks/erc20";
 import { formatBalance } from "../hooks/formatters";
 import { on } from "events";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
-
+import Rounds from "./Rounds";
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4SwapComponent = () => {
+  const { open, close } = useAppKit();
+
   const activeChainId = useChainId();
   const [mount, setMount] = useState(false);
   const [poolKeyHash] = useState(poolId);
   const [amount, setAmount] = useState("1");
   const [token0] = useState(MockFUSDAddress);
   const [token1] = useState(MockUSDTAddress);
-  const [v4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
-  const [v4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
+  const [v4Token0] = useState<Token>(
+    new Token(activeChainId, token0, 18, "FUSD", "FUSD")
+  );
+  const [v4Token1] = useState<Token>(
+    new Token(activeChainId, token1, 6, "USDT", "USDT")
+  );
   const [tokenIn, setTokenIn] = useState<Token>(v4Token0);
   const [tokenOut, setTokenOut] = useState<Token>(v4Token1);
   const signer = useEthersSigner();
-  const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] = useState<Function>(() => {});
+  const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] =
+    useState<Function>(() => {});
   const { address }: { address: `0x${string}` } = useAccount() as any;
-  const { loading, quote, quoteLoading, updateAmountIn } = V4UseSwap(activeChainId,amount, signer, v4Token0, v4Token1);
-  const [tokenABalance, setTokenABalance] = useState<string>('-');
-  const [tokenBBalance, setTokenBBalance] = useState<string>('-');
+  const { loading, quote, quoteLoading, updateAmountIn } = V4UseSwap(
+    activeChainId,
+    amount,
+    signer,
+    v4Token0,
+    v4Token1
+  );
+  const [tokenABalance, setTokenABalance] = useState<string>("-");
+  const [tokenBBalance, setTokenBBalance] = useState<string>("-");
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
 
@@ -72,21 +81,24 @@ const V4SwapComponent = () => {
 
   const fetchBalance = async (tokenAddress: string) => {
     return await balanceOf(tokenAddress, address, signer);
-  }
+  };
   const fetchBalancesAndPrint = async () => {
-    console.log('fetching balances');
-    setTokenABalance('-');
-    setTokenBBalance('-');
+    console.log("fetching balances");
+    setTokenABalance("-");
+    setTokenBBalance("-");
     const tokenABalance = await fetchBalance(tokenIn.address);
     const tokenBBalance = await fetchBalance(tokenOut.address);
     setTokenABalance(formatBalance(tokenABalance, tokenIn.decimals));
     setTokenBBalance(formatBalance(tokenBBalance, tokenOut.decimals));
-  }
+  };
 
   useEffect(() => {
-    fetchBalancesAndPrint();
+    if (address) {
+      fetchBalancesAndPrint();
+    }
     onAmountChange();
   }, [tokenOut, tokenIn]);
+
   const handleToggleTokens = () => {
     setTokenIn(tokenOut);
     setTokenOut(tokenIn);
@@ -97,8 +109,8 @@ const V4SwapComponent = () => {
   };
 
   async function onAmountChange() {
-      const cb = await updateAmountIn(amount, tokenIn.address === token0);
-      setExecuteSwapQuoteCallback(() => cb);
+    const cb = await updateAmountIn(amount, tokenIn.address === token0, signer);
+    setExecuteSwapQuoteCallback(() => cb);
   }
 
   useEffect(() => {
@@ -111,6 +123,11 @@ const V4SwapComponent = () => {
       }, 700);
     }
   }, [amount]);
+
+  const connetButton = () => {
+    open({ view: "Account" });
+    open();
+  };
 
   return (
     <div>
@@ -127,10 +144,12 @@ const V4SwapComponent = () => {
                   setAmount={setAmount}
                   token={tokenIn}
                   setToken={(token: any) => {}}
-                  options={[{
-                    value: tokenIn,
-                    label: tokenIn.symbol || '-',
-                  }]}
+                  options={[
+                    {
+                      value: tokenIn,
+                      label: tokenIn.symbol || "-",
+                    },
+                  ]}
                 />
               </div>
 
@@ -161,10 +180,7 @@ const V4SwapComponent = () => {
 
               {/* Token B Output */}
               <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                <BalanceDisplay
-                  label="Output Token"
-                  balance={tokenBBalance}
-                />
+                <BalanceDisplay label="Output Token" balance={tokenBBalance} />
                 <TokenInput
                   amount={
                     quoteLoading
@@ -174,24 +190,26 @@ const V4SwapComponent = () => {
                   setAmount={() => {}} // Disable changing amount for output token
                   token={tokenOut}
                   setToken={(token: any) => {}}
-                  options={[{
-                    value: tokenOut,
-                    label: tokenOut.symbol || '-',
-                  }]}
+                  options={[
+                    {
+                      value: tokenOut,
+                      label: tokenOut.symbol || "-",
+                    },
+                  ]}
                 />
               </div>
               <div className="pt-6">
-                {
-                  mount && isNFTHolderState && isPlayerTurnState && (
+                {address ? (
+                  mount && isNFTHolderState && isPlayerTurnState ? (
                     <button
-                    disabled={quoteLoading || loading}
+                      disabled={quoteLoading || loading}
                       onClick={arbSwap}
                       className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
                     >
                       {quoteLoading || loading ? (
                         <ScaleLoader
                           height={20}
-                          loading={quoteLoading || loading}
+                          loading={true}
                           color="#ffffff"
                           className="text-white"
                           aria-label="Loading Spinner"
@@ -201,61 +219,61 @@ const V4SwapComponent = () => {
                         "Swap"
                       )}
                     </button>
-                  )
-                }
-                {
-                  mount && (
-                    <>
-                      {
-                        isNFTHolderState ? (
-                          <>
-                            {
-                              !isPlayerTurnState && (
-                                <div className="alert alert-error">
-                                  <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="stroke-current shrink-0 h-6 w-6"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                  />
-                                </svg>
-                                <span>It is not your Turn to Act !</span>
-                              </div>
-                              )
-                            }
+                  ) : null
+                ) : (
+                  <button
+                    onClick={connetButton} // Replace with your wallet connect function
+                    className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                  >
+                    Connect Wallet
+                  </button>
+                )}
 
-                          </>
-                        )
-                        : (
-                            <div className="alert alert-warning">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="stroke-current shrink-0 h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                                />
-                              </svg>
-                              <span>
-                                You need to be an NFT Holder to add Liquidity !
-                              </span>
-                            </div>
-                        )
-                      }
-                    </>
-                  )
-                }
+                {mount && address !== undefined && (
+                  <>
+                    {isNFTHolderState ? (
+                      <>
+                        {!isPlayerTurnState && (
+                          <div className="alert alert-error">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="stroke-current shrink-0 h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            <span>It is not your Turn to Act !</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="alert alert-warning">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="stroke-current shrink-0 h-6 w-6"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        <span>
+                          You need to be an NFT Holder to add Liquidity !
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -274,32 +292,7 @@ const V4SwapComponent = () => {
         />
       </section>
 
-      <ActionWindows />
-
-      <section className="relative py-[50px] md:py-[75px]">
-        <Container className="relative z-[5]">
-          <Title>Rounds</Title>
-          <div className="flex flex-col md:flex-row gap-8 mt-6 md:mt-9">
-            <RoundInfos />
-            <PoolKeyHashDisplay poolKeyHash={poolKeyHash} />
-          </div>
-        </Container>
-        <img
-          src="/blue-glare4.png"
-          alt="glare"
-          className="absolute w-full -bottom-[10%] md:-bottom-[50%] right-0 max-w-[500px] md:max-w-[700px] pointer-events-none"
-        />
-        <img
-          src="/cursor/10.png"
-          alt="eppilse"
-          className="absolute bottom-[0] md:bottom-[10%] left-[0px] md:left-[20px] max-w-[50px] md:max-w-[80px]"
-        />
-        <img
-          src="/cursor/7.png"
-          alt="eppilse"
-          className="absolute bottom-[10px] md:bottom-[300px] right-[50px] md:right-0 max-w-[50px] md:max-w-[80px]"
-        />
-      </section>
+      <Rounds poolKeyHash={poolKeyHash} />
     </div>
   );
 };

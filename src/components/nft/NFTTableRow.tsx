@@ -4,7 +4,7 @@ import { useContractRead, useAccount } from "wagmi";
 import { erc721Abi } from "viem";
 import { useState } from "react";
 import axios from "axios";
-
+import { formatOwner } from "../../utils/address";
 interface NFTTableRowProps {
   nft: {
     image: string;
@@ -35,10 +35,6 @@ const NFTTableRow: React.FC<NFTTableRowProps> = ({ nft, onPointUpdated, actingPl
 
   const isOwnerConnected =
     address?.toLocaleLowerCase() == OWNER_WALLET.toLocaleLowerCase();
-  const formatOwner = (owner: string | undefined) => {
-    if (!owner) return "Fetching...";
-    return `${owner.slice(0, 6)}...${owner.slice(-4)}`;
-  };
 
   const handleCancelClick = () => {
     setIsEditing(false);

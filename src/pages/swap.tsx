@@ -16,7 +16,11 @@ const Swap = () => {
         <div className="bg-[#0A0012]">
             <Navbar />
             <main className="md:mt-14 mt-10 min-h-[80vh] relative z-1">
-                {isConnected ? (
+
+            <V4SwapComponent />
+
+
+                {/* {isConnected ? (
                     sepolia.id === activeChainId ? (
                         <SwapComponent />
                     ) : (<V4SwapComponent />)
@@ -30,7 +34,7 @@ const Swap = () => {
                             feature.
                         </p>
                     </div>
-                )}
+                )} */}
             </main>
             <Footer />
         </div>

@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
-import {
-  useAccount,
-  useReadContract,
-  useChainId,
-} from "wagmi";
-import {
-  arbitrum,
-} from "@reown/appkit/networks";
+import { useAccount, useReadContract, useChainId } from "wagmi";
+import { arbitrum } from "@reown/appkit/networks";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEthersSigner } from "../hooks/useEthersSigner";
-
+import { getLatestEventForTurn } from "../hooks/fedz";
+import Rounds from "./Rounds";
 import { parseEther } from "viem";
+import { useAppKit } from "@reown/appkit/react";
 import {
   HookAddress,
   MockFUSDAddress,
@@ -38,7 +34,11 @@ import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
 import { set } from "mongoose";
-import { encodeSqrtRatioX96, nearestUsableTick, TickMath } from "@uniswap/v3-sdk";
+import {
+  encodeSqrtRatioX96,
+  nearestUsableTick,
+  TickMath,
+} from "@uniswap/v3-sdk";
 import { formatBalance } from "../hooks/formatters";
 import { balanceOf } from "../hooks/erc20";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
@@ -46,11 +46,18 @@ import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
-const tickLowerNum = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
-const tickUpperNum = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
+const tickLowerNum = nearestUsableTick(
+  TickMath.getTickAtSqrtRatio(lowerPrice),
+  TICK_SPACING
+);
+const tickUpperNum =
+  nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) +
+  TICK_SPACING;
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4LiquidityComponent = () => {
+  const { open, close } = useAppKit();
+
   const activeChainId = useChainId();
   const signer = useEthersSigner();
   const { address }: { address: `0x${string}` } = useAccount() as any;
@@ -68,11 +75,15 @@ const V4LiquidityComponent = () => {
   const [amount1, setAmount1] = useState<string>();
   const [amount0Quote, setAmount0Quote] = useState<string>();
   const [amount1Quote, setAmount1Quote] = useState<string>();
-  const [v4Token0, setV4Token0] = useState<Token>(new Token(activeChainId, token0, 18, "FUSD", "FUSD"));
-  const [v4Token1, setV4Token1] = useState<Token>(new Token(activeChainId, token1, 6, "USDT", "USDT"));
+  const [v4Token0, setV4Token0] = useState<Token>(
+    new Token(activeChainId, token0, 18, "FUSD", "FUSD")
+  );
+  const [v4Token1, setV4Token1] = useState<Token>(
+    new Token(activeChainId, token1, 6, "USDT", "USDT")
+  );
   const [tokenA, setTokenA] = useState<Token>(v4Token0);
   const [tokenB, setTokenB] = useState<Token>(v4Token1);
-  
+
   const [isApproved, setIsApproved] = useState(false);
   const [hookData, setHookData] = useState<`0x${string}`>("0x0"); // New state for custom hook data
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
@@ -81,8 +92,8 @@ const V4LiquidityComponent = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
-  const [tokenABalance, setTokenABalance] = useState<string>('-');
-  const [tokenBBalance, setTokenBBalance] = useState<string>('-');
+  const [tokenABalance, setTokenABalance] = useState<string>("-");
+  const [tokenBBalance, setTokenBBalance] = useState<string>("-");
 
   const nftbalance = 1;
 
@@ -100,24 +111,35 @@ const V4LiquidityComponent = () => {
   }, [mount, signer, address]);
   const fetchBalance = async (tokenAddress: string) => {
     return await balanceOf(tokenAddress, address, signer);
-  }
+  };
   const fetchBalancesAndPrint = async () => {
-    console.log('fetching balances');
-    setTokenABalance('-');
-    setTokenBBalance('-');
+    console.log("fetching balances");
+    setTokenABalance("-");
+    setTokenBBalance("-");
     const tokenABalance = await fetchBalance(tokenA.address);
     const tokenBBalance = await fetchBalance(tokenB.address);
     setTokenABalance(formatBalance(tokenABalance, tokenA.decimals));
     setTokenBBalance(formatBalance(tokenBBalance, tokenB.decimals));
-  }
+  };
 
   const [liqudidity, setLiqudidity] = useState<string>();
-  function onAmount0QuoteChange(amount0: string, amount1: string, liqudidity: string) {
+  function onAmount0QuoteChange(
+    amount0: string,
+    amount1: string,
+    liqudidity: string
+  ) {
+    console.log("Q0");
     setAmount0Quote(amount0);
     setAmount1(amount1);
     setLiqudidity(liqudidity);
   }
-  function onAmount1QuoteChange(amount0: string, amount1: string, liqudidity: string) {
+  function onAmount1QuoteChange(
+    amount0: string,
+    amount1: string,
+    liqudidity: string
+  ) {
+    console.log("Q1");
+
     setAmount0(amount0);
     setAmount1Quote(amount1);
     setLiqudidity(liqudidity);
@@ -132,9 +154,16 @@ const V4LiquidityComponent = () => {
     removeLiquidityloading,
     updateAmount0,
     updateAmount1,
-  } = useLP(activeChainId,amount, signer, tokenA, tokenB, onAmount0QuoteChange, onAmount1QuoteChange);
+  } = useLP(
+    activeChainId,
+    amount,
+    signer,
+    tokenA,
+    tokenB,
+    onAmount0QuoteChange,
+    onAmount1QuoteChange
+  );
 
-  
   useEffect(() => {
     if (amount0 && editingTokenA) {
       if (autofillTimeout) {
@@ -157,15 +186,14 @@ const V4LiquidityComponent = () => {
   }, [amount1]);
 
   const addLiquidity = async () => {
-    if(Number(nftbalance?.toString()) > 0){
+    if (Number(nftbalance?.toString()) > 0) {
       if (liqudidity) {
         await addLPS(liqudidity);
         fetchBalancesAndPrint();
       }
-    }else{
-      toast.error("You need to be an NFT Holder to add Liquidity")
+    } else {
+      toast.error("You need to be an NFT Holder to add Liquidity");
     }
-    
   };
 
   const handleRemoveLiquidity = () => {
@@ -257,7 +285,6 @@ const V4LiquidityComponent = () => {
     { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
   ];
 
-  
   const handleTokenSelection = (selectedToken: Token, isInput: boolean) => {
     if (isInput) {
       if (selectedToken.address === tokenB.address) {
@@ -278,6 +305,11 @@ const V4LiquidityComponent = () => {
 
   const [editingTokenA, setEditingTokenA] = useState(false);
   const [editingTokenB, setEditingTokenB] = useState(false);
+
+  const connetButton = () => {
+    open({ view: "Account" });
+    open();
+  };
 
   return (
     <div>
@@ -304,12 +336,16 @@ const V4LiquidityComponent = () => {
                         setEditingTokenA(false);
                       }}
                       token={tokenA}
-                      setToken={(token: any) => handleTokenSelection(token, true)}
-                      options={[{
-                        value: tokenA,
-                        label: "FUSD",
-                        // decimals: 18,
-                      }]}
+                      setToken={(token: any) =>
+                        handleTokenSelection(token, true)
+                      }
+                      options={[
+                        {
+                          value: tokenA,
+                          label: "FUSD",
+                          // decimals: 18,
+                        },
+                      ]}
                     />
                   </div>
 
@@ -326,22 +362,27 @@ const V4LiquidityComponent = () => {
                       setAmount={setAmount1} // Disable changing amount for output token
                       token={tokenB}
                       onFocus={() => {
-                        setEditingTokenA(true);
+                        setEditingTokenB(true);
                       }}
                       onBlur={() => {
-                        setEditingTokenA(false);
+                        setEditingTokenB(false);
                       }}
-                      setToken={(token: any) => handleTokenSelection(token, false)}
-                      options={[{
-                        value: tokenB,
-                        label: "USDT",
-                        // decimals: 18,
-                      }]}
+                      setToken={(token: any) =>
+                        handleTokenSelection(token, false)
+                      }
+                      options={[
+                        {
+                          value: tokenB,
+                          label: "USDT",
+                          // decimals: 18,
+                        },
+                      ]}
                     />
                   </div>
                   <div className="pt-6">
-                    {
-                      mount && isNFTHolderState && isPlayerTurnState && (
+                    {mount && address ? (
+                      isNFTHolderState &&
+                      isPlayerTurnState && (
                         <button
                           disabled={loading}
                           onClick={addLiquidity}
@@ -361,60 +402,60 @@ const V4LiquidityComponent = () => {
                           )}
                         </button>
                       )
-                    }
-                    {
-                      mount && (
-                        <>
-                          {
-                            isNFTHolderState ? (
-                              <>
-                                {
-                                  !isPlayerTurnState && (
-                                    <div className="alert alert-error">
-                                      <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="stroke-current shrink-0 h-6 w-6"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                      />
-                                    </svg>
-                                    <span>It is not your Turn to Act !</span>
-                                  </div>
-                                  )
-                                }
+                    ) : (
+                      <button
+                        onClick={connetButton}
+                        className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                      >
+                        Connect Wallet
+                      </button>
+                    )}
 
-                              </>
-                            )
-                            : (
-                                <div className="alert alert-warning">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="stroke-current shrink-0 h-6 w-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                                    />
-                                  </svg>
-                                  <span>
-                                    You need to be an NFT Holder to add Liquidity !
-                                  </span>
-                                </div>
-                            )
-                          }
-                        </>
-                      )
-                    }
+                    {mount && address !== undefined && (
+                      <>
+                        {isNFTHolderState ? (
+                          <>
+                            {!isPlayerTurnState && (
+                              <div className="alert alert-error">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="stroke-current shrink-0 h-6 w-6"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                <span>It is not your Turn to Act !</span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="alert alert-warning">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="stroke-current shrink-0 h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                              />
+                            </svg>
+                            <span>
+                              You need to be an NFT Holder to add Liquidity !
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -489,52 +530,52 @@ const V4LiquidityComponent = () => {
               )}
 
               {liquidityInfo && (
-                  <div className=" max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8 text-white">
-                    <div className="mx-auto text-center text-2xl mb-6">
-                      Your positions #{liquidityInfo?.tokenId}
-                    </div>
+                <div className=" max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8 text-white">
+                  <div className="mx-auto text-center text-2xl mb-6">
+                    Your positions #{liquidityInfo?.tokenId}
+                  </div>
 
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="">Your total pool tokens:</span>
-                        <span>{liquidityInfo?.totalTokens}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Deposited mFUSD:</span>
-                        <span>{liquidityInfo?.amount0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Deposited mUSDT:</span>
-                        <span>{liquidityInfo?.amount1}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Share of pool:</span>
-                        <span>{liquidityInfo?.userShare}%</span>
-                      </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="">Your total pool tokens:</span>
+                      <span>{liquidityInfo?.totalTokens}</span>
                     </div>
-
-                    <div className="pt-6">
-                      <button
-                        disabled={removeLiquidityloading}
-                        onClick={() => setShowModal(true)}
-                        className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
-                      >
-                        {removeLiquidityloading ? (
-                          <ScaleLoader
-                            height={20}
-                            loading={removeLiquidityloading}
-                            color="#ffffff"
-                            className="text-white"
-                            aria-label="Loading Spinner"
-                            data-testid="loader"
-                          />
-                        ) : (
-                          "       Remove liquidity  "
-                        )}
-                      </button>
+                    <div className="flex justify-between">
+                      <span>Deposited mFUSD:</span>
+                      <span>{liquidityInfo?.amount0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Deposited mUSDT:</span>
+                      <span>{liquidityInfo?.amount1}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Share of pool:</span>
+                      <span>{liquidityInfo?.userShare}%</span>
                     </div>
                   </div>
-                )}
+
+                  <div className="pt-6">
+                    <button
+                      disabled={removeLiquidityloading}
+                      onClick={() => setShowModal(true)}
+                      className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                    >
+                      {removeLiquidityloading ? (
+                        <ScaleLoader
+                          height={20}
+                          loading={removeLiquidityloading}
+                          color="#ffffff"
+                          className="text-white"
+                          aria-label="Loading Spinner"
+                          data-testid="loader"
+                        />
+                      ) : (
+                        "       Remove liquidity  "
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </Container>
 
@@ -698,9 +739,9 @@ const V4LiquidityComponent = () => {
         />
       </section>
 
-      <ActionWindows />
-
-      <section className="relative py-[50px] md:py-[75px]">
+      {/* <ActionWindows /> */}
+      <Rounds poolKeyHash={poolKeyHash ?? ""} />
+      {/* <section className="relative py-[50px] md:py-[75px]">
         <Container className="relative z-[5]">
           <Title>Rounds</Title>
           <div className="flex flex-col md:flex-row gap-8 mt-6 md:mt-9">
@@ -723,7 +764,7 @@ const V4LiquidityComponent = () => {
           alt="eppilse"
           className="absolute bottom-[10px] md:bottom-[300px] right-[50px] md:right-0 max-w-[50px] md:max-w-[80px]"
         />
-      </section>
+      </section> */}
     </div>
   );
 };
