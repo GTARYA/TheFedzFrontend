@@ -84,7 +84,7 @@ const Home: NextPage = () => {
                             </p>
                             <div className="flex items-center gap-4 justify-center py-6">
                                 <PrimaryBtn onClick={() => setShowForm(true)}>
-                                    Join Us Today!
+                                    Get Early Access!
                                 </PrimaryBtn>
                                 <a
                                     href="https://the-fedz.gitbook.io/the-fedz"
