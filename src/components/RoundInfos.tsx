@@ -41,7 +41,7 @@ const RoundInfos = ({ isSelf }: { isSelf?: boolean }) => {
       const start = data[0].result[0].startsAt.toString();
       const nextStart = Number(data[0].result[1].startsAt.toString());
 
-      setCurrentRound(Number(current));
+      setCurrentRound(Number(current) + 3);
       setRoundDuration(Number(duration));
       setRoundStartTime(Number(start));
       setNextStartTime(Number(nextStart));

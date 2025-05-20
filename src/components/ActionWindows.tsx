@@ -47,6 +47,7 @@ function ActionWindows({ data }: Props) {
             className="absolute top-0 left-0 pointer-events-none"
           />
         </div>
+        
       </Container>
       <img
         src="/cursor/10.png"

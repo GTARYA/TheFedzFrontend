@@ -22,3 +22,19 @@ export interface TokenInfo {
     roundNumber:number
   }
   
+
+  export interface TokenInfo {
+    symbol: string;
+  }
+  
+  export interface SwapEvent {
+    id: string;
+    origin: string;
+    sender: string;
+    amountUSD: string;
+    amount0: string;
+    amount1: string;
+    token0: TokenInfo;
+    token1: TokenInfo;
+    timestamp:string
+  }

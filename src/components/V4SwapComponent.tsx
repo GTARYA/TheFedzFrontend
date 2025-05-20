@@ -4,6 +4,8 @@ import { parseEther, formatEther } from "viem";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useAppKit } from "@reown/appkit/react";
+import { useQuery } from '@tanstack/react-query';
+import { fetchSwapsFromSubgraph } from "../data/fetchSubgraph";
 import {
   PoolSwapTestAddress,
   MockFUSDAddress,
@@ -30,7 +32,9 @@ import { formatBalance } from "../hooks/formatters";
 import { on } from "events";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 import Rounds from "./Rounds";
-
+import Subtitle from "./ui/Subtitle";
+import { SwapEvent } from "../type";
+import SwapEventRow from "./swap/SwapEventRow";
 let autofillTimeout: NodeJS.Timeout | undefined;
 const V4SwapComponent = () => {
   const { open, close } = useAppKit();
@@ -64,6 +68,21 @@ const V4SwapComponent = () => {
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
+
+//0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032
+//0xe2d084a729df207afea549782ed1b9b2054244c3f70dcb27eb3f766063d8d9b7
+  const { data:swapEvent, isLoading, isError } = useQuery<SwapEvent[]>({
+    queryKey: ['swaps',poolKeyHash,address],
+    queryFn: () => fetchSwapsFromSubgraph(poolKeyHash,"0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032"),
+    enabled: !!poolKeyHash , // only run when both are available
+    staleTime: 1000 * 60 * 5, // optional: cache for 5 minutes
+  });
+
+  console.log(swapEvent,"swapEvent");
+  
+
+
+
 
   useEffect(() => {
     if (!mount && signer && address) {
@@ -291,6 +310,47 @@ const V4SwapComponent = () => {
           className="absolute w-full top-[95%] lg:top-[500px] right-[20px] max-w-[40px] lg:max-w-[60px] pointer-events-none"
         />
       </section>
+
+            <Container>
+        <div className="overflow-hidden p-[30px] md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
+          <div className="relative z-[5]">
+            <Subtitle className="mb-1">Status</Subtitle>
+            <Title>Action Windows</Title>
+            <div className="overflow-x-auto mt-10 md:mt-14">
+              <table className="min-w-full text-primary px-6 table-auto">
+                <thead>
+                  <tr className="text-left text-base md:text-xl font-bold">
+                  <th className="py-4 pr-4">Time</th>
+                  {!address &&    <th className="pr-4">User</th>}
+                 
+                    <th className="pr-4">Type</th>
+                    <th className="pr-4">Amount</th>
+                
+                  </tr>
+                </thead>
+                <tbody>
+                   {swapEvent?.map((item, i) => (
+                    <SwapEventRow key={i} data={item} address={address} />
+                  ))} 
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <img
+            src="/blue-glare4.png"
+            alt="eppilse"
+            className="absolute -bottom-[130%] right-0 pointer-events-none"
+          />
+          <img
+            src="/blue-glare2.png"
+            alt="eppilse"
+            className="absolute top-0 left-0 pointer-events-none"
+          />
+        </div>
+        
+      </Container>
+
 
       <Rounds poolKeyHash={poolKeyHash} />
     </div>

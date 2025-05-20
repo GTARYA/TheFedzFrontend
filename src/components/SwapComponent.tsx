@@ -917,7 +917,7 @@ const SwapComponent = () => {
         />
       </section>
 
-      <ActionWindows />
+      {/* <ActionWindows /> */}
 
       <section className="relative py-[50px] md:py-[75px]">
         <Container className="relative z-[5]">

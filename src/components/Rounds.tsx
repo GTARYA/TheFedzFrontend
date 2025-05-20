@@ -6,28 +6,17 @@ import Container from "./Container";
 import PoolKeyHashDisplay from "./PoolKeyHash";
 import { getLatestEventForTurn } from "../hooks/fedz";
 import { useAccount } from "wagmi";
-import { TurnOrderEntry } from "../type";
+
 type Props = {
   poolKeyHash: string;
 };
 
 function Rounds({ poolKeyHash }: Props) {
   const { address } = useAccount();
-  const [nfts, setNFTs] = useState<TurnOrderEntry[]>([]);
-  const fetchNFTs = async () => {
-    const data = await getLatestEventForTurn();
-    if (data) {
-      setNFTs(data.turnOrder);
-    }
-  };
-
-  useEffect(() => {
-    fetchNFTs();
-  }, [address]);
 
   return (
     <div>
-      <ActionWindows data={nfts} />
+      {/* <ActionWindows data={nfts} /> */}
 
       <section className="relative py-[50px] md:py-[75px]">
         <Container className="relative z-[5]">
