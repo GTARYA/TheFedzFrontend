@@ -106,10 +106,25 @@ const Footer = () => {
                         <div>
                             <h2 className="font-semibold mb-4">Information</h2>
                             <div className="flex flex-col gap-3">
+                                <a
+                                    href="https://blog.thefedz.org"
+                                    target="_blank">
+                                    Blog
+                                </a>
+                                <a
+                                    href="https://the-fedz.gitbook.io/the-fedz"
+                                    target="_blank">
+                                    GitBook
+                                </a>
                                 <a href="/terms-of-use" target="_blank">
                                     Terms & Conditions
                                 </a>
                                 <p>Privacy Policy</p>
+                                <a
+                                    href="https://coinpaprika.com/coin/fusd-fusd/ "
+                                    target="_blank">
+                                    Trac $FUSD on CoinPaprika
+                                </a>
                             </div>
                         </div>
                         <div>

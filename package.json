@@ -8,7 +8,7 @@
         "start": "next start"
     },
     "dependencies": {
-        "@headlessui/react": "^2.2.0",
+        "@headlessui/react": "^2.2.3",
         "@heroicons/react": "^2.2.0",
         "@reactuses/core": "^5.0.23",
         "@reown/appkit": "^1.5.1",

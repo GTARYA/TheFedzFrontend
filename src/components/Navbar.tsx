@@ -8,6 +8,7 @@ import ModeBtn from './ui/ModeBtn';
 
 const Navbar = () => {
     const [menuIsOpen, setMenuIsOpen] = useState<boolean>(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleClick = () => {
         setMenuIsOpen((prev) => !prev);
@@ -66,7 +67,7 @@ const Navbar = () => {
                             </Link>
                         </li> */}
 
-                              <li>
+                        <li>
                             <Link
                                 href="/stake"
                                 className="text-primary leading-6 text-[16px]">
@@ -82,11 +83,30 @@ const Navbar = () => {
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                href="https://Blog.TheFedz.org"
-                                className="text-primary leading-6 text-[16px]">
-                                Blog
-                            </Link>
+                            <div className="relative inline-block text-left">
+                                <div
+                                    onClick={() =>
+                                        setDropdownOpen((prev) => !prev)
+                                    }
+                                    className="text-primary leading-6 text-[16px] cursor-pointer">
+                                    Explore
+                                </div>
+                                {dropdownOpen && (
+                                    <div className="absolute flex flex-col gap-3 p-3 mt-2 w-40 text-white bg-black/90 backdrop-blur-sm shadow-md rounded z-[9999]">
+                                        <Link
+                                            target="_blank"
+                                            href="https://Blog.TheFedz.org"
+                                            className="text-primary leading-6 text-[16px]">
+                                            Blog
+                                        </Link>
+                                        <Link
+                                            href="/research"
+                                            className="text-primary leading-6 text-[16px]">
+                                            Research
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </li>
                     </ul>
 
@@ -166,7 +186,7 @@ const Navbar = () => {
                                     Swap
                                 </Link>
                             </li>
-                            
+
                             <li className="py-3 w-full text-center border-b  border-white/10">
                                 <Link
                                     href="/liquidity"
@@ -176,12 +196,12 @@ const Navbar = () => {
                             </li>
 
                             <li className="py-3 w-full text-center border-b  border-white/10">
-                            <Link
-                                href="/stake"
-                                className="text-primary leading-6 md:text-[24px] text-[16px]">
-                                Stake
-                            </Link>
-                        </li>
+                                <Link
+                                    href="/stake"
+                                    className="text-primary leading-6 md:text-[24px] text-[16px]">
+                                    Stake
+                                </Link>
+                            </li>
                             {/* <li className="py-3 w-full text-center border-b  border-white/10">
                                 <Link
                                     href="/nft"
@@ -197,14 +217,20 @@ const Navbar = () => {
                                 </Link>
                             </li>
 
-
                             <li className="py-3 w-full text-center">
-                            <Link
-                                href="https://Blog.TheFedz.org"
-                                className="text-primary leading-6 md:text-[24px] text-[16px]">
-                                Blog
-                            </Link>
-                        </li>
+                                <Link
+                                    href="https://Blog.TheFedz.org"
+                                    className="text-primary leading-6 md:text-[24px] text-[16px]">
+                                    Blog
+                                </Link>
+                            </li>
+                            <li className="py-3 w-full text-center">
+                                <Link
+                                    href="/research"
+                                    className="text-primary leading-6 text-[16px]">
+                                    Research
+                                </Link>
+                            </li>
                         </ul>
                         <div className="mx-auto w-fit flex flex-col items-center justify-center gap-3">
                             <ConnectButton />
