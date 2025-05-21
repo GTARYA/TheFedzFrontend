@@ -38,3 +38,24 @@ export interface TokenInfo {
     token1: TokenInfo;
     timestamp:string
   }
+
+  export type LiquidityEvent = {
+    id: string;
+    origin: string;
+    sender: string;
+    amount: string;
+    amount0: string;
+    amount1: string;
+    amountUSD: string;
+    logIndex: string;
+    tickLower: string;
+    tickUpper: string;
+    timestamp: string;
+    token0: {
+      symbol: string;
+    };
+    token1: {
+      symbol: string;
+    };
+  };
+  

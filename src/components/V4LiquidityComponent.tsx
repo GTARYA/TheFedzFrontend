@@ -7,6 +7,7 @@ import { getLatestEventForTurn } from "../hooks/fedz";
 import Rounds from "./Rounds";
 import { parseEther } from "viem";
 import { useAppKit } from "@reown/appkit/react";
+import Subtitle from "./ui/Subtitle";
 import {
   HookAddress,
   MockFUSDAddress,
@@ -34,6 +35,9 @@ import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { Token } from "@uniswap/sdk-core";
 import { set } from "mongoose";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLiquidityEventsFromSubgraph } from "../data/fetchSubgraph";
+import LiquidityEventRow from "./Lp/LiquidityEventRow";
 import {
   encodeSqrtRatioX96,
   nearestUsableTick,
@@ -42,7 +46,7 @@ import {
 import { formatBalance } from "../hooks/formatters";
 import { balanceOf } from "../hooks/erc20";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
-
+import { LiquidityEvent } from "../type";
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
@@ -94,6 +98,20 @@ const V4LiquidityComponent = () => {
   const [percentToRemove, setPercentToRemove] = useState("");
   const [tokenABalance, setTokenABalance] = useState<string>("-");
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
+
+  const {
+      data: lpEvent,
+      isLoading,
+      isError,
+    } = useQuery<LiquidityEvent[]>({
+      queryKey: ["LiquidityEvent", poolKeyHash, address],
+      queryFn: () => fetchLiquidityEventsFromSubgraph(poolKeyHash,address??null),
+      enabled: !!poolKeyHash,
+      staleTime: 1000 * 60 * 5,
+    });
+  
+
+
 
   const nftbalance = 1;
 
@@ -738,6 +756,57 @@ const V4LiquidityComponent = () => {
           className="absolute hidden lg:block top-0 md:top-10 right-[40px] max-w-[50px] md:max-w-[80px]"
         />
       </section>
+
+
+      <Container>
+        <div className="overflow-hidden p-[30px] md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
+          <div className="relative z-[5]">
+            <Subtitle className="mb-1">Status</Subtitle>
+            <Title>Action Windows</Title>
+            <div className="overflow-x-auto mt-10 md:mt-14">
+              {isLoading ? (
+                <div className="text-center py-10 text-lg text-white">
+                  Loading...
+                </div>
+              ) : !lpEvent || lpEvent.length === 0 ? (
+                <div className="text-center py-10 text-lg text-white">
+                  No event found
+                </div>
+              ) : (
+                <table className="min-w-full text-primary px-6 table-auto">
+                  <thead>
+                    <tr className="text-left text-base md:text-xl font-bold">
+                      <th className="py-4 pr-4">Time</th>
+                      {!address && <th className="pr-4">User</th>}
+                      <th className="pr-4">Type</th>
+                      <th className="pr-4">FUSD</th>
+                      <th className="pr-4">USDT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lpEvent.map((item, i) => (
+                      <LiquidityEventRow key={i} data={item} address={address} />
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+
+          <img
+            src="/blue-glare4.png"
+            alt="eppilse"
+            className="absolute -bottom-[130%] right-0 pointer-events-none"
+          />
+          <img
+            src="/blue-glare2.png"
+            alt="eppilse"
+            className="absolute top-0 left-0 pointer-events-none"
+          />
+        </div>
+      </Container>
+
+
 
       {/* <ActionWindows /> */}
       <Rounds poolKeyHash={poolKeyHash ?? ""} />
