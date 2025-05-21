@@ -31,6 +31,9 @@ const RoundInfos = ({ isSelf }: { isSelf?: boolean }) => {
     ],
   });
 
+ console.log(data);
+ 
+
 
   useEffect(() => {
     if (data && data[0]?.result && Array.isArray(data[0].result)) {

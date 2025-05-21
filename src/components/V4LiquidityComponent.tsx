@@ -9,6 +9,11 @@ import { parseEther } from "viem";
 import { useAppKit } from "@reown/appkit/react";
 import Subtitle from "./ui/Subtitle";
 import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/20/solid";
+import {
   HookAddress,
   MockFUSDAddress,
   MockUSDTAddress,
@@ -99,19 +104,23 @@ const V4LiquidityComponent = () => {
   const [tokenABalance, setTokenABalance] = useState<string>("-");
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
 
+  const [page, setPage] = useState(0);
+  const limit = 10;
+
   const {
-      data: lpEvent,
-      isLoading,
-      isError,
-    } = useQuery<LiquidityEvent[]>({
-      queryKey: ["LiquidityEvent", poolKeyHash, address],
-      queryFn: () => fetchLiquidityEventsFromSubgraph(poolKeyHash,address??null),
-      enabled: !!poolKeyHash,
-      staleTime: 1000 * 60 * 5,
-    });
-  
+    data: lpEvent,
+    isLoading,
+    isError,
+  } = useQuery<LiquidityEvent[]>({
+    queryKey: ["LiquidityEvent", poolKeyHash, address],
+    queryFn: () =>
+      fetchLiquidityEventsFromSubgraph(poolKeyHash, address ?? null),
+    enabled: !!poolKeyHash,
+    staleTime: 1000 * 60 * 5,
+  });
 
-
+  const paginatedEvents = lpEvent?.slice(page * limit, page * limit + limit);
+  const totalPages = Math.ceil((lpEvent ? lpEvent?.length : 0) / limit);
 
   const nftbalance = 1;
 
@@ -757,9 +766,8 @@ const V4LiquidityComponent = () => {
         />
       </section>
 
-
       <Container>
-        <div className="overflow-hidden p-[30px] md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
+        <div className="overflow-hidden p-[30px]  md:p-[72px] border-[1px] border-white/20 rounded-[32px] bg-[#04152F78] relative">
           <div className="relative z-[5]">
             <Subtitle className="mb-1">Status</Subtitle>
             <Title>Action Windows</Title>
@@ -784,12 +792,38 @@ const V4LiquidityComponent = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {lpEvent.map((item, i) => (
-                      <LiquidityEventRow key={i} data={item} address={address} />
+                    {paginatedEvents?.map((item, i) => (
+                      <LiquidityEventRow
+                        key={i}
+                        data={item}
+                        address={address}
+                      />
                     ))}
                   </tbody>
                 </table>
               )}
+
+              <div className="flex justify-between items-center mt-8 w-fit mx-auto gap-6">
+                <button
+                  className="bg-white/10 text-white py-2 px-4 rounded"
+                  disabled={page === 0}
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                >
+                  <ChevronLeftIcon className="w-4 h-4 text-white" />
+                </button>
+
+                <p className="text-white text-sm">
+                  Page {page + 1} of {totalPages}
+                </p>
+
+                <button
+                  className="bg-white/10 text-white py-2 px-4 rounded"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() => setPage((prev) => prev + 1)}
+                >
+                  <ChevronRightIcon className="w-4 h-4 text-white" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -805,8 +839,6 @@ const V4LiquidityComponent = () => {
           />
         </div>
       </Container>
-
-
 
       {/* <ActionWindows /> */}
       <Rounds poolKeyHash={poolKeyHash ?? ""} />

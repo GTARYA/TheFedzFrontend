@@ -6,6 +6,13 @@ import ScaleLoader from "react-spinners/ScaleLoader";
 import { useAppKit } from "@reown/appkit/react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSwapsFromSubgraph } from "../data/fetchSubgraph";
+
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/20/solid";
+
 import {
   PoolSwapTestAddress,
   MockFUSDAddress,
@@ -68,6 +75,8 @@ const V4SwapComponent = () => {
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
+  const [page, setPage] = useState(0);
+  const limit = 10;
 
   //0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032
   //0xe2d084a729df207afea549782ed1b9b2054244c3f70dcb27eb3f766063d8d9b7
@@ -78,9 +87,14 @@ const V4SwapComponent = () => {
   } = useQuery<SwapEvent[]>({
     queryKey: ["swaps", poolKeyHash, address],
     queryFn: () => fetchSwapsFromSubgraph(poolKeyHash, address ?? null),
-    enabled: !!poolKeyHash, // only run when both are available
-    staleTime: 1000 * 60 * 5, // optional: cache for 5 minutes
+    enabled: !!poolKeyHash,
+    staleTime: 1000 * 60 * 5,
   });
+
+  const paginatedEvents = swapEvent?.slice(page * limit, page * limit + limit);
+  const totalPages = Math.ceil((swapEvent ? swapEvent?.length : 0) / limit);
+
+  
 
   useEffect(() => {
     if (!mount && signer && address) {
@@ -334,12 +348,34 @@ const V4SwapComponent = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {swapEvent.map((item, i) => (
+                    {paginatedEvents?.map((item, i) => (
                       <SwapEventRow key={i} data={item} address={address} />
                     ))}
                   </tbody>
                 </table>
               )}
+
+              <div className="flex justify-between items-center mt-8 w-fit mx-auto gap-6">
+                <button
+                  className="bg-white/10 text-white py-2 px-4 rounded"
+                  disabled={page === 0}
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                >
+                  <ChevronLeftIcon className="w-4 h-4 text-white" />
+                </button>
+
+                <p className="text-white text-sm">
+                  Page {page + 1} of {totalPages}
+                </p>
+
+                <button
+                  className="bg-white/10 text-white py-2 px-4 rounded"
+                  disabled={page + 1 >= totalPages}
+                  onClick={() => setPage((prev) => prev + 1)}
+                >
+                  <ChevronRightIcon className="w-4 h-4 text-white" />
+                </button>
+              </div>
             </div>
           </div>
 
