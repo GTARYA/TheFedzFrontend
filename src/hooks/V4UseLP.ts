@@ -194,7 +194,7 @@ const V4UseLP = (
     }
   };
 
-  const addLiquidity = async (liquidity: string) => {
+  const addLiquidity = async (amount0: string, amount1: string, liquidity: string) => {
     setLoading(true);
     let unlockToastId;
     let approvalToastId;
@@ -217,7 +217,9 @@ const V4UseLP = (
         tickLower,
         tickUpper,
       });
-      const { amount0: amount0Max, amount1: amount1Max } = position.mintAmountsWithSlippage(slippageTolerance)
+      // const { amount0: amount0Max, amount1: amount1Max } = position.mintAmountsWithSlippage(slippageTolerance)
+      const amount0Max = BigInt(amount0);
+      const amount1Max = BigInt(amount1);
       const tokenAContract = new ethers.Contract(
         tokenA.address,
         erc20Abi,

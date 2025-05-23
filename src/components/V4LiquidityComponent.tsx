@@ -80,6 +80,7 @@ const V4LiquidityComponent = () => {
   const [tickLower, setTickLower] = useState<number>(tickLowerNum);
   const [tickUpper, setTickUpper] = useState<number>(tickUpperNum);
 
+  const [quoteFromLp, setQuote] = useState<[string, string, string]>();
   const [amount0, setAmount0] = useState<string>();
   const [amount1, setAmount1] = useState<string>();
   const [amount0Quote, setAmount0Quote] = useState<string>();
@@ -159,6 +160,7 @@ const V4LiquidityComponent = () => {
     setAmount0Quote(amount0);
     setAmount1(amount1);
     setLiqudidity(liqudidity);
+    setQuote([amount0, amount1, liqudidity]);
   }
   function onAmount1QuoteChange(
     amount0: string,
@@ -170,6 +172,7 @@ const V4LiquidityComponent = () => {
     setAmount0(amount0);
     setAmount1Quote(amount1);
     setLiqudidity(liqudidity);
+    setQuote([amount0, amount1, liqudidity]);
   }
   const {
     loading,
@@ -214,8 +217,8 @@ const V4LiquidityComponent = () => {
 
   const addLiquidity = async () => {
     if (Number(nftbalance?.toString()) > 0) {
-      if (liqudidity) {
-        await addLPS(liqudidity);
+      if (quoteFromLp) {
+        await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2]);
         fetchBalancesAndPrint();
       }
     } else {
