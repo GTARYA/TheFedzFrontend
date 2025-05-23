@@ -4,9 +4,14 @@ import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import {
   TimeSlotSystemAddress,
   ERC721Address,
+  PoolSwapTestAddress,
+  PoolModifyLiquidityTestAddress,
+  HookAddress,
+  MockFUSDAddress,
+  MockUSDTAddress,
 } from "../contractAddressArbitrum";
 import axios from "axios";
-import { TurnOrderEntry ,LatestEventResponse} from "../type";
+import { LatestEventResponse} from "../type";
 const { ethers } = require("ethers");
 
 class NotNFTHolderError extends Error {
@@ -220,4 +225,48 @@ export async function getPlayersTurnOrder(signer: any) {
 
   // Sort players by their next turn (timestamp)
   return players.sort((a, b) => a.timestamp - b.timestamp); // Sorting players by their next turn timestamp
+}
+
+type Address = `0x${string}`;
+interface UniswapV4Config {
+  universalRouter: Address;
+  positionManager: Address;
+  stateViewer: Address;
+}
+
+export interface UniswapV4PoolConfig {
+  hook: Address;
+  token0: Address;
+  token1: Address;
+  tickSpacing: number;
+  fee: number;
+}
+
+export interface TheFedzConfig {
+  uniswapV4: UniswapV4Config;
+  pool: UniswapV4PoolConfig;
+  accessManager: Address;
+}
+
+export interface TheFedzOptions {
+  hook?: Address;
+  accessManager?: Address;
+}
+
+export const loadConfig = (options?: TheFedzOptions): TheFedzConfig => {
+  return {
+    uniswapV4: {
+      universalRouter: PoolSwapTestAddress,
+      positionManager: PoolModifyLiquidityTestAddress,
+      stateViewer: '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+    },
+    pool: {
+      hook: options?.hook || HookAddress,
+      token0: MockFUSDAddress,
+      token1: MockUSDTAddress,
+      tickSpacing: 10,
+      fee: 4000,
+    },
+    accessManager: options?.accessManager || TimeSlotSystemAddress,
+  }
 }

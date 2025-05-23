@@ -10,9 +10,4 @@ export const MockFUSDAddress = '0x894341be568Eae3697408c420f1d0AcFCE6E55f9';
 export const TimeSlotSystemAddress = '0xbF378EfFB797Eeeab306506f8b03A3A7bfcBfe28';
 export const ERC721Address = '0xE073a53a2Ba1709e2c8F481f1D7dbabA1eF611FD';
 
-console.log({
-    HookAddress,
-    TimeSlotSystemAddress
-});
-
 // pool id 69855343FD06923D51D23179ECB3F1BAF48434CCAE082841C11821370A89D007

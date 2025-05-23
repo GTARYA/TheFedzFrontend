@@ -1,9 +1,7 @@
 // import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
 const { ethers, JsonRpcProvider } = require('ethers');
 
-const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
-import routerAbi from "../abi/uniswapRouter.json";
 import erc20Abi from "../abi/erc20.json";
 import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
 import { useEffect, useState } from "react";
@@ -18,39 +16,29 @@ import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import MockERC721Abi from "../abi/MockERC721_abi.json";
 import JSBI from 'jsbi';
 import { web3Provider } from "../utils/provider";
-import {
-  HookAddress,
-  MockFUSDAddress,
-  MockUSDTAddress,
-  PoolModifyLiquidityTestAddress,
-  PoolSwapTestAddress,
-  TimeSlotSystemAddress,
-} from "../contractAddressArbitrum";
 import { Pool, Position, RemoveLiquidityOptions, V4PositionManager } from "@uniswap/v4-sdk";
-import { BigNumberish } from "ethers";
 import { useAccount, useCall, useReadContract, useSendTransaction, useWriteContract } from "wagmi";
-import { getPoolId } from "../misc/v4helpers";
-import { set } from "mongoose";
-import { nextRoundAnnouncedNeeded } from "./fedz";
-import { write } from "fs";
+import { loadConfig, nextRoundAnnouncedNeeded } from "./fedz";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 
-const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
-const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
-const TICK_SPACING = 10;
-const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress);
+const fedzConfig = loadConfig({
+  // hook: ethers.constants.AddressZero,
+  // accessManager: ethers.constants.AddressZero,
+});
+const token0 = new Token(42161, fedzConfig.pool.token0, 18, "FUSD", "FUSD");
+const token1 = new Token(42161, fedzConfig.pool.token1, 6, "USDT", "USDT");
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
-const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
-const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
-
+const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), fedzConfig.pool.tickSpacing);
+const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), fedzConfig.pool.tickSpacing) + fedzConfig.pool.tickSpacing;
+console.log(token0, token1, fedzConfig.pool.fee, fedzConfig.pool.tickSpacing, fedzConfig.pool.hook);
+const poolId = Pool.getPoolId(token0, token1, fedzConfig.pool.fee, fedzConfig.pool.tickSpacing, fedzConfig.pool.hook);
 let fetchLocked = false;
 async function fetchPositions(address: string, signer: any) {
   if (fetchLocked) return;
   fetchLocked = true;
-  console.log('fetching positions...');
   const positionManagerContract = new ethers.Contract(
-    PoolModifyLiquidityTestAddress,
+    fedzConfig.uniswapV4.positionManager,
     [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
     signer
   );
@@ -97,7 +85,7 @@ const V4UseLP = (
   onAmount1QuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
   slippageTolerance = new Percent(4, 100),
 ) => {
-
+  const fedzConfig = loadConfig();
   const {address} = useAccount();
   const account = useAccount();
   const {
@@ -110,18 +98,19 @@ const V4UseLP = (
 
   const loadPool = async () => {
     const stateViewContract = new ethers.Contract(
-      '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+      fedzConfig.uniswapV4.stateViewer,
       UniswapStateViewAbi,
       web3Provider
     );
     const liquidity = await stateViewContract.getLiquidity(poolId);
+    console.log({poolId, liquidity});
     const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
     console.log({
       token0,
       token1,
-      fee: 4000,
-      tickSpacing: 10,
-      HookAddress,
+      fee: fedzConfig.pool.fee,
+      tickSpacing: fedzConfig.pool.tickSpacing,
+      HookAddress: fedzConfig.pool.hook,
       sqrtPriceX96,
       liquidity,
       tick
@@ -129,9 +118,9 @@ const V4UseLP = (
     const pool = new Pool(
       token0,
       token1,
-      4000,
-      10,
-      HookAddress,
+      fedzConfig.pool.fee,
+      fedzConfig.pool.tickSpacing,
+      fedzConfig.pool.hook,
       sqrtPriceX96,
       liquidity,
       tick
@@ -202,7 +191,7 @@ const V4UseLP = (
     if (await nextRoundAnnouncedNeeded(signer)) {
       unlockToastId = toast.info("Unlocking next round...");
       await writeContract({
-        address: TimeSlotSystemAddress,
+        address: fedzConfig.accessManager,
         abi: TimeSlotSystemAbi,
         functionName: 'unlockRound',
         args: []
@@ -255,7 +244,7 @@ const V4UseLP = (
       let nextTokenId = 0;
       if (!tokenId) {
         const positionManagerContract = new ethers.Contract(
-          PoolModifyLiquidityTestAddress,
+          fedzConfig.uniswapV4.positionManager,
           [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
           signer
         );
@@ -267,7 +256,7 @@ const V4UseLP = (
       }
 
       await sendTransaction({
-        to: PoolModifyLiquidityTestAddress,
+        to: fedzConfig.uniswapV4.positionManager,
         data: calldata as `0x${string}`,
         value: BigInt(value),
       });
@@ -300,7 +289,7 @@ const V4UseLP = (
       params.push(ethers.utils.defaultAbiCoder.encode(["address", "address", "address"], [token0.address, token1.address, address]));
       const callbackData = ethers.utils.defaultAbiCoder.encode(["bytes", "bytes[]"], [actions, params]);
       await writeContract({
-        address: PoolModifyLiquidityTestAddress,
+        address: fedzConfig.uniswapV4.positionManager,
         abi: MockERC721Abi,
         functionName: "approve",
         args: [
@@ -308,7 +297,7 @@ const V4UseLP = (
         ],
       });
       await writeContract({
-        address: PoolModifyLiquidityTestAddress,
+        address: fedzConfig.uniswapV4.positionManager,
         abi: PoolModifiyLiquidityAbi,
         functionName: "modifyLiquidities",
         args: [
@@ -333,7 +322,7 @@ const V4UseLP = (
         UniswapStateViewAbi,
         signer
       );
-      const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, PoolModifyLiquidityTestAddress, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
+      const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, fedzConfig.uniswapV4.positionManager, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
       const position = new Position({
         pool,
         liquidity,
@@ -348,7 +337,7 @@ const V4UseLP = (
       }
       const { calldata, value } = V4PositionManager.removeCallParameters(position, partialRemoveOptions);
       await sendTransaction({
-        to: PoolModifyLiquidityTestAddress,
+        to: fedzConfig.uniswapV4.positionManager,
         data: calldata as `0x${string}`,
         value: BigInt(value),
       });
@@ -400,7 +389,7 @@ const V4UseLP = (
       const [sqrtPriceX96,] = await stateViewContract.getSlot0(poolId);
       const Decimal0 = 18;
       const Decimal1 = 6;
-      const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, PoolModifyLiquidityTestAddress, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
+      const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, fedzConfig.uniswapV4.positionManager, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
       const [amount0, amount1] = await getTokenAmounts(parseInt(liquidity.toString()), parseInt(sqrtPriceX96.toString()), tickLower, tickUpper, Decimal0, Decimal1);
       const info = {
         tokenId, amount0, amount1
@@ -460,7 +449,7 @@ const V4UseLP = (
         signer
       );
       const [permitAllowance, expiration] = await allowanceTransfer.allowance(
-        address, tokenAddress, PoolModifyLiquidityTestAddress
+        address, tokenAddress, fedzConfig.uniswapV4.positionManager
       );
       const tokenContract = new ethers.Contract(
         tokenAddress,
@@ -483,7 +472,7 @@ const V4UseLP = (
           abi: AllowanceTransferAbi,
           functionName: "approve",
           args: [
-            tokenAddress, PoolModifyLiquidityTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
+            tokenAddress, fedzConfig.uniswapV4.positionManager, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
           ],
         });
         toast.dismiss(approvalToastId);
@@ -559,9 +548,9 @@ const loadScapperLastTokenId = () => {
 }
 const loadMyPosition = () => {
   const cachedHookAddress = localStorage.getItem(HOOK_ADDRESS_KEY) || '0x00';
-  if (cachedHookAddress !== HookAddress) {
+  if (cachedHookAddress !== fedzConfig.pool.hook) {
     localStorage.clear();
-    localStorage.setItem(HOOK_ADDRESS_KEY, HookAddress);
+    localStorage.setItem(HOOK_ADDRESS_KEY, fedzConfig.pool.hook);
   }
   return JSON.parse(localStorage.getItem(TOKEN_ID_KEY) || '0');
 }
