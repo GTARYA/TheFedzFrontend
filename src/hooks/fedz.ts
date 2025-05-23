@@ -9,6 +9,7 @@ import {
   HookAddress,
   MockFUSDAddress,
   MockUSDTAddress,
+  StateViewerAddress,
 } from "../contractAddressArbitrum";
 import axios from "axios";
 import { LatestEventResponse} from "../type";
@@ -253,12 +254,17 @@ export interface TheFedzOptions {
   accessManager?: Address;
 }
 
+let configOptions: TheFedzOptions;
+export const initConfigOptions = (options: TheFedzOptions): void => {
+  configOptions = options;
+}
 export const loadConfig = (options?: TheFedzOptions): TheFedzConfig => {
+  options = options || configOptions;
   return {
     uniswapV4: {
       universalRouter: PoolSwapTestAddress,
       positionManager: PoolModifyLiquidityTestAddress,
-      stateViewer: '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
+      stateViewer: StateViewerAddress,
     },
     pool: {
       hook: options?.hook || HookAddress,
