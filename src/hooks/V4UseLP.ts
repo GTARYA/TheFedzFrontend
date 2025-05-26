@@ -9,7 +9,7 @@ import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
-import { BigintIsh, MaxUint256, Percent, Token } from "@uniswap/sdk-core";
+import { BigintIsh, CurrencyAmount, MaxUint256, Percent, Token } from "@uniswap/sdk-core";
 import {maxLiquidityForAmounts, nearestUsableTick, encodeSqrtRatioX96, ADDRESS_ZERO, TickMath } from "@uniswap/v3-sdk";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
@@ -34,6 +34,7 @@ import { set } from "mongoose";
 import { nextRoundAnnouncedNeeded } from "./fedz";
 import { write } from "fs";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
+import next from "next";
 
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
@@ -93,8 +94,8 @@ const V4UseLP = (
   signer: any,
   tokenA: Token,
   tokenB: Token,
-  onAmount0QuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
-  onAmount1QuoteChange?: (amount0: string, amount1: string, liquidity: string) => void,
+  onAmount0QuoteChange?: (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string) => void,
+  onAmount1QuoteChange?: (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string) => void,
   slippageTolerance = new Percent(4, 100),
 ) => {
 
@@ -149,7 +150,12 @@ const V4UseLP = (
       tickUpper,
       useFullPrecision: false
     });
-    onAmount0QuoteChange && onAmount0QuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
+    console.log(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed());
+    console.log({nextPosition});
+    console.log(nextPosition.amount0.numerator);
+    console.log(nextPosition.amount0.denominator);
+    // console.log(new B);
+    onAmount0QuoteChange && onAmount0QuoteChange(nextPosition.amount0 as CurrencyAmount<any>, nextPosition.amount1 as CurrencyAmount<any>, nextPosition.liquidity.toString());
   }
   const updateAmount1 = async (amountB: string) => {
     console.log("update - updateAmount1");
@@ -162,7 +168,9 @@ const V4UseLP = (
       tickLower,
       tickUpper,
     });
-    onAmount1QuoteChange && onAmount1QuoteChange(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed(), nextPosition.liquidity.toString());
+    console.log(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed());
+    console.log({nextPosition});
+    onAmount1QuoteChange && onAmount1QuoteChange(nextPosition.amount0 as CurrencyAmount<any>, nextPosition.amount1 as CurrencyAmount<any>, nextPosition.liquidity.toString());
   }
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState<string>("");
@@ -194,7 +202,7 @@ const V4UseLP = (
     }
   };
 
-  const addLiquidity = async (amount0: string, amount1: string, liquidity: string) => {
+  const addLiquidity = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string) => {
     setLoading(true);
     let unlockToastId;
     let approvalToastId;
@@ -217,9 +225,8 @@ const V4UseLP = (
         tickLower,
         tickUpper,
       });
-      // const { amount0: amount0Max, amount1: amount1Max } = position.mintAmountsWithSlippage(slippageTolerance)
-      const amount0Max = BigInt(amount0);
-      const amount1Max = BigInt(amount1);
+      const amount0Max = ethers.utils.parseUnits(amount0.toExact(), amount0.currency.decimals);
+      const amount1Max = ethers.utils.parseUnits(amount1.toExact(), amount1.currency.decimals);
       const tokenAContract = new ethers.Contract(
         tokenA.address,
         erc20Abi,

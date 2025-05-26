@@ -38,7 +38,7 @@ import BalanceDisplay from "./swap/BalanceDisplay";
 import useLP from "../hooks/V4UseLP";
 import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
-import { Token } from "@uniswap/sdk-core";
+import { CurrencyAmount, Token } from "@uniswap/sdk-core";
 import { set } from "mongoose";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLiquidityEventsFromSubgraph } from "../data/fetchSubgraph";
@@ -52,6 +52,7 @@ import { formatBalance } from "../hooks/formatters";
 import { balanceOf } from "../hooks/erc20";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 import { LiquidityEvent } from "../type";
+import { BigNumber } from "ethers";
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
@@ -80,7 +81,7 @@ const V4LiquidityComponent = () => {
   const [tickLower, setTickLower] = useState<number>(tickLowerNum);
   const [tickUpper, setTickUpper] = useState<number>(tickUpperNum);
 
-  const [quoteFromLp, setQuote] = useState<[string, string, string]>();
+  const [quoteFromLp, setQuote] = useState<[CurrencyAmount<any>, CurrencyAmount<any>, string]>();
   const [amount0, setAmount0] = useState<string>();
   const [amount1, setAmount1] = useState<string>();
   const [amount0Quote, setAmount0Quote] = useState<string>();
@@ -152,25 +153,25 @@ const V4LiquidityComponent = () => {
 
   const [liqudidity, setLiqudidity] = useState<string>();
   function onAmount0QuoteChange(
-    amount0: string,
-    amount1: string,
+    amount0: CurrencyAmount<any>,
+    amount1: CurrencyAmount<any>,
     liqudidity: string
   ) {
     console.log("Q0");
-    setAmount0Quote(amount0);
-    setAmount1(amount1);
+    setAmount0Quote(amount0.toFixed());
+    setAmount1(amount1.toFixed());
     setLiqudidity(liqudidity);
     setQuote([amount0, amount1, liqudidity]);
   }
   function onAmount1QuoteChange(
-    amount0: string,
-    amount1: string,
+    amount0: CurrencyAmount<any>,
+    amount1: CurrencyAmount<any>,
     liqudidity: string
   ) {
     console.log("Q1");
 
-    setAmount0(amount0);
-    setAmount1Quote(amount1);
+    setAmount0(amount0.toFixed());
+    setAmount1Quote(amount1.toFixed());
     setLiqudidity(liqudidity);
     setQuote([amount0, amount1, liqudidity]);
   }
