@@ -36,6 +36,7 @@ import { write } from "fs";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import next from "next";
 
+const MAX_UINT160 = '1461501637330902918203684832716283019655932542975';
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
 const TICK_SPACING = 10;
@@ -492,7 +493,7 @@ const V4UseLP = (
           abi: AllowanceTransferAbi,
           functionName: "approve",
           args: [
-            tokenAddress, PoolModifyLiquidityTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
+            tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, Math.ceil(new Date().getTime()/1000) + 7200
           ],
         });
         toast.dismiss(approvalToastId);
@@ -508,7 +509,7 @@ const V4UseLP = (
           abi: MockERC20Abi,
           functionName: "approve",
           args: [
-            PERMIT_2_ADDRESS, amountIn
+            PERMIT_2_ADDRESS, MAX_UINT160
           ],
         });
       }
