@@ -7,6 +7,7 @@ import {
 } from "../contractAddressArbitrum";
 import axios from "axios";
 import { TurnOrderEntry ,LatestEventResponse} from "../type";
+import { getLogs } from "../etherscan";
 const { ethers } = require("ethers");
 
 class NotNFTHolderError extends Error {
@@ -220,4 +221,12 @@ export async function getPlayersTurnOrder(signer: any) {
 
   // Sort players by their next turn (timestamp)
   return players.sort((a, b) => a.timestamp - b.timestamp); // Sorting players by their next turn timestamp
+}
+
+export async function getPositionIdByPlayer(
+  player: string,
+): Promise<bigint | null> {
+  const response = await fetch("/api/getPlayerPositions?player=" + player);
+  const data = await response.json();
+  return data?.tokenId ? BigInt(data.tokenId) : null;
 }

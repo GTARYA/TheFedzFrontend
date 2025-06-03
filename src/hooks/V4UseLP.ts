@@ -1,16 +1,13 @@
-// import { ethers, formatUnits, formatEther, parseUnits } from "ethers";
-const { ethers, JsonRpcProvider } = require('ethers');
+const { ethers } = require('ethers');
 
-const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6";
-import routerAbi from "../abi/uniswapRouter.json";
 import erc20Abi from "../abi/erc20.json";
 import UNISWAP_PAIR_ABI from "../abi/uniswapv2Pair.json";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
-import { BigintIsh, CurrencyAmount, MaxUint256, Percent, Token } from "@uniswap/sdk-core";
-import {maxLiquidityForAmounts, nearestUsableTick, encodeSqrtRatioX96, ADDRESS_ZERO, TickMath } from "@uniswap/v3-sdk";
+import { CurrencyAmount,  Percent, Token } from "@uniswap/sdk-core";
+import {nearestUsableTick, encodeSqrtRatioX96, TickMath } from "@uniswap/v3-sdk";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
@@ -23,18 +20,13 @@ import {
   MockFUSDAddress,
   MockUSDTAddress,
   PoolModifyLiquidityTestAddress,
-  PoolSwapTestAddress,
   TimeSlotSystemAddress,
 } from "../contractAddressArbitrum";
 import { Pool, Position, RemoveLiquidityOptions, V4PositionManager } from "@uniswap/v4-sdk";
-import { BigNumberish } from "ethers";
-import { useAccount, useCall, useReadContract, useSendTransaction, useWriteContract } from "wagmi";
-import { getPoolId } from "../misc/v4helpers";
-import { set } from "mongoose";
+import { useAccount, useSendTransaction, useWriteContract } from "wagmi";
 import { nextRoundAnnouncedNeeded } from "./fedz";
-import { write } from "fs";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
-import next from "next";
+import { getPositionIdByPlayer } from "./fedz";
 
 const MAX_UINT160 = '1461501637330902918203684832716283019655932542975';
 const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
@@ -45,49 +37,6 @@ const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
 const tickLower = nearestUsableTick(TickMath.getTickAtSqrtRatio(lowerPrice), TICK_SPACING);
 const tickUpper = nearestUsableTick(TickMath.getTickAtSqrtRatio(upperPrice), TICK_SPACING) + TICK_SPACING;
-
-let fetchLocked = false;
-async function fetchPositions(address: string, signer: any) {
-  if (fetchLocked) return;
-  fetchLocked = true;
-  console.log('fetching positions...');
-  const positionManagerContract = new ethers.Contract(
-    PoolModifyLiquidityTestAddress,
-    [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
-    signer
-  );
-  const totalTokens = parseInt((await positionManagerContract.nextTokenId()).toString());
-  const lastTokenId = loadScapperLastTokenId();
-  let positionId = 0;
-  for (let i = lastTokenId; i < totalTokens; i++) {
-    try {
-      const owner = await positionManagerContract.ownerOf(i);
-      if (owner === address) {
-        const [positionInfo,] = await positionManagerContract.getPoolAndPositionInfo(i);
-        const positionPoolId = Pool.getPoolId(
-          new Token(42161, positionInfo.currency0, 18, "FUSD", "FUSD"),
-          new Token(42161, positionInfo.currency1, 6, "USDT", "USDT"),
-          positionInfo.fee,
-          positionInfo.tickSpacing,
-          positionInfo.hooks
-        );
-        if (poolId === positionPoolId) {
-          console.log(`Token found ${i}`);
-          positionId = i;
-          break;
-        }
-      }
-    } catch(e) {
-      console.error(e);
-    }
-    finally {
-      storeSrapperLastTokenId(i);
-    }
-  }
-  fetchLocked = false;
-  return positionId;
-}
-
 
 const V4UseLP = (
   chainId: number,
@@ -252,8 +201,7 @@ const V4UseLP = (
       }
       await approveToken(tokenA.address, amount0Max.toString(), signer);
       await approveToken(tokenB.address, amount1Max.toString(), signer);
-
-      const tokenId = loadMyPosition() || undefined;
+      const tokenId = loadMyPosition(signer.address, signer) || undefined;
       const callParametersOptions: any = { slippageTolerance, deadline: Math.ceil(new Date().getTime()/1000) + 7200 };
       if (tokenId) {
         callParametersOptions.tokenId = tokenId;
@@ -261,34 +209,12 @@ const V4UseLP = (
         callParametersOptions.recipient = address;
       }
       const { calldata, value } = V4PositionManager.addCallParameters(position, callParametersOptions);
-
-      let nextTokenId = 0;
-      if (!tokenId) {
-        const positionManagerContract = new ethers.Contract(
-          PoolModifyLiquidityTestAddress,
-          [...PoolModifiyLiquidityAbi, ...MockERC721Abi],
-          signer
-        );
-        nextTokenId = parseInt((await positionManagerContract.nextTokenId()).toString()) - 1;
-        const lastScrapTokenId = loadScapperLastTokenId();
-        if (!lastScrapTokenId) {
-          storeSrapperLastTokenId(nextTokenId);
-        }
-      }
-
       await sendTransaction({
         to: PoolModifyLiquidityTestAddress,
         data: calldata as `0x${string}`,
         value: BigInt(value),
       });
       toast.success("Liquidity Added Successfully");
-
-      if (!tokenId) {
-        const newTokenId = await fetchPositions(address as `0x${string}`, signer);
-        if (newTokenId) {
-          storePositionId(newTokenId);
-        }
-      }
     } catch (error) {
       console.error("Error adding liquidity:", error);
       toast.error("Failed to add liquidity.");
@@ -302,7 +228,11 @@ const V4UseLP = (
 
   const burnPosition = async () => {
     try {
-      const tokenId = loadMyPosition();
+      const tokenId = await loadMyPosition(address as any, signer);
+      if (!tokenId) {
+        toast.error("No position found to burn.");
+        return;
+      }
       console.log(`Burning position ${tokenId}...`);
       const actions = '0x0311';
       const params: any[] = [];
@@ -325,7 +255,6 @@ const V4UseLP = (
           callbackData, Math.ceil(new Date().getTime()/1000) + 7200
         ],
       });
-      deletePositionId();
       setLiquidityInfo(undefined);
     } catch(e: any) {
       throw e;
@@ -336,7 +265,11 @@ const V4UseLP = (
   const decreasePosition = async (p: number) => {
     try {
       const pool = await loadPool();
-      const tokenId = loadMyPosition();
+      const tokenId = await loadMyPosition(address as `0x${string}`, signer) || undefined;
+      if (!tokenId) {
+        toast.error("No position found to decrease.");
+        return;
+      }
       const deadline = Math.ceil(new Date().getTime()/1000) + 7200;
       const stateViewContract = new ethers.Contract(
         '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
@@ -351,7 +284,7 @@ const V4UseLP = (
         tickUpper,
       });
       const partialRemoveOptions: RemoveLiquidityOptions = {
-        tokenId,
+        tokenId: tokenId as any,
         liquidityPercentage: new Percent(p, 100),
         slippageTolerance,
         deadline,
@@ -398,7 +331,7 @@ const V4UseLP = (
 
   const getLiquidityInfo = async () => {
     try {
-      const tokenId = loadMyPosition();
+      const tokenId = await loadMyPosition(address as `0x${string}`, signer) || undefined;
       if (!tokenId) {
         return;
       }
@@ -542,37 +475,7 @@ function isGraterThanEquals(balanceOfToken: any, amountMax: any) {
 
 }
 
-const HOOK_ADDRESS_KEY = 'hookAddress';
-
-const TOKEN_ID_KEY = `tokenId`;
-
-const storePositionId = (tokenId: number) => {
-  const previousTokenId = loadMyPosition();
-  if (previousTokenId) {
-    console.error('Token Id already exists');
-    return previousTokenId;
-  }
-  localStorage.setItem(TOKEN_ID_KEY, JSON.stringify(tokenId));
-  return previousTokenId;
-}
-const deletePositionId = () => {
-  const tokenId = loadMyPosition();
-  localStorage.removeItem(TOKEN_ID_KEY);
-  return tokenId;
-}
-const LAST_SCRAP_TOKEN_ID_KEY = "scraperLastTokenId";
-const storeSrapperLastTokenId = (tokenId: number) => {
-  localStorage.setItem(LAST_SCRAP_TOKEN_ID_KEY, tokenId.toString());
-}
-const loadScapperLastTokenId = () => {
-  return parseInt(localStorage.getItem(LAST_SCRAP_TOKEN_ID_KEY) || '0');
-}
-const loadMyPosition = () => {
-  const cachedHookAddress = localStorage.getItem(HOOK_ADDRESS_KEY) || '0x00';
-  if (cachedHookAddress !== HookAddress) {
-    localStorage.clear();
-    localStorage.setItem(HOOK_ADDRESS_KEY, HookAddress);
-  }
-  return JSON.parse(localStorage.getItem(TOKEN_ID_KEY) || '0');
+const loadMyPosition = async (address: string, signer: any): Promise<bigint | undefined> => {
+  return await getPositionIdByPlayer(address) || undefined;
 }
 export default V4UseLP;
