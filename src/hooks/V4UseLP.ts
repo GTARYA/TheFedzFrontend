@@ -201,7 +201,7 @@ const V4UseLP = (
       }
       await approveToken(tokenA.address, amount0Max.toString(), signer);
       await approveToken(tokenB.address, amount1Max.toString(), signer);
-      const tokenId = loadMyPosition(signer.address, signer) || undefined;
+      const tokenId = await loadMyPosition(signer.address, signer) || undefined;
       const callParametersOptions: any = { slippageTolerance, deadline: Math.ceil(new Date().getTime()/1000) + 7200 };
       if (tokenId) {
         callParametersOptions.tokenId = tokenId;
@@ -346,7 +346,7 @@ const V4UseLP = (
       const [liquidity,] = await stateViewContract.functions['getPositionInfo(bytes32,address,int24,int24,bytes32)'](poolId, PoolModifyLiquidityTestAddress, tickLower, tickUpper, ethers.utils.defaultAbiCoder.encode(["uint256"], [tokenId]));
       const [amount0, amount1] = await getTokenAmounts(parseInt(liquidity.toString()), parseInt(sqrtPriceX96.toString()), tickLower, tickUpper, Decimal0, Decimal1);
       const info = {
-        tokenId, amount0, amount1
+        tokenId: tokenId.toString(), amount0, amount1
       };
       setLiquidityInfo(info); // Store the data in state
       return info;
