@@ -215,7 +215,7 @@ const V4UseSwap = (
       console.log({
         permitAllowance, expiration, currentUnixTime, amountIn
       });
-      if (permitAllowance < amountIn || expiration < currentUnixTime) {
+      if (!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()) || expiration < currentUnixTime) {
         console.log(`approval on permit2`);
         approvalToastId = toast.loading(`Approving Token ${token0.name}`);
         await writeToContract({
@@ -223,7 +223,7 @@ const V4UseSwap = (
           abi: AllowanceTransferAbi,
           functionName: "approve",
           args: [
-            tokenAddress, PoolSwapTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 7200
+            tokenAddress, PoolSwapTestAddress, amountIn, Math.ceil(new Date().getTime()/1000) + 72000
           ],
         });
         toast.dismiss(approvalToastId);
@@ -232,7 +232,7 @@ const V4UseSwap = (
         address,
         PERMIT_2_ADDRESS
       );
-      if (allowance < amountIn) {
+      if (!isGraterThanEquals(allowance.toString(), amountIn.toString())) {
         console.log(`approval on token for permit2`);
         await writeToContract({
           address: tokenAddress as `0x${string}`,
