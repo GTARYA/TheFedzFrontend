@@ -152,6 +152,100 @@ const V4UseLP = (
     }
   };
 
+  const validateSufficientBalance0 = async (amount0: CurrencyAmount<any>) => {
+    return await validateSufficientBalance(amount0);
+  }
+
+  const validateSufficientBalance1 = async (amount1: CurrencyAmount<any>) => {
+    return await validateSufficientBalance(amount1);
+  }
+
+  const validateSufficientBalance = async (amount: CurrencyAmount<any>) => {
+    const amountMax = ethers.utils.parseUnits(amount.toExact(), amount.currency.decimals);
+    const tokenContract = new ethers.Contract(
+      amount.currency.address,
+      erc20Abi,
+      signer
+    );
+    const balanceOfToken = await tokenContract.balanceOf(address);
+    return isGraterThanEquals(balanceOfToken, amountMax);
+  }
+
+  const validateSufficientAllowance = async (amount: CurrencyAmount<any>) => {
+    const amountMax = ethers.utils.parseUnits(amount.toExact(), amount.currency.decimals);
+    const tokenContract = new ethers.Contract(
+      amount.currency.address,
+      erc20Abi,
+      signer
+    );
+    const balanceOfToken = await tokenContract.balanceOf(address);
+    return isGraterThanEquals(balanceOfToken, amountMax);
+  }
+
+  const approveToken0 = async (amount: string) => {
+
+  }
+
+  const _approveToken = async (amount: CurrencyAmount<any>) => {
+    try {
+      const tokenAddress = amount.currency.address;
+      console.log(`Approving token ${tokenAddress}...`);
+      const address = await signer.getAddress();
+      const allowanceTransfer = new ethers.Contract(
+        PERMIT_2_ADDRESS,
+        AllowanceTransferAbi,
+        signer
+      );
+      const [permitAllowance, expiration] = await allowanceTransfer.allowance(
+        address, tokenAddress, PoolModifyLiquidityTestAddress
+      );
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        MockERC20Abi,
+        signer
+      );
+      const decimals = await tokenContract.decimals();
+      const amountIn = ethers.utils.parseUnits(amount, decimals);
+      if (amountIn.isZero()) {
+        console.log("Amount is zero. skipping approval...");
+        return;
+      }
+      let approvalToastId;
+      const currentUnixTime = Math.ceil(new Date().getTime()/1000);
+      // return permitAllowance < amountIn || expiration < currentUnixTime;
+      if (permitAllowance < amountIn || expiration < currentUnixTime) {
+        console.log(`approval on permit2`);
+        approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
+        await writeContract({
+          address: PERMIT_2_ADDRESS,
+          abi: AllowanceTransferAbi,
+          functionName: "approve",
+          args: [
+            tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, Math.ceil(new Date().getTime()/1000) + 7200
+          ],
+        });
+        toast.dismiss(approvalToastId);
+      }
+      const allowance = await tokenContract.allowance(
+        address,
+        PERMIT_2_ADDRESS
+      );
+      if (allowance < amountIn) {
+        console.log(`approval on token for permit2`);
+        await writeContract({
+          address: tokenAddress as `0x${string}`,
+          abi: MockERC20Abi,
+          functionName: "approve",
+          args: [
+            PERMIT_2_ADDRESS, MAX_UINT160
+          ],
+        });
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
   const addLiquidity = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string) => {
     setLoading(true);
     let unlockToastId;
@@ -199,6 +293,7 @@ const V4UseLP = (
         setLoading(false);
         return;
       }
+      console.log(`Adding liquidity with amounts: ${amount0.toExact()} ${tokenA.symbol} and ${amount1.toExact()} ${tokenB.symbol}`);
       await approveToken(tokenA.address, amount0Max.toString(), signer);
       await approveToken(tokenB.address, amount1Max.toString(), signer);
       const tokenId = await loadMyPosition(signer.address, signer) || undefined;
@@ -418,7 +513,10 @@ const V4UseLP = (
       }
       let approvalToastId;
       const currentUnixTime = Math.ceil(new Date().getTime()/1000);
-      if (permitAllowance < amountIn || expiration < currentUnixTime) {
+      console.log(permitAllowance, amountIn, expiration, currentUnixTime);
+      console.log(!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()));
+      console.log(permitAllowance.toString(), amountIn.toString(), expiration < currentUnixTime);
+      if (!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()) || expiration < currentUnixTime) {
         console.log(`approval on permit2`);
         approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
         await writeContract({
@@ -426,7 +524,7 @@ const V4UseLP = (
           abi: AllowanceTransferAbi,
           functionName: "approve",
           args: [
-            tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, Math.ceil(new Date().getTime()/1000) + 7200
+            tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, currentUnixTime + 72000
           ],
         });
         toast.dismiss(approvalToastId);
@@ -435,7 +533,8 @@ const V4UseLP = (
         address,
         PERMIT_2_ADDRESS
       );
-      if (allowance < amountIn) {
+      console.log(`allowance: ${allowance.toString()}, amountIn: ${amountIn.toString()}`);
+      if (!isGraterThanEquals(allowance.toString(), amountIn.toString())) {
         console.log(`approval on token for permit2`);
         await writeContract({
           address: tokenAddress as `0x${string}`,
