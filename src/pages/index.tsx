@@ -80,7 +80,7 @@ const Home: NextPage = () => {
                             <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
                                 {isNormalMode
                                     ? 'Superior Yield. Robust Stability. Deeper Liquidity.'
-                                    : 'FUSD is an under-collateralized stablecoin issued by The Fedz - A DeFi stability mechanism designed to ensure the financial stability of under-collateralized assets.'}
+                                    : 'FUSD is an fractional-reserve stablecoin issued by The Fedz - A DeFi stability mechanism designed to ensure the financial stability of under-collateralized assets.'}
                             </p>
                             <div className="flex items-center gap-4 justify-center py-6">
                                 <PrimaryBtn onClick={() => setShowForm(true)}>
