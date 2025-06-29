@@ -4,13 +4,12 @@ import {
   STAKING_ADDR,
   FUSD_VAULT_ADDR,
   TimeSlotSystemAddress,
-  GRAPHQL_ENDPOINT,
 } from "../config/staking";
 import LpStakeABI from "../abi/LpStaking.json";
 import fusdVaultABI from "../abi/SbFUSDVault.json";
 import timeSlotABI from "../abi/TimeSlotSystem_abi.json";
 import postionManagerABI from "../abi/positionManager.json";
-import { request, gql } from "graphql-request";
+import { getLogs } from "../etherscan";
 
 export async function fetchNFTsForOwner(
   ownerAddress: string,
@@ -61,28 +60,83 @@ interface StakedNFTResponse {
   stakeds: StakedNFT[];
 }
 
+// Function to get staked data from Etherscan logs
+export const getStakedDataFromLogs = async (user: string): Promise<StakedNFT | null> => {
+  try {
+    // Get the keccak256 hash of the Staked event signature
+    const stakedEventSignature = "Staked(address,uint256,uint256)";
+    const stakedTopic0 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(stakedEventSignature));
+    
+    // Get the keccak256 hash of the Withdraw event signature
+    const withdrawEventSignature = "Withdraw(address,uint256)";
+    const withdrawTopic0 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(withdrawEventSignature));
+    
+    // Get user address as topic1 (padded to 32 bytes)
+    const userTopic = ethers.utils.hexZeroPad(user.toLowerCase(), 32);
+    
+    // Get staked events for this user
+    const stakedLogs = await getLogs({
+      address: STAKING_ADDR,
+      topic0: stakedTopic0,
+      topic1: userTopic,
+      fromBlock: 0,
+      toBlock: 'latest'
+    });
+    
+    // Get withdraw events for this user
+    const withdrawLogs = await getLogs({
+      address: STAKING_ADDR,
+      topic0: withdrawTopic0,
+      topic1: userTopic,
+      fromBlock: 0,
+      toBlock: 'latest'
+    });
+    
+    // Create a map of withdrawn NFT IDs
+    const withdrawnNFTs = new Set();
+    withdrawLogs.forEach((log: any) => {
+      // topic2 contains the nftId
+      const nftId = ethers.utils.defaultAbiCoder.decode(['uint256'], log.topic2)[0].toString();
+      withdrawnNFTs.add(nftId);
+    });
+    
+    // Find the most recent staked NFT that hasn't been withdrawn
+    let latestStakedNFT: StakedNFT | null = null;
+    let latestBlockNumber = 0;
+    
+    stakedLogs.forEach((log: any) => {
+      // topic2 contains the nftId
+      const nftId = ethers.utils.defaultAbiCoder.decode(['uint256'], log.topic2)[0].toString();
+      
+      // Check if this NFT hasn't been withdrawn
+      if (!withdrawnNFTs.has(nftId) && log.blockNumber > latestBlockNumber) {
+        latestBlockNumber = log.blockNumber;
+        latestStakedNFT = {
+          id: `${user.toLowerCase()}-${nftId}`,
+          user: user.toLowerCase(),
+          nftId: nftId,
+          nftAddress: LP_ADDR,
+          active: true
+        };
+      }
+    });
+    
+    return latestStakedNFT;
+  } catch (error) {
+    console.error("Error fetching staked data from logs:", error);
+    return null;
+  }
+};
+
 export const contractStakingData = async (user?: string) => {
   try {
-    let data: StakedNFTResponse | undefined = undefined;
+    let staked: StakedNFT | null = null;
 
     if (user) {
-      const query = gql`
-        query GetStakedData($user: String!) {
-          stakeds(first: 1, where: { user: $user, active: true }) {
-            id
-            user
-            nftId
-            nftAddress
-            active
-          }
-        }
-      `;
-      data = await request(GRAPHQL_ENDPOINT, query, {
-        user: user.toLowerCase(),
-      });
+      // Replace GraphQL query with Etherscan logs
+      staked = await getStakedDataFromLogs(user);
     }
 
-    const staked = data?.stakeds && data.stakeds.length > 0 ? data.stakeds[0] : null;
     const provider = new ethers.providers.JsonRpcProvider(
       "https://arb-mainnet.g.alchemy.com/v2/V-XZ3MOv9AXdTc6PdKJvcMcBxYMSDi3F"
     );
