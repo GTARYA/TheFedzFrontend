@@ -14,6 +14,7 @@ import stakingABI from "../abi/LpStaking.json";
 import { contractStakingData } from "../data/stake";
 import { StakedNFT } from "../data/stake";
 import { useAppKit } from '@reown/appkit/react';
+import { ethers } from "ethers";
 type Props = {};
 
 function stake({}: Props) {
@@ -113,7 +114,7 @@ function stake({}: Props) {
     if (!sbFusdBalanceData) return;
     if (Number(sbFusdBalanceData.formatted) <= 0)
       return toast.info("Low Balance");
-    await burnToken(sbFusdBalanceData?.formatted);
+    await burnToken(ethers.utils.parseUnits(sbFusdBalanceData?.formatted, 18).toString());
   };
 
   return (
