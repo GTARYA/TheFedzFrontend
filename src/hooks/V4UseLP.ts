@@ -384,8 +384,6 @@ const V4UseLP = (
         slippageTolerance,
         deadline,
       }
-      console.log({position});
-      console.log({partialRemoveOptions});
       const { calldata, value } = V4PositionManager.removeCallParameters(position, partialRemoveOptions);
       await sendTransaction({
         to: PoolModifyLiquidityTestAddress,
