@@ -379,11 +379,13 @@ const V4UseLP = (
         tickUpper,
       });
       const partialRemoveOptions: RemoveLiquidityOptions = {
-        tokenId: tokenId as any,
+        tokenId: tokenId.toString(),
         liquidityPercentage: new Percent(p, 100),
         slippageTolerance,
         deadline,
       }
+      console.log({position});
+      console.log({partialRemoveOptions});
       const { calldata, value } = V4PositionManager.removeCallParameters(position, partialRemoveOptions);
       await sendTransaction({
         to: PoolModifyLiquidityTestAddress,
