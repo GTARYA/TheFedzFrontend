@@ -16,7 +16,7 @@ interface Props {
   amount1: CurrencyAmount<any>,
   liquidity: string,
   loading: any,
-  signBatchPermit: (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>) => Promise<string>,
+  signBatchPermit: (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>) => Promise<{permitBatch: any, signature: string}>,
 }
 
 const ModifiyLiquidityDrillDownComponent = ({ 
@@ -96,6 +96,7 @@ const ModifiyLiquidityDrillDownComponent = ({
       } else if (!batchPermitStatus) {
           callbackRef.current = onClickSignBatchPermit;
       } else if (batchPermitStatus) {
+        console.log('!!@#!@#');
         callbackRef.current = () => {
           addLPS(liquidity, batchPermitStatus.permitBatch, batchPermitStatus.signature)
         }

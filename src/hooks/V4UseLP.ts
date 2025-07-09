@@ -178,73 +178,78 @@ const V4UseLP = (
       erc20Abi,
       signer
     );
-    const balanceOfToken = await tokenContract.balanceOf(address);
+    const balanceOfToken = await tokenContract.allowance(address, PERMIT_2_ADDRESS);
     return isGraterThanEquals(balanceOfToken, amountMax);
   }
 
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
     try {
       console.log(`Approving token ${tokenAddress}...`);
-      const address = await signer.getAddress();
-      const allowanceTransfer = new ethers.Contract(
-        PERMIT_2_ADDRESS,
-        AllowanceTransferAbi,
-        signer
-      );
-      const [permitAllowance, expiration] = await allowanceTransfer.allowance(
-        address, tokenAddress, PoolModifyLiquidityTestAddress
-      );
+      // const address = await signer.getAddress();
+      // const allowanceTransfer = new ethers.Contract(
+      //   PERMIT_2_ADDRESS,
+      //   AllowanceTransferAbi,
+      //   signer
+      // );
+      // const [permitAllowance, expiration] = await allowanceTransfer.allowance(
+      //   address, tokenAddress, PoolModifyLiquidityTestAddress
+      // );
+      console.log(tokenAddress, PERMIT_2_ADDRESS);
       const tokenContract = new ethers.Contract(
         tokenAddress,
         MockERC20Abi,
         signer
       );
-      const decimals = await tokenContract.decimals();
-      const amountIn = ethers.utils.parseUnits(amount, decimals);
-      if (amountIn.isZero()) {
-        console.log("Amount is zero. skipping approval...");
-        return;
-      }
-      let approvalToastId;
-      const currentUnixTime = Math.ceil(new Date().getTime()/1000);
-      console.log(permitAllowance, amountIn, expiration, currentUnixTime);
-      console.log(!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()));
-      console.log(permitAllowance.toString(), amountIn.toString(), expiration < currentUnixTime);
-      if (!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()) || expiration < currentUnixTime) {
-        console.log(`approval on permit2`);
-        approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
-        await writeContract({
-          address: PERMIT_2_ADDRESS,
-          abi: AllowanceTransferAbi,
-          functionName: "approve",
-          args: [
-            tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, currentUnixTime + 72000
-          ],
-        });
-        toast.dismiss(approvalToastId);
-      }
-      const allowance = await tokenContract.allowance(
-        address,
-        PERMIT_2_ADDRESS
-      );
-      console.log(`allowance: ${allowance.toString()}, amountIn: ${amountIn.toString()}`);
-      if (!isGraterThanEquals(allowance.toString(), amountIn.toString())) {
-        console.log(`approval on token for permit2`);
-        await writeContract({
-          address: tokenAddress as `0x${string}`,
-          abi: MockERC20Abi,
-          functionName: "approve",
-          args: [
-            PERMIT_2_ADDRESS, MAX_UINT160
-          ],
-        });
-      }
+      // const decimals = await tokenContract.decimals();
+      const tx = await tokenContract.approve(PERMIT_2_ADDRESS, MAX_UINT160);
+      return await tx.wait();
+      // return tx;
+      // const amountIn = ethers.utils.parseUnits(amount, decimals);
+      // if (amountIn.isZero()) {
+      //   console.log("Amount is zero. skipping approval...");
+      //   return;
+      // }
+      // let approvalToastId;
+      // const currentUnixTime = Math.ceil(new Date().getTime()/1000);
+      // console.log(permitAllowance, amountIn, expiration, currentUnixTime);
+      // console.log(!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()));
+      // console.log(permitAllowance.toString(), amountIn.toString(), expiration < currentUnixTime);
+      // if (!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()) || expiration < currentUnixTime) {
+      //   console.log(`approval on permit2`);
+      //   approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
+      //   await writeContract({
+      //     address: PERMIT_2_ADDRESS,
+      //     abi: AllowanceTransferAbi,
+      //     functionName: "approve",
+      //     args: [
+      //       tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, currentUnixTime + 72000
+      //     ],
+      //   });
+      //   toast.dismiss(approvalToastId);
+      // }
+      // const allowance = await tokenContract.allowance(
+      //   address,
+      //   PERMIT_2_ADDRESS
+      // );
+      // console.log(`allowance: ${allowance.toString()}, amountIn: ${amountIn.toString()}`);
+      // if (!isGraterThanEquals(allowance.toString(), amountIn.toString())) {
+      //   console.log(`approval on token for permit2`);
+      //   await writeContract({
+      //     address: tokenAddress as `0x${string}`,
+      //     abi: MockERC20Abi,
+      //     functionName: "approve",
+      //     args: [
+      //       PERMIT_2_ADDRESS, MAX_UINT160
+      //     ],
+      //   });
+      // }
     } catch (err) {
       throw err;
     }
   };
 
   const _approveToken = async (amount: CurrencyAmount<any>) => {
+    return approveToken(amount.currency.address, amount.toExact(), signer);
     try {
       const tokenAddress = amount.currency.address;
       console.log(`Approving token ${tokenAddress}...`);
@@ -304,21 +309,21 @@ const V4UseLP = (
     }
   }
 
-  const addLiquidity = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string) => {
+  const addLiquidity = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string, permitBatch?: any, signature?: string) => {
     setLoading(true);
-    let unlockToastId;
-    let approvalToastId;
-    let liquidityToastId;
-    if (await nextRoundAnnouncedNeeded(signer)) {
-      unlockToastId = toast.info("Unlocking next round...");
-      await writeContract({
-        address: TimeSlotSystemAddress,
-        abi: TimeSlotSystemAbi,
-        functionName: 'unlockRound',
-        args: []
-      });
-      toast.dismiss(unlockToastId);
-    }
+    // let unlockToastId;
+    // let approvalToastId;
+    // let liquidityToastId;
+    // if (await nextRoundAnnouncedNeeded(signer)) {
+    //   unlockToastId = toast.info("Unlocking next round...");
+    //   await writeContract({
+    //     address: TimeSlotSystemAddress,
+    //     abi: TimeSlotSystemAbi,
+    //     functionName: 'unlockRound',
+    //     args: []
+    //   });
+    //   toast.dismiss(unlockToastId);
+    // }
     try {
       const pool = await loadPool();
       const position = new Position({
@@ -327,34 +332,34 @@ const V4UseLP = (
         tickLower,
         tickUpper,
       });
-      const amount0Max = ethers.utils.parseUnits(amount0.toExact(), amount0.currency.decimals);
-      const amount1Max = ethers.utils.parseUnits(amount1.toExact(), amount1.currency.decimals);
-      const tokenAContract = new ethers.Contract(
-        tokenA.address,
-        erc20Abi,
-        signer
-      );
-      const balanceOfTokenA = await tokenAContract.balanceOf(address);
-      const tokenBContract = new ethers.Contract(
-        tokenB.address,
-        erc20Abi,
-        signer
-      );
-      const balanceOfTokenB = await tokenBContract.balanceOf(address);
-      if (isGraterThanEquals(amount0Max, balanceOfTokenA)) {
-          toast.error("Insufficient balance A");
-          setLoading(false);
-          return;
-      }
-      if (isGraterThanEquals(amount1Max, balanceOfTokenB)) {
-        toast.error("Insufficient balance B");
-        setLoading(false);
-        return;
-      }
-      console.log(`Adding liquidity with amounts: ${amount0.toExact()} ${tokenA.symbol} and ${amount1.toExact()} ${tokenB.symbol}`);
-      await approveToken(tokenA.address, amount0Max.toString(), signer);
-      await approveToken(tokenB.address, amount1Max.toString(), signer);
-      const tokenId = await loadMyPosition(signer.address, signer) || undefined;
+      // const amount0Max = ethers.utils.parseUnits(amount0.toExact(), amount0.currency.decimals);
+      // const amount1Max = ethers.utils.parseUnits(amount1.toExact(), amount1.currency.decimals);
+      // const tokenAContract = new ethers.Contract(
+      //   tokenA.address,
+      //   erc20Abi,
+      //   signer
+      // );
+      // const balanceOfTokenA = await tokenAContract.balanceOf(address);
+      // const tokenBContract = new ethers.Contract(
+      //   tokenB.address,
+      //   erc20Abi,
+      //   signer
+      // );
+      // const balanceOfTokenB = await tokenBContract.balanceOf(address);
+      // if (isGraterThanEquals(amount0Max, balanceOfTokenA)) {
+      //     toast.error("Insufficient balance A");
+      //     setLoading(false);
+      //     return;
+      // }
+      // if (isGraterThanEquals(amount1Max, balanceOfTokenB)) {
+      //   toast.error("Insufficient balance B");
+      //   setLoading(false);
+      //   return;
+      // }
+      // console.log(`Adding liquidity with amounts: ${amount0.toExact()} ${tokenA.symbol} and ${amount1.toExact()} ${tokenB.symbol}`);
+      // await approveToken(tokenA.address, amount0Max.toString(), signer);
+      // await approveToken(tokenB.address, amount1Max.toString(), signer);
+      const tokenId = (await loadMyPosition(signer.address, signer))?.toString() || undefined;
       const callParametersOptions: any = { slippageTolerance, deadline: Math.ceil(new Date().getTime()/1000) + 7200 };
       if (tokenId) {
         callParametersOptions.tokenId = tokenId;
@@ -362,19 +367,50 @@ const V4UseLP = (
         callParametersOptions.recipient = address;
       }
       const { calldata, value } = V4PositionManager.addCallParameters(position, callParametersOptions);
-      await sendTransaction({
-        to: PoolModifyLiquidityTestAddress,
-        data: calldata as `0x${string}`,
-        value: BigInt(value),
-      });
-      toast.success("Liquidity Added Successfully");
+      const poolManagerContract = new ethers.Contract(
+        PoolModifyLiquidityTestAddress,
+        PoolModifiyLiquidityAbi,
+        signer
+      );
+      
+      let tx;
+      if (permitBatch && signature) {
+        // Use permit batch for gasless approval with multicall
+        console.log("Using permit batch for liquidity addition with multicall");
+        
+        // Create the multicall data array
+        const multicallData = [
+          // Permit batch call
+          poolManagerContract.interface.encodeFunctionData("permitBatch", [
+            address, // owner
+            permitBatch, // permit batch data
+            signature // signature
+          ]),
+          // Add liquidity call
+          calldata
+        ];
+        
+        tx = await poolManagerContract.multicall(multicallData, { value, gasLimit: 1_500_000 });
+      } else {
+        // Use regular approval with modifyLiquidities
+        console.log("Using regular approval for liquidity addition");
+        tx = await poolManagerContract.modifyLiquidities(calldata, Math.ceil(new Date().getTime()/1000) + 7200);
+      }
+      await tx.wait();
+
+      // await sendTransaction({
+      //   to: PoolModifyLiquidityTestAddress,
+      //   data: calldata as `0x${string}`,
+      //   value: BigInt(value),
+      // });
+      // toast.success("Liquidity Added Successfully");
     } catch (error) {
       console.error("Error adding liquidity:", error);
       toast.error("Failed to add liquidity.");
       throw error;
     } finally {
-      if (approvalToastId) toast.dismiss(approvalToastId);
-      if (liquidityToastId) toast.dismiss(liquidityToastId);
+      // if (approvalToastId) toast.dismiss(approvalToastId);
+      // if (liquidityToastId) toast.dismiss(liquidityToastId);
       setLoading(false);
     }
   };
@@ -443,11 +479,12 @@ const V4UseLP = (
         deadline,
       }
       const { calldata, value } = V4PositionManager.removeCallParameters(position, partialRemoveOptions);
-      await sendTransaction({
-        to: PoolModifyLiquidityTestAddress,
-        data: calldata as `0x${string}`,
-        value: BigInt(value),
-      });
+      const poolManagerContract = new ethers.Contract(
+        PoolModifyLiquidityTestAddress,
+        PoolModifiyLiquidityAbi,
+        signer
+      );
+      await poolManagerContract.modifyLiquidities(calldata, deadline);
     } catch(e: any) {
       throw e;
     } finally {
@@ -607,33 +644,78 @@ const V4UseLP = (
     }
   };
 
-  const signBatchPermit = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>): Promise<string> => {
+  const signBatchPermit = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>): Promise<{permitBatch: any, signature: string}> => {
     try {
-      // This is a placeholder implementation - you'll need to implement the actual permit signing logic
-      // based on your specific requirements for batch permits
       console.log("Signing batch permit for amounts:", amount0.toExact(), amount1.toExact());
       
-      // For now, return a mock signature - replace with actual implementation
+      const currentTime = Math.ceil(new Date().getTime()/1000);
+      const deadline = currentTime + 600; // 10 minutes from now
+      
+      // Get current nonces for both tokens
+      const allowanceTransfer = new ethers.Contract(
+        PERMIT_2_ADDRESS,
+        AllowanceTransferAbi,
+        signer
+      );
+      
+      const [nonce0] = await allowanceTransfer.allowance(address, amount0.currency.address, PoolModifyLiquidityTestAddress);
+      const [nonce1] = await allowanceTransfer.allowance(address, amount1.currency.address, PoolModifyLiquidityTestAddress);
+      console.log({
+        nonce0,
+        nonce1
+      })
       const permitBatch = {
         details: [
           {
             token: amount0.currency.address,
-            amount: amount0.toExact(),
-            expiration: Math.ceil(new Date().getTime()/1000) + 7200,
-            nonce: Math.floor(Math.random() * 1000000)
+            amount: MAX_UINT160,
+            expiration: deadline,
+            nonce: nonce0.toString()
           },
           {
             token: amount1.currency.address,
-            amount: amount1.toExact(),
-            expiration: Math.ceil(new Date().getTime()/1000) + 7200,
-            nonce: Math.floor(Math.random() * 1000000)
+            amount: MAX_UINT160,
+            expiration: deadline,
+            nonce: nonce1.toString()
           }
+        ],
+        spender: PoolModifyLiquidityTestAddress,
+        sigDeadline: deadline
+      };
+      
+      // EIP-712 domain
+      const domain = {
+        name: 'Permit2',
+        chainId: chainId,
+        verifyingContract: PERMIT_2_ADDRESS
+      };
+      
+      // EIP-712 types
+      const types = {
+        PermitBatch: [
+          { name: 'details', type: 'PermitDetails[]' },
+          { name: 'spender', type: 'address' },
+          { name: 'sigDeadline', type: 'uint256' }
+        ],
+        PermitDetails: [
+          { name: 'token', type: 'address' },
+          { name: 'amount', type: 'uint160' },
+          { name: 'expiration', type: 'uint48' },
+          { name: 'nonce', type: 'uint48' }
         ]
       };
       
-      const signature = "0x" + "0".repeat(130); // Mock signature
+      // EIP-712 message
+      const message = {
+        details: permitBatch.details,
+        spender: permitBatch.spender,
+        sigDeadline: permitBatch.sigDeadline
+      };
       
-      return JSON.stringify({ permitBatch, signature });
+      // Sign the typed data
+      const signature = await signer._signTypedData(domain, types, message);
+      
+      return { permitBatch, signature };
     } catch (error) {
       console.error("Error signing batch permit:", error);
       throw error;

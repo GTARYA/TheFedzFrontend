@@ -18,28 +18,18 @@ import {
   MockFUSDAddress,
   MockUSDTAddress,
   PoolModifyLiquidityTestAddress,
-  TimeSlotSystemAddress,
 } from "../contractAddressArbitrum";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
-import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import { getPoolId } from "../misc/v4helpers";
-import MockERC721Abi from "../abi/MockERC721_abi.json";
-import { MockERC721Address } from "../contractAddress";
-import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
-import PoolKeyHashDisplay from "./PoolKeyHash";
 import LiquidityChart from "./LiquidityChart";
-import RoundInfos from "./RoundInfos";
 import Container from "./Container";
 import Title from "./ui/Title";
-import ActionWindows from "./ActionWindows";
 import { ChainId, USDT_ADDR, FUSD_ADDR, chainId } from "../config";
 import TokenInput from "./swap/TokenInput";
 import BalanceDisplay from "./swap/BalanceDisplay";
 import useLP from "../hooks/V4UseLP";
-import { NFT_ADDR } from "../config";
 import { toast } from "sonner";
 import { CurrencyAmount, Token } from "@uniswap/sdk-core";
-import { set } from "mongoose";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLiquidityEventsFromSubgraph } from "../data/fetchSubgraph";
 import LiquidityEventRow from "./Lp/LiquidityEventRow";
@@ -881,7 +871,7 @@ const V4LiquidityComponent = () => {
               approveTokenOnPermit2={approveTokenOnPermit2}
               addLPS={async (liquidity: string, permitBatch?: any, sig?: string) => {
                 try {
-                  await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2]);
+                  await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2], permitBatch, sig);
                   fetchBalancesAndPrint();
                   setShowDrillDown(false);
                   toast.success("Liquidity added successfully!");
