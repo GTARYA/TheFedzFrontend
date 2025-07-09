@@ -12,7 +12,6 @@ import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
-import MockERC721Abi from "../abi/MockERC721_abi.json";
 import JSBI from 'jsbi';
 import { web3Provider } from "../utils/provider";
 import {
@@ -50,15 +49,6 @@ const V4UseLP = (
 ) => {
 
   const {address} = useAccount();
-  const account = useAccount();
-  const {
-    data: writeData,
-    error: writeError,
-    isPending: isPending,
-    writeContractAsync: writeContract,
-  } = useWriteContract();
-  const { sendTransactionAsync: sendTransaction } = useSendTransaction()
-
   const loadPool = async () => {
     const stateViewContract = new ethers.Contract(
       '0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990',
@@ -100,11 +90,6 @@ const V4UseLP = (
       tickUpper,
       useFullPrecision: false
     });
-    console.log(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed());
-    console.log({nextPosition});
-    console.log(nextPosition.amount0.numerator);
-    console.log(nextPosition.amount0.denominator);
-    // console.log(new B);
     onAmount0QuoteChange && onAmount0QuoteChange(nextPosition.amount0 as CurrencyAmount<any>, nextPosition.amount1 as CurrencyAmount<any>, nextPosition.liquidity.toString());
   }
   const updateAmount1 = async (amountB: string) => {
@@ -118,8 +103,6 @@ const V4UseLP = (
       tickLower,
       tickUpper,
     });
-    console.log(nextPosition.amount0.toFixed(), nextPosition.amount1.toFixed());
-    console.log({nextPosition});
     onAmount1QuoteChange && onAmount1QuoteChange(nextPosition.amount0 as CurrencyAmount<any>, nextPosition.amount1 as CurrencyAmount<any>, nextPosition.liquidity.toString());
   }
   const [loading, setLoading] = useState(false);
@@ -152,14 +135,6 @@ const V4UseLP = (
     }
   };
 
-  const validateSufficientBalance0 = async (amount0: CurrencyAmount<any>) => {
-    return await validateSufficientBalance(amount0);
-  }
-
-  const validateSufficientBalance1 = async (amount1: CurrencyAmount<any>) => {
-    return await validateSufficientBalance(amount1);
-  }
-
   const validateSufficientBalance = async (amount: CurrencyAmount<any>) => {
     const amountMax = ethers.utils.parseUnits(amount.toExact(), amount.currency.decimals);
     const tokenContract = new ethers.Contract(
@@ -185,64 +160,13 @@ const V4UseLP = (
   const approveToken = async (tokenAddress: string, amount: string, signer: any) => {
     try {
       console.log(`Approving token ${tokenAddress}...`);
-      // const address = await signer.getAddress();
-      // const allowanceTransfer = new ethers.Contract(
-      //   PERMIT_2_ADDRESS,
-      //   AllowanceTransferAbi,
-      //   signer
-      // );
-      // const [permitAllowance, expiration] = await allowanceTransfer.allowance(
-      //   address, tokenAddress, PoolModifyLiquidityTestAddress
-      // );
-      console.log(tokenAddress, PERMIT_2_ADDRESS);
       const tokenContract = new ethers.Contract(
         tokenAddress,
         MockERC20Abi,
         signer
       );
-      // const decimals = await tokenContract.decimals();
       const tx = await tokenContract.approve(PERMIT_2_ADDRESS, MAX_UINT160);
       return await tx.wait();
-      // return tx;
-      // const amountIn = ethers.utils.parseUnits(amount, decimals);
-      // if (amountIn.isZero()) {
-      //   console.log("Amount is zero. skipping approval...");
-      //   return;
-      // }
-      // let approvalToastId;
-      // const currentUnixTime = Math.ceil(new Date().getTime()/1000);
-      // console.log(permitAllowance, amountIn, expiration, currentUnixTime);
-      // console.log(!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()));
-      // console.log(permitAllowance.toString(), amountIn.toString(), expiration < currentUnixTime);
-      // if (!isGraterThanEquals(permitAllowance.toString(), amountIn.toString()) || expiration < currentUnixTime) {
-      //   console.log(`approval on permit2`);
-      //   approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
-      //   await writeContract({
-      //     address: PERMIT_2_ADDRESS,
-      //     abi: AllowanceTransferAbi,
-      //     functionName: "approve",
-      //     args: [
-      //       tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, currentUnixTime + 72000
-      //     ],
-      //   });
-      //   toast.dismiss(approvalToastId);
-      // }
-      // const allowance = await tokenContract.allowance(
-      //   address,
-      //   PERMIT_2_ADDRESS
-      // );
-      // console.log(`allowance: ${allowance.toString()}, amountIn: ${amountIn.toString()}`);
-      // if (!isGraterThanEquals(allowance.toString(), amountIn.toString())) {
-      //   console.log(`approval on token for permit2`);
-      //   await writeContract({
-      //     address: tokenAddress as `0x${string}`,
-      //     abi: MockERC20Abi,
-      //     functionName: "approve",
-      //     args: [
-      //       PERMIT_2_ADDRESS, MAX_UINT160
-      //     ],
-      //   });
-      // }
     } catch (err) {
       throw err;
     }
@@ -250,80 +174,10 @@ const V4UseLP = (
 
   const _approveToken = async (amount: CurrencyAmount<any>) => {
     return approveToken(amount.currency.address, amount.toExact(), signer);
-    try {
-      const tokenAddress = amount.currency.address;
-      console.log(`Approving token ${tokenAddress}...`);
-      const address = await signer.getAddress();
-      const allowanceTransfer = new ethers.Contract(
-        PERMIT_2_ADDRESS,
-        AllowanceTransferAbi,
-        signer
-      );
-      const [permitAllowance, expiration] = await allowanceTransfer.allowance(
-        address, tokenAddress, PoolModifyLiquidityTestAddress
-      );
-      const tokenContract = new ethers.Contract(
-        tokenAddress,
-        MockERC20Abi,
-        signer
-      );
-      const decimals = await tokenContract.decimals();
-      const amountIn = ethers.utils.parseUnits(amount, decimals);
-      if (amountIn.isZero()) {
-        console.log("Amount is zero. skipping approval...");
-        return;
-      }
-      let approvalToastId;
-      const currentUnixTime = Math.ceil(new Date().getTime()/1000);
-      // return permitAllowance < amountIn || expiration < currentUnixTime;
-      if (permitAllowance < amountIn || expiration < currentUnixTime) {
-        console.log(`approval on permit2`);
-        approvalToastId = toast.loading(`Approving Token ${tokenA.name}`);
-        await writeContract({
-          address: PERMIT_2_ADDRESS,
-          abi: AllowanceTransferAbi,
-          functionName: "approve",
-          args: [
-            tokenAddress, PoolModifyLiquidityTestAddress, MAX_UINT160, Math.ceil(new Date().getTime()/1000) + 7200
-          ],
-        });
-        toast.dismiss(approvalToastId);
-      }
-      const allowance = await tokenContract.allowance(
-        address,
-        PERMIT_2_ADDRESS
-      );
-      if (allowance < amountIn) {
-        console.log(`approval on token for permit2`);
-        await writeContract({
-          address: tokenAddress as `0x${string}`,
-          abi: MockERC20Abi,
-          functionName: "approve",
-          args: [
-            PERMIT_2_ADDRESS, MAX_UINT160
-          ],
-        });
-      }
-    } catch (err) {
-      throw err;
-    }
   }
 
   const addLiquidity = async (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>, liquidity: string, permitBatch?: any, signature?: string) => {
     setLoading(true);
-    // let unlockToastId;
-    // let approvalToastId;
-    // let liquidityToastId;
-    // if (await nextRoundAnnouncedNeeded(signer)) {
-    //   unlockToastId = toast.info("Unlocking next round...");
-    //   await writeContract({
-    //     address: TimeSlotSystemAddress,
-    //     abi: TimeSlotSystemAbi,
-    //     functionName: 'unlockRound',
-    //     args: []
-    //   });
-    //   toast.dismiss(unlockToastId);
-    // }
     try {
       const pool = await loadPool();
       const position = new Position({
@@ -332,33 +186,6 @@ const V4UseLP = (
         tickLower,
         tickUpper,
       });
-      // const amount0Max = ethers.utils.parseUnits(amount0.toExact(), amount0.currency.decimals);
-      // const amount1Max = ethers.utils.parseUnits(amount1.toExact(), amount1.currency.decimals);
-      // const tokenAContract = new ethers.Contract(
-      //   tokenA.address,
-      //   erc20Abi,
-      //   signer
-      // );
-      // const balanceOfTokenA = await tokenAContract.balanceOf(address);
-      // const tokenBContract = new ethers.Contract(
-      //   tokenB.address,
-      //   erc20Abi,
-      //   signer
-      // );
-      // const balanceOfTokenB = await tokenBContract.balanceOf(address);
-      // if (isGraterThanEquals(amount0Max, balanceOfTokenA)) {
-      //     toast.error("Insufficient balance A");
-      //     setLoading(false);
-      //     return;
-      // }
-      // if (isGraterThanEquals(amount1Max, balanceOfTokenB)) {
-      //   toast.error("Insufficient balance B");
-      //   setLoading(false);
-      //   return;
-      // }
-      // console.log(`Adding liquidity with amounts: ${amount0.toExact()} ${tokenA.symbol} and ${amount1.toExact()} ${tokenB.symbol}`);
-      // await approveToken(tokenA.address, amount0Max.toString(), signer);
-      // await approveToken(tokenB.address, amount1Max.toString(), signer);
       const tokenId = (await loadMyPosition(signer.address, signer))?.toString() || undefined;
       const callParametersOptions: any = { slippageTolerance, deadline: Math.ceil(new Date().getTime()/1000) + 7200 };
       if (tokenId) {
@@ -397,20 +224,11 @@ const V4UseLP = (
         tx = await poolManagerContract.modifyLiquidities(calldata, Math.ceil(new Date().getTime()/1000) + 7200);
       }
       await tx.wait();
-
-      // await sendTransaction({
-      //   to: PoolModifyLiquidityTestAddress,
-      //   data: calldata as `0x${string}`,
-      //   value: BigInt(value),
-      // });
-      // toast.success("Liquidity Added Successfully");
     } catch (error) {
       console.error("Error adding liquidity:", error);
       toast.error("Failed to add liquidity.");
       throw error;
     } finally {
-      // if (approvalToastId) toast.dismiss(approvalToastId);
-      // if (liquidityToastId) toast.dismiss(liquidityToastId);
       setLoading(false);
     }
   };
@@ -425,25 +243,17 @@ const V4UseLP = (
       console.log(`Burning position ${tokenId}...`);
       const actions = '0x0311';
       const params: any[] = [];
-      params.push(ethers.utils.defaultAbiCoder.encode(["uint256", "uint24", "uint24", "bytes"], [tokenId, 0, 0, "0x"]));
-      params.push(ethers.utils.defaultAbiCoder.encode(["address", "address", "address"], [token0.address, token1.address, address]));
       const callbackData = ethers.utils.defaultAbiCoder.encode(["bytes", "bytes[]"], [actions, params]);
-      await writeContract({
-        address: PoolModifyLiquidityTestAddress,
-        abi: MockERC721Abi,
-        functionName: "approve",
-        args: [
-          '0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32', tokenId
-        ],
-      });
-      await writeContract({
-        address: PoolModifyLiquidityTestAddress,
-        abi: PoolModifiyLiquidityAbi,
-        functionName: "modifyLiquidities",
-        args: [
-          callbackData, Math.ceil(new Date().getTime()/1000) + 7200
-        ],
-      });
+      const poolManagerContract = new ethers.Contract(
+        PoolModifyLiquidityTestAddress,
+        PoolModifiyLiquidityAbi,
+        signer
+      );
+      const approveTx = await poolManagerContract.approve('0x360E68faCcca8cA495c1B7759Fd9EEe466db9FB32', tokenId);
+      await approveTx.wait();
+      const tx = await poolManagerContract.modifyLiquidities(tokenId);
+      await tx.wait();
+
       setLiquidityInfo(undefined);
     } catch(e: any) {
       throw e;
@@ -595,12 +405,13 @@ const V4UseLP = (
 
   const unlockRound = async (): Promise<void> => {
     try {
-      await writeContract({
-        address: TimeSlotSystemAddress,
-        abi: TimeSlotSystemAbi,
-        functionName: 'unlockRound',
-        args: []
-      });
+      const timeSlotSystemContract = new ethers.Contract(
+        TimeSlotSystemAddress,
+        TimeSlotSystemAbi,
+        signer
+      );
+      const tx = await timeSlotSystemContract.unlockRound();
+      await tx.wait();
     } catch (error) {
       console.error("Error unlocking round:", error);
       throw error;
@@ -623,24 +434,6 @@ const V4UseLP = (
     } catch (error) {
       console.error("Error validating permit2 allowance:", error);
       return false;
-    }
-  };
-
-  const approveTokenOnPermit2 = async (amount: CurrencyAmount<any>): Promise<void> => {
-    try {
-      const amountMax = ethers.utils.parseUnits(amount.toExact(), amount.currency.decimals);
-      const currentUnixTime = Math.ceil(new Date().getTime()/1000);
-      await writeContract({
-        address: PERMIT_2_ADDRESS,
-        abi: AllowanceTransferAbi,
-        functionName: "approve",
-        args: [
-          amount.currency.address, PoolModifyLiquidityTestAddress, MAX_UINT160, currentUnixTime + 72000
-        ],
-      });
-    } catch (error) {
-      console.error("Error approving token on permit2:", error);
-      throw error;
     }
   };
 
@@ -739,7 +532,7 @@ const V4UseLP = (
     validateSufficientAllowance,
     validateSufficientAllowanceOnPermit2,
     approveToken: _approveToken,
-    approveTokenOnPermit2,
+    // approveTokenOnPermit2,
     signBatchPermit
   };
 };

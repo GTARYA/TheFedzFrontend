@@ -9,7 +9,6 @@ interface Props {
   validateSufficientAllowance: (amount: CurrencyAmount<any>) => Promise<boolean>,
   validateSufficientAllowanceOnPermit2: (amount: CurrencyAmount<any>) => Promise<boolean>,
   approveToken: (amount: CurrencyAmount<any>) => Promise<void>,
-  approveTokenOnPermit2: (amount: CurrencyAmount<any>) => Promise<void>,
   addLPS: (liquidity: string, permitBatch?: any, sig?: string) => Promise<void>,
   onDone: () => void,
   amount0: CurrencyAmount<any>,

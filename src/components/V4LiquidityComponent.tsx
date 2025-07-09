@@ -183,7 +183,6 @@ const V4LiquidityComponent = () => {
     validateSufficientAllowance,
     validateSufficientAllowanceOnPermit2,
     approveToken,
-    approveTokenOnPermit2,
     signBatchPermit,
   } = useLP(
     activeChainId,
@@ -868,7 +867,6 @@ const V4LiquidityComponent = () => {
               validateSufficientAllowance={validateSufficientAllowance}
               validateSufficientAllowanceOnPermit2={validateSufficientAllowanceOnPermit2}
               approveToken={approveToken}
-              approveTokenOnPermit2={approveTokenOnPermit2}
               addLPS={async (liquidity: string, permitBatch?: any, sig?: string) => {
                 try {
                   await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2], permitBatch, sig);
