@@ -50,7 +50,7 @@ const V4SwapComponent = () => {
   const activeChainId = useChainId();
   const [mount, setMount] = useState(false);
   const [poolKeyHash] = useState(poolId);
-  const [amount, setAmount] = useState("0.01");
+  const [amount, setAmount] = useState("1");
   const [token0] = useState(MockFUSDAddress);
   const [token1] = useState(MockUSDTAddress);
   const [v4Token0] = useState<Token>(
@@ -72,7 +72,7 @@ const V4SwapComponent = () => {
     console.log(exeuteSwapQuoteCallback);
   }, [exeuteSwapQuoteCallback]);
   const { address }: { address: `0x${string}` } = useAccount() as any;
-  const { loading, quote, quoteLoading, test, updateAmountIn, progressModal } =
+  const { loading, quote, quoteLoading, updateAmountIn, progressModal } =
     V4UseSwap(activeChainId, amount, signer, v4Token0, v4Token1);
   const [tokenABalance, setTokenABalance] = useState<string>("-");
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
@@ -138,7 +138,6 @@ const V4SwapComponent = () => {
 
   const arbSwap = async () => {
     if (!address) return;
-    test();
     if (exeuteSwapQuoteCallback) {
       await exeuteSwapQuoteCallback(signer);
     } else {
@@ -237,7 +236,8 @@ const V4SwapComponent = () => {
                   ]}
                 />
               </div>
-              <div className="pt-6 ">
+              {/* for testing */}
+              <div className="pt-6 hidden ">
                 <button
                   disabled={quoteLoading || loading}
                   onClick={() => {
@@ -260,7 +260,7 @@ const V4SwapComponent = () => {
                   )}
                 </button>
               </div>
-              <div className="pt-6 hidden">
+              <div className="pt-6  ">
                 {address ? (
                   mount && isNFTHolderState && isPlayerTurnState ? (
                     <button

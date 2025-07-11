@@ -128,9 +128,7 @@ const V4UseSwap = (
     setSwapStatus("idle");
   };
 
-  const test = () => {
-    console.log("sasas");
-  };
+
 
   const updateAmountIn = async (
     amount: string,
@@ -354,7 +352,6 @@ const V4UseSwap = (
     quoteLoading,
     updateAmountIn,
     updateAmountOut,
-    test,
     progressModal: {
       open: modalOpen,
       setOpen: setModalOpen,

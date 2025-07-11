@@ -7,11 +7,18 @@ import {
   ArrowPathIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Minus, ArrowUpDown, ArrowLeftRight } from "lucide-react";
+import {
+  Minus,
+  ArrowUpDown,
+  ArrowLeftRight,
+  LoaderCircle,
+  CircleCheckBig,
+  CircleX,
+} from "lucide-react";
+
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { Token } from "@uniswap/sdk-core";
-type StepStatus = "idle" | "loading" | "done" | "error";
-
+import { StepStatus } from "../../type";
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -29,17 +36,17 @@ interface Props {
   };
   swap: () => void;
   RESET_MODAL: () => void;
-  swapLoading:boolean
+  swapLoading: boolean;
 }
 
 const getStatusIcon = (status: StepStatus) => {
   switch (status) {
     case "loading":
-      return <ArrowPathIcon className="w-5 h-5 animate-spin text-blue-500" />;
+      return <LoaderCircle className="w-5 h-5 animate-spin text-blue-500" />;
     case "done":
-      return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
+      return <CircleCheckBig className="w-5 h-5 text-green-500" />;
     case "error":
-      return <XCircleIcon className="w-5 h-5 text-red-500" />;
+      return <CircleX className="w-5 h-5 text-[#ff0000]" />;
     default:
       return null;
   }
@@ -55,7 +62,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ amount, token }) => {
     <div className="mx-auto space-y-5 z-1 relative border-[1px] border-white/10 bg-white/5  w-full text-center rounded-2xl py-5">
       <img
         className="w-[35px] md:w-[50px] mx-auto pointer-events-none rounded-full"
-        src={"/token/0xdac17f958d2ee523a2206206994597c13d831ec7.webp"}
+        src={`/token/${token.address}.png`}
         alt={token.symbol || ""}
       />
       <div className="space-y-2">
@@ -77,7 +84,7 @@ export default function ProgressModal({
   permitStatus,
   RESET_MODAL,
   swap,
-  swapLoading
+  swapLoading,
 }: Props) {
   const isFinished = approvalStatus === "done" && swapStatus === "done";
   const isError = approvalStatus === "error" || swapStatus === "error";
@@ -166,9 +173,7 @@ export default function ProgressModal({
                       }`}
                     >
                       <img
-                        src={
-                          "/token/0xdac17f958d2ee523a2206206994597c13d831ec7.webp"
-                        }
+                        src={`/token/${inputToken.token.address}.png`}
                         className="w-[30px]"
                       />
 
@@ -178,7 +183,7 @@ export default function ProgressModal({
                       </div>
                     </div>
                     <div>
-                      <Minus className="rotate-90 w-[30px] text-white/40  text-right flex-end  mt-[10px]" />
+                      <Minus className="rotate-90 w-[30px] text-white/20  text-right flex-end  mt-[10px]" />
                     </div>
                   </div>
 
@@ -189,9 +194,7 @@ export default function ProgressModal({
                       }`}
                     >
                       <img
-                        src={
-                          "/token/0xdac17f958d2ee523a2206206994597c13d831ec7.webp"
-                        }
+                        src={`/token/${inputToken.token.address}.png`}
                         className="w-[30px]"
                       />
                       <div className="flex flex-row items-center gap-2 ">
@@ -200,7 +203,7 @@ export default function ProgressModal({
                       </div>
                     </div>
                     <div>
-                      <Minus className="rotate-90 text-white/40 w-[30px] text-right flex-end  mt-[10px]" />
+                      <Minus className="rotate-90 text-white/20 w-[30px] text-right flex-end  mt-[10px]" />
                     </div>
                   </div>
 
@@ -209,12 +212,12 @@ export default function ProgressModal({
                       isInactive(swapStatus) ? "opacity-40" : ""
                     }`}
                   >
-                    <div className="border-[1px] border-white/5 bg-white/5  aspect-square rounded-full w-8 flex justify-center items-center">
+                    <div className="border-[1px] border-white/5 bg-white/15  aspect-square rounded-full w-8 flex justify-center items-center">
                       <ArrowUpDown className="w-4 text-white/50 " />
                     </div>
 
                     <div className="flex flex-row items-center gap-2 ">
-                      <span> Executing swap</span> {getStatusIcon(swapStatus)}
+                      <span> Executing Swap</span> {getStatusIcon(swapStatus)}
                     </div>
                   </div>
                 </div>
