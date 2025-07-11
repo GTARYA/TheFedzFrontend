@@ -4,6 +4,7 @@ export interface TokenInfo {
     decimals: number;
   }
 
+export type StepStatus = 'idle' | 'loading' | 'done' | 'error';
 
   export interface TurnOrderEntry {
     name: string;

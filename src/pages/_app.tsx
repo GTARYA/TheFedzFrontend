@@ -8,7 +8,6 @@ import Head from 'next/head';
 import { Toaster } from 'react-hot-toast';
 import Web3provider from '../context/web3Provider';
 import { headers } from 'next/headers';
-import { Toaster as SonnarToaster } from 'sonner';
 import { ModeProvider } from '../context/modeProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -38,7 +37,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                             rel="stylesheet"
                         />
                     </Head>
-                    <Component {...pageProps} />
+                    <Component {...pageProps} suppressHydrationWarning />
                 </Web3provider>
             </ModeProvider>
         </div>

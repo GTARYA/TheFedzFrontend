@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAccount, useBalance, useReadContract, useChainId } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { useEthersSigner } from "../hooks/useEthersSigner";
@@ -6,13 +6,14 @@ import ScaleLoader from "react-spinners/ScaleLoader";
 import { useAppKit } from "@reown/appkit/react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSwapsFromSubgraph } from "../data/fetchSubgraph";
-
+import ProgressModal from "./Modal/ProgressModal";
+import { toast } from "sonner";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/20/solid";
-
+import { useDebounce } from "../hooks/useDebounce";
 import {
   PoolSwapTestAddress,
   MockFUSDAddress,
@@ -49,7 +50,7 @@ const V4SwapComponent = () => {
   const activeChainId = useChainId();
   const [mount, setMount] = useState(false);
   const [poolKeyHash] = useState(poolId);
-  const [amount, setAmount] = useState("1");
+  const [amount, setAmount] = useState("0.01");
   const [token0] = useState(MockFUSDAddress);
   const [token1] = useState(MockUSDTAddress);
   const [v4Token0] = useState<Token>(
@@ -61,16 +62,18 @@ const V4SwapComponent = () => {
   const [tokenIn, setTokenIn] = useState<Token>(v4Token0);
   const [tokenOut, setTokenOut] = useState<Token>(v4Token1);
   const signer = useEthersSigner();
+  const executeSwapRef = useRef<() => Promise<void>>();
+
   const [exeuteSwapQuoteCallback, setExecuteSwapQuoteCallback] =
     useState<Function>(() => {});
+  const debouncedAmount = useDebounce(amount);
+
+  useEffect(() => {
+    console.log(exeuteSwapQuoteCallback);
+  }, [exeuteSwapQuoteCallback]);
   const { address }: { address: `0x${string}` } = useAccount() as any;
-  const { loading, quote, quoteLoading, updateAmountIn } = V4UseSwap(
-    activeChainId,
-    amount,
-    signer,
-    v4Token0,
-    v4Token1
-  );
+  const { loading, quote, quoteLoading, test, updateAmountIn, progressModal } =
+    V4UseSwap(activeChainId, amount, signer, v4Token0, v4Token1);
   const [tokenABalance, setTokenABalance] = useState<string>("-");
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
@@ -93,8 +96,6 @@ const V4SwapComponent = () => {
 
   const paginatedEvents = swapEvent?.slice(page * limit, page * limit + limit);
   const totalPages = Math.ceil((swapEvent ? swapEvent?.length : 0) / limit);
-
-  
 
   useEffect(() => {
     if (!mount && signer && address) {
@@ -128,7 +129,7 @@ const V4SwapComponent = () => {
       fetchBalancesAndPrint();
     }
     onAmountChange();
-  }, [tokenOut, tokenIn]);
+  }, [tokenOut, tokenIn, signer]);
 
   const handleToggleTokens = () => {
     setTokenIn(tokenOut);
@@ -136,24 +137,31 @@ const V4SwapComponent = () => {
   };
 
   const arbSwap = async () => {
-    exeuteSwapQuoteCallback();
+    if (!address) return;
+    test();
+    if (exeuteSwapQuoteCallback) {
+      await exeuteSwapQuoteCallback(signer);
+    } else {
+      toast.error("Swap is not ready. Please enter a valid amount.");
+    }
   };
 
-  async function onAmountChange() {
+  const onAmountChange = async () => {
     const cb = await updateAmountIn(amount, tokenIn.address === token0, signer);
     setExecuteSwapQuoteCallback(() => cb);
-  }
+  };
 
   useEffect(() => {
-    if (amount) {
-      if (autofillTimeout) {
-        clearTimeout(autofillTimeout);
-      }
-      autofillTimeout = setTimeout(() => {
-        onAmountChange();
-      }, 700);
+    if (signer) {
+      onAmountChange();
     }
-  }, [amount]);
+  }, [signer]);
+
+  useEffect(() => {
+    if (debouncedAmount && parseFloat(debouncedAmount) > 0) {
+      onAmountChange();
+    }
+  }, [debouncedAmount]);
 
   const connetButton = () => {
     open({ view: "Account" });
@@ -229,7 +237,30 @@ const V4SwapComponent = () => {
                   ]}
                 />
               </div>
-              <div className="pt-6">
+              <div className="pt-6 ">
+                <button
+                  disabled={quoteLoading || loading}
+                  onClick={() => {
+                    progressModal.RESET_MODAL();
+                    progressModal.setOpen(true);
+                  }}
+                  className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                >
+                  {quoteLoading || loading ? (
+                    <ScaleLoader
+                      height={20}
+                      loading={true}
+                      color="#ffffff"
+                      className="text-white"
+                      aria-label="Loading Spinner"
+                      data-testid="loader"
+                    />
+                  ) : (
+                    "Swap"
+                  )}
+                </button>
+              </div>
+              <div className="pt-6 hidden">
                 {address ? (
                   mount && isNFTHolderState && isPlayerTurnState ? (
                     <button
@@ -308,6 +339,18 @@ const V4SwapComponent = () => {
               </div>
             </div>
           </div>
+          <ProgressModal
+            open={progressModal.open}
+            approvalStatus={progressModal.approvalStatus}
+            swapStatus={progressModal.swapStatus}
+            inputToken={progressModal.inputToken}
+            outputToken={progressModal.outputToken}
+            onClose={() => progressModal.setOpen(false)}
+            permitStatus={progressModal.permitStatus}
+            swap={arbSwap}
+            RESET_MODAL={progressModal.RESET_MODAL}
+            swapLoading={loading}
+          />
         </Container>
 
         <img
