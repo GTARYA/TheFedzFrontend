@@ -32,11 +32,14 @@ const PlayersTable: React.FC = () => {
   const [mount, setMount] = useState(false);
   const [allNfts, setAllNfts] = useState<NFT[]>([]);
   const [slotDuration, setSlotDuration] = useState("1h");
+  const [roundNumber, setRoundNumber] = useState(0);
 
   const [nfts, setNFTs] = useState<any>([]);
   const fetchNFTs = async () => {
     const data: any = await getLatestEventForTurn();
+
     if (data) {
+      setRoundNumber(data.roundNumber + 3);
       setNFTs(data.turnOrder);
     }
   };
@@ -154,6 +157,17 @@ const PlayersTable: React.FC = () => {
                     </p>
                     <h3 className="text-base md:text-xl font-bold">
                       {slotDuration}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="w-full text-sm md:text-xl text-primary">
+                  <div className="px-14 py-4">
+                    <p className="text-sm md:text-lg font-normal text-primary mb-2">
+                      Current Round
+                    </p>
+                    <h3 className="text-base md:text-xl font-bold">
+                      {roundNumber}
                     </h3>
                   </div>
                 </div>

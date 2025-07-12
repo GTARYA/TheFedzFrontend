@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { fetchNFTsForOwner } from "../data/stake";
-import Footer from '../components/Footer';
+import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { InfoLine } from "../components/stake/InfoLine";
 import { BorderBeam } from "../components/ui/BorderBeam";
@@ -13,8 +13,10 @@ import { FUSD_TOKEN_ADDR, SBFUSD_ADDR, STAKING_ADDR } from "../config/staking";
 import stakingABI from "../abi/LpStaking.json";
 import { contractStakingData } from "../data/stake";
 import { StakedNFT } from "../data/stake";
-import { useAppKit } from '@reown/appkit/react';
+import { useAppKit } from "@reown/appkit/react";
 import { ethers } from "ethers";
+import ScaleLoader from "react-spinners/ScaleLoader";
+import StakingProgressModal from "../components/Modal/StakingProgressModal";
 type Props = {};
 
 function stake({}: Props) {
@@ -23,7 +25,18 @@ function stake({}: Props) {
   const signer = useEthersSigner();
   const [nftData, setNftData] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
-  const { loading, burnToken, stake, withdraw } = useStake(signer);
+  const {
+    loadingBurn,
+    loadingStake,
+    loadingWithdraw,
+    burnToken,
+    stake,
+    isStakeModalOpen,
+    setStakeModalOpen,
+    withdraw,
+    stakingStatus,
+    approvalStatus,
+  } = useStake(signer);
   const [stakingData, setStakingData] = useState<{
     rewards: string;
     apr: string;
@@ -89,7 +102,7 @@ function stake({}: Props) {
   }, [address]);
 
   const handleStake = async () => {
-    if(!address) return open();
+    if (!address) return open();
     if (!nftData) return toast.info("You don't have LP token");
     await stake(nftData.tokenId);
     await UpdateData();
@@ -97,6 +110,12 @@ function stake({}: Props) {
     setTimeout(async () => {
       await UpdateData();
     }, 10000 / 2); //
+  };
+
+  const handleOpenStake = () => {
+    if (!address) return open();
+    if (!nftData) return toast.info("You don't have LP token");
+    setStakeModalOpen(true);
   };
 
   const handleWithdraw = async () => {
@@ -114,7 +133,9 @@ function stake({}: Props) {
     if (!sbFusdBalanceData) return;
     if (Number(sbFusdBalanceData.formatted) <= 0)
       return toast.info("Low Balance");
-    await burnToken(ethers.utils.parseUnits(sbFusdBalanceData?.formatted, 18).toString());
+    await burnToken(
+      ethers.utils.parseUnits(sbFusdBalanceData?.formatted, 18).toString()
+    );
   };
 
   return (
@@ -122,6 +143,14 @@ function stake({}: Props) {
       <Navbar />
 
       <main className="md:mt-14 mt-10 min-h-screen relative z-[10] p-6">
+        <StakingProgressModal
+          open={isStakeModalOpen}
+          onConfirm={handleStake}
+          stakeLoading={loadingStake}
+          approvalStatus={approvalStatus}
+          stakingStatus={stakingStatus}
+          onClose={() => setStakeModalOpen(false)}
+        />
         <div className="md:max-w-xl mx-auto border-[#ffffff17] border rounded-2xl relative ">
           <BorderBeam
             duration={8}
@@ -193,13 +222,28 @@ function stake({}: Props) {
 
           <div className=" mx-auto gap-4 items-center p-5 md:p-7 ">
             <button
-              disabled={loading || stakingData.apr == "0"}
+              disabled={
+                loadingStake || loadingWithdraw || stakingData.apr == "0"
+              }
               onClick={() => {
-                stakingData.staked ? handleWithdraw() : handleStake();
+                stakingData.staked ? handleWithdraw() : handleOpenStake();
               }}
               className="bg-lightblue w-full  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
             >
-              {stakingData.staked ? "Withdraw" : "Stake"}
+              {loadingStake || loadingWithdraw || stakingData.apr == "0" ? (
+                <ScaleLoader
+                  height={20}
+                  loading={true}
+                  color="#ffffff"
+                  className="text-white"
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              ) : stakingData.staked ? (
+                "Withdraw"
+              ) : (
+                "Stake"
+              )}
             </button>
           </div>
         </div>
@@ -233,11 +277,22 @@ function stake({}: Props) {
           </div>
           <div className="p-5 md:p-7">
             <button
-              disabled={loading}
+              disabled={loadingBurn}
               onClick={() => redeem()}
               className="bg-lightblue w-full   text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
             >
-              Print FUSD
+              {loadingBurn ? (
+                <ScaleLoader
+                  height={20}
+                  loading={true}
+                  color="#ffffff"
+                  className="text-white"
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              ) : (
+                "Print FUSD"
+              )}
             </button>
           </div>
         </div>
