@@ -76,6 +76,7 @@ const useStake = (signer: any) => {
       toast.dismiss(stakeToastID);
       toast.success("NFT staked successfully!");
       setStakingStatus("done");
+      setStakeModalOpen(false);
     } catch (error: any) {
       console.error("Staking error:", error);
       if (stakeToastID) toast.dismiss(stakeToastID);
