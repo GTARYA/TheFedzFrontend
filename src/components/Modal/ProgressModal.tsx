@@ -228,6 +228,7 @@ export default function ProgressModal({
                   <button
                     className="mt-6 btn btn-primary w-full rounded-2xl  transition-transform duration-200 "
                     onClick={swap}
+                    disabled={swapLoading}
                   >
                     {swapLoading ? (
                       <ScaleLoader

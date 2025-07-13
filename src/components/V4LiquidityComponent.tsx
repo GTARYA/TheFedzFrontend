@@ -352,7 +352,7 @@ const V4LiquidityComponent = () => {
                   {/* Token A Input */}
                   <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
                     <BalanceDisplay
-                      label="Input Token"
+                      label="Token A"
                       balance={tokenABalance}
                     />
                     <TokenInput
@@ -383,7 +383,7 @@ const V4LiquidityComponent = () => {
                   {/* Token B Output */}
                   <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
                     <BalanceDisplay
-                      label="Output Token"
+                      label="Token B"
                       balance={tokenBBalance}
                     />
                     <TokenInput

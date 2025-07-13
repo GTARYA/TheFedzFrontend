@@ -176,7 +176,7 @@ const V4SwapComponent = () => {
             <div className="">
               {/* Token A Input */}
               <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                <BalanceDisplay label="Token A" balance={tokenABalance} />
+                <BalanceDisplay label="Input Token" balance={tokenABalance} />
                 <TokenInput
                   amount={amount}
                   setAmount={setAmount}
@@ -218,7 +218,7 @@ const V4SwapComponent = () => {
 
               {/* Token B Output */}
               <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                <BalanceDisplay label="Token B" balance={tokenBBalance} />
+                <BalanceDisplay label="Output Token" balance={tokenBBalance} />
                 <TokenInput
                   amount={
                     quoteLoading

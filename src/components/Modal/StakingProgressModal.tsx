@@ -127,6 +127,7 @@ export default function StakingProgressModal({
                   <button
                     className=" btn btn-primary w-full rounded-2xl  transition-transform duration-200 "
                     onClick={onConfirm}
+                    disabled={stakeLoading}
                   >
                     {stakeLoading ? (
                       <ScaleLoader
