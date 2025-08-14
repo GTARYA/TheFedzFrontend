@@ -11,6 +11,8 @@ import {nearestUsableTick, encodeSqrtRatioX96, TickMath } from "@uniswap/v3-sdk"
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
+import { AllowanceProvider, PERMIT2_ADDRESS } from '@uniswap/permit2-sdk'
+
 import PoolModifiyLiquidityAbi from "../abi/PoolModifyLiquidityTest_abi.json";
 import JSBI from 'jsbi';
 import { web3Provider } from "../utils/provider";
@@ -396,6 +398,7 @@ const V4UseLP = (
   // Functions for ModifyLiquidityDrillDown
   const validateRoundUnlock = async (): Promise<boolean> => {
     try {
+      return true;
       return !(await nextRoundAnnouncedNeeded(signer));
     } catch (error) {
       console.error("Error validating round unlock:", error);
@@ -451,12 +454,9 @@ const V4UseLP = (
         signer
       );
       
-      const [nonce0] = await allowanceTransfer.allowance(address, amount0.currency.address, PoolModifyLiquidityTestAddress);
-      const [nonce1] = await allowanceTransfer.allowance(address, amount1.currency.address, PoolModifyLiquidityTestAddress);
-      console.log({
-        nonce0,
-        nonce1
-      })
+      const allowanceProvider = new AllowanceProvider(signer, PERMIT_2_ADDRESS);
+      const nonce0 = await allowanceProvider.getNonce(address as `0x${string}`, amount0.currency.address, PoolModifyLiquidityTestAddress);
+      const nonce1 = await allowanceProvider.getNonce(address as string, amount0.currency.address, PoolModifyLiquidityTestAddress);
       const permitBatch = {
         details: [
           {
@@ -504,10 +504,8 @@ const V4UseLP = (
         spender: permitBatch.spender,
         sigDeadline: permitBatch.sigDeadline
       };
-      
       // Sign the typed data
       const signature = await signer._signTypedData(domain, types, message);
-      
       return { permitBatch, signature };
     } catch (error) {
       console.error("Error signing batch permit:", error);
