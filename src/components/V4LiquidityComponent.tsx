@@ -43,7 +43,7 @@ import { balanceOf } from "../hooks/erc20";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 import { LiquidityEvent } from "../type";
 import { BigNumber } from "ethers";
-import ModifiyLiquidityDrillDown from "./ModifiyLiquidityDrillDown";
+import LiquidityProgressModal from "./Modal/LiquidityProgressModal";
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
@@ -845,48 +845,35 @@ const V4LiquidityComponent = () => {
       {/* <ActionWindows /> */}
       <Rounds poolKeyHash={poolKeyHash ?? ""} />
       
-      {/* ModifyLiquidityDrillDown Modal */}
+      {/* LiquidityProgressModal */}
       {showDrillDown && quoteFromLp && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-[#212121] p-6 rounded-lg w-[90%] sm:w-[600px] max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-center text-xl text-white">
-                Add Liquidity
-              </h2>
-              <button
-                onClick={() => setShowDrillDown(false)}
-                className="text-white hover:text-gray-300"
-              >
-                ✕
-              </button>
-            </div>
-            <ModifiyLiquidityDrillDown
-              validateRoundUnlock={validateRoundUnlock}
-              unlockRound={unlockRound}
-              validateSufficientBalance={validateSufficientBalance}
-              validateSufficientAllowance={validateSufficientAllowance}
-              validateSufficientAllowanceOnPermit2={validateSufficientAllowanceOnPermit2}
-              approveToken={approveToken}
-              addLPS={async (liquidity: string, permitBatch?: any, sig?: string) => {
-                try {
-                  await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2], permitBatch, sig);
-                  fetchBalancesAndPrint();
-                  setShowDrillDown(false);
-                  toast.success("Liquidity added successfully!");
-                } catch (error) {
-                  console.error("Error adding liquidity:", error);
-                  toast.error("Failed to add liquidity");
-                }
-              }}
-              onDone={() => setShowDrillDown(false)}
-              amount0={quoteFromLp[0]}
-              amount1={quoteFromLp[1]}
-              liquidity={quoteFromLp[2]}
-              loading={loading}
-              signBatchPermit={signBatchPermit}
-            />
-          </div>
-        </div>
+        <LiquidityProgressModal
+          open={showDrillDown}
+          onClose={() => setShowDrillDown(false)}
+          amount0={quoteFromLp[0]}
+          amount1={quoteFromLp[1]}
+          liquidity={quoteFromLp[2]}
+          loading={loading}
+          validateRoundUnlock={validateRoundUnlock}
+          unlockRound={unlockRound}
+          validateSufficientBalance={validateSufficientBalance}
+          validateSufficientAllowance={validateSufficientAllowance}
+          validateSufficientAllowanceOnPermit2={validateSufficientAllowanceOnPermit2}
+          approveToken={approveToken}
+          signBatchPermit={signBatchPermit}
+          addLPS={async (liquidity: string, permitBatch?: any, sig?: string) => {
+            try {
+              await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2], permitBatch, sig);
+              fetchBalancesAndPrint();
+              setShowDrillDown(false);
+              toast.success("Liquidity added successfully!");
+            } catch (error) {
+              console.error("Error adding liquidity:", error);
+              toast.error("Failed to add liquidity");
+            }
+          }}
+          onDone={() => setShowDrillDown(false)}
+        />
       )}
       
       {/* <section className="relative py-[50px] md:py-[75px]">
