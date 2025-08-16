@@ -237,7 +237,7 @@ const V4SwapComponent = () => {
                 />
               </div>
               {/* for testing */}
-              <div className="pt-6 hidden ">
+              <div className="pt-6  ">
                 <button
                   disabled={quoteLoading || loading}
                   onClick={() => {
@@ -260,7 +260,7 @@ const V4SwapComponent = () => {
                   )}
                 </button>
               </div>
-              <div className="pt-6  ">
+              <div className="pt-6 hidden ">
                 {address ? (
                   mount && isNFTHolderState && isPlayerTurnState ? (
                     <button
