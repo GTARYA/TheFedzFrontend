@@ -455,8 +455,8 @@ const V4UseLP = (
       );
       
       const allowanceProvider = new AllowanceProvider(signer, PERMIT_2_ADDRESS);
-      const nonce0 = await allowanceProvider.getNonce(address as `0x${string}`, amount0.currency.address, PoolModifyLiquidityTestAddress);
-      const nonce1 = await allowanceProvider.getNonce(address as string, amount0.currency.address, PoolModifyLiquidityTestAddress);
+      const nonce0 = 1 + await allowanceProvider.getNonce(address as `0x${string}`, amount0.currency.address, PoolModifyLiquidityTestAddress);
+      const nonce1 = 1 + await allowanceProvider.getNonce(address as string, amount0.currency.address, PoolModifyLiquidityTestAddress);
       const permitBatch = {
         details: [
           {
@@ -475,7 +475,7 @@ const V4UseLP = (
         spender: PoolModifyLiquidityTestAddress,
         sigDeadline: deadline
       };
-      
+
       // EIP-712 domain
       const domain = {
         name: 'Permit2',
