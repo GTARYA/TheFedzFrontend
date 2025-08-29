@@ -5,7 +5,11 @@ export interface TokenInfo {
   }
 
 export type StepStatus = 'idle' | 'loading' | 'done' | 'error';
-
+export type PositionInfo = {
+  owner: string;
+  tokenId: number;
+  liquidity: number;
+};
   export interface TurnOrderEntry {
     name: string;
     tokenId: number;

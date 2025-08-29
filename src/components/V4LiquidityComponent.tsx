@@ -33,6 +33,7 @@ import { CurrencyAmount, Token } from "@uniswap/sdk-core";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLiquidityEventsFromSubgraph } from "../data/fetchSubgraph";
 import LiquidityEventRow from "./Lp/LiquidityEventRow";
+import LiquidityBox from "./Lp/LiquidityBox";
 import {
   encodeSqrtRatioX96,
   nearestUsableTick,
@@ -44,6 +45,7 @@ import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 import { LiquidityEvent } from "../type";
 import { BigNumber } from "ethers";
 import LiquidityProgressModal from "./Modal/LiquidityProgressModal";
+import { fetchPlayerPositions } from "../hooks/fedz";
 const TICK_SPACING = 10;
 const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
@@ -61,7 +63,9 @@ const V4LiquidityComponent = () => {
 
   const activeChainId = useChainId();
   const signer = useEthersSigner();
-  const { address }: { address: `0x${string}` } = useAccount() as any;
+   const { address }: { address: `0x${string}` } = useAccount() as any;
+  //for testing..
+  //const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
   const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
@@ -72,7 +76,8 @@ const V4LiquidityComponent = () => {
   const [tickLower, setTickLower] = useState<number>(tickLowerNum);
   const [tickUpper, setTickUpper] = useState<number>(tickUpperNum);
 
-  const [quoteFromLp, setQuote] = useState<[CurrencyAmount<any>, CurrencyAmount<any>, string]>();
+  const [quoteFromLp, setQuote] =
+    useState<[CurrencyAmount<any>, CurrencyAmount<any>, string]>();
   const [amount0, setAmount0] = useState<string>();
   const [amount1, setAmount1] = useState<string>();
   const [amount0Quote, setAmount0Quote] = useState<string>();
@@ -92,7 +97,6 @@ const V4LiquidityComponent = () => {
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
   const [tickError, setTickError] = useState<string | null>(null);
 
-  const [showModal, setShowModal] = useState(false);
   const [percentToRemove, setPercentToRemove] = useState("");
   const [tokenABalance, setTokenABalance] = useState<string>("-");
   const [tokenBBalance, setTokenBBalance] = useState<string>("-");
@@ -117,6 +121,19 @@ const V4LiquidityComponent = () => {
   const totalPages = Math.ceil((lpEvent ? lpEvent?.length : 0) / limit);
 
   const nftbalance = 1;
+
+  const {
+    data: positions,
+    isLoading: isPositionLoading,
+    isError: isPositionError,
+    error: positionError,
+    isFetching: isPositionFetching,
+    refetch: refetchPositions,
+  } = useQuery({
+    queryKey: ["playerPositions", address],
+    queryFn: () => fetchPlayerPositions(address),
+    enabled: !!address, // only fetch if address exists
+  });
 
   useEffect(() => {
     if (!mount && signer && address) {
@@ -172,7 +189,6 @@ const V4LiquidityComponent = () => {
     quote,
     quoteLoading,
     addLiquidity: addLPS,
-    liquidityInfo,
     removeLiquidity,
     removeLiquidityloading,
     updateAmount0,
@@ -225,13 +241,6 @@ const V4LiquidityComponent = () => {
     }
   };
 
-  const handleRemoveLiquidity = () => {
-    // Handle the removal logic here, passing the percentToRemove
-    console.log(`Removing ${percentToRemove}% of liquidity`);
-    // Close the modal after handling
-    setShowModal(false);
-    removeLiquidity(Number(percentToRemove));
-  };
 
   useEffect(() => {
     if (tickLower > tickUpper) {
@@ -351,10 +360,7 @@ const V4LiquidityComponent = () => {
                 <div className="space-y-10">
                   {/* Token A Input */}
                   <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                    <BalanceDisplay
-                      label="Token A"
-                      balance={tokenABalance}
-                    />
+                    <BalanceDisplay label="Token A" balance={tokenABalance} />
                     <TokenInput
                       amount={amount0}
                       setAmount={setAmount0}
@@ -382,10 +388,7 @@ const V4LiquidityComponent = () => {
 
                   {/* Token B Output */}
                   <div className="p-5 rounded-2xl border-white/20 border-[1px] text-primary">
-                    <BalanceDisplay
-                      label="Token B"
-                      balance={tokenBBalance}
-                    />
+                    <BalanceDisplay label="Token B" balance={tokenBBalance} />
                     <TokenInput
                       amount={amount1}
                       setAmount={setAmount1} // Disable changing amount for output token
@@ -489,122 +492,48 @@ const V4LiquidityComponent = () => {
                 </div>
               </div>
 
-              {showModal && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                  <div className="bg-[#212121] p-6 rounded-lg w-[90%] sm:w-[400px] ">
-                    <h2 className="text-center text-xl mb-4 text-white">
-                      Enter percentage to remove
-                    </h2>
-                    <div className="relative  flex mx-auto w-fit items-center gap-1 ">
-                      <input
-                        type="text"
-                        placeholder="0.0"
-                        value={`${percentToRemove}`}
-                        onChange={(e) => {
-                          const re = /^[0-9]*\.?[0-9]*$/;
-                          if (re.test(e.target.value)) {
-                            setPercentToRemove(e.target.value);
-                          }
-                        }}
-                        className=" flex-1 !bg-transparent text-4xl  text-center outline-none py-6 text-white font-bold overflow-hidden w-[60px]"
-                        min="0"
-                        max="100"
+              <div className="pt-6 space-y-6 mt-12">
+                <div>
+                  <div className="text-3xl font-medium text-white text-center mb-8">
+                    My positions
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  {isPositionLoading && (
+                    <p className="text-center text-gray-400">
+                      ⏳ Loading positions...
+                    </p>
+                  )}
+
+                  {isPositionError && (
+                    <p className="text-center text-red-400">
+                      ❌ {(positionError as Error).message}
+                    </p>
+                  )}
+
+                  {!isPositionLoading &&
+                    !isPositionError &&
+                    positions?.length === 0 && (
+                      <p className="text-center text-gray-400">
+                        ⚠️ No positions found
+                      </p>
+                    )}
+
+                  {!isPositionLoading &&
+                    !isPositionError &&
+                    positions &&
+                    positions.map((pos, index) => (
+                      <LiquidityBox
+                        key={index}
+                        data={pos}
+                        updateData={refetchPositions}
+                        removeLiquidity={removeLiquidity}
+                        removeLiquidityloading={removeLiquidityloading}
                       />
-                      <span className="text-4xl text-center text-white flex-1 font-bold">
-                        %
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-3 justify-between mb-6">
-                      <button
-                        onClick={() => setPercentToRemove("25")}
-                        className="text-white border-white/20 border-[1px] hover:scale-105 py-1 px-4 rounded-3xl"
-                      >
-                        25%
-                      </button>
-                      <button
-                        onClick={() => setPercentToRemove("50")}
-                        className="text-white border-white/20 border-[1px] hover:scale-105 py-1 px-4 rounded-3xl"
-                      >
-                        50%
-                      </button>
-                      <button
-                        onClick={() => setPercentToRemove("75")}
-                        className="text-white border-white/20 border-[1px] hover:scale-105 py-1 px-4 rounded-3xl"
-                      >
-                        75%
-                      </button>
-                      <button
-                        onClick={() => setPercentToRemove("100")}
-                        className="text-white border-white/20 border-[1px] hover:scale-105 py-1 px-4 rounded-3xl"
-                      >
-                        Max
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 mt-4">
-                      <button
-                        onClick={() => setShowModal(false)}
-                        className=" text-white border-white/20 border-[1px] py-2 px-4 rounded-lg"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleRemoveLiquidity}
-                        className="btn-primary btn text-white py-2 px-4 rounded-lg"
-                      >
-                        Confirm
-                      </button>
-                    </div>
-                  </div>
+                    ))}
                 </div>
-              )}
-
-              {liquidityInfo && (
-                <div className=" max-w-[620px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8 text-white">
-                  <div className="mx-auto text-center text-2xl mb-6">
-                    Your positions #{liquidityInfo?.tokenId}
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="">Your total pool tokens:</span>
-                      <span>{liquidityInfo?.totalTokens}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Deposited mFUSD:</span>
-                      <span>{liquidityInfo?.amount0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Deposited mUSDT:</span>
-                      <span>{liquidityInfo?.amount1}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Share of pool:</span>
-                      <span>{liquidityInfo?.userShare}%</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-6">
-                    <button
-                      disabled={removeLiquidityloading}
-                      onClick={() => setShowModal(true)}
-                      className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
-                    >
-                      {removeLiquidityloading ? (
-                        <ScaleLoader
-                          height={20}
-                          loading={removeLiquidityloading}
-                          color="#ffffff"
-                          className="text-white"
-                          aria-label="Loading Spinner"
-                          data-testid="loader"
-                        />
-                      ) : (
-                        "       Remove liquidity  "
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </Container>
 
@@ -844,7 +773,7 @@ const V4LiquidityComponent = () => {
 
       {/* <ActionWindows /> */}
       <Rounds poolKeyHash={poolKeyHash ?? ""} />
-      
+
       {/* LiquidityProgressModal */}
       {showDrillDown && quoteFromLp && (
         <LiquidityProgressModal
@@ -858,12 +787,24 @@ const V4LiquidityComponent = () => {
           unlockRound={unlockRound}
           validateSufficientBalance={validateSufficientBalance}
           validateSufficientAllowance={validateSufficientAllowance}
-          validateSufficientAllowanceOnPermit2={validateSufficientAllowanceOnPermit2}
+          validateSufficientAllowanceOnPermit2={
+            validateSufficientAllowanceOnPermit2
+          }
           approveToken={approveToken}
           signBatchPermit={signBatchPermit}
-          addLPS={async (liquidity: string, permitBatch?: any, sig?: string) => {
+          addLPS={async (
+            liquidity: string,
+            permitBatch?: any,
+            sig?: string
+          ) => {
             try {
-              await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2], permitBatch, sig);
+              await addLPS(
+                quoteFromLp[0],
+                quoteFromLp[1],
+                quoteFromLp[2],
+                permitBatch,
+                sig
+              );
               fetchBalancesAndPrint();
               setShowDrillDown(false);
               toast.success("Liquidity added successfully!");
@@ -875,7 +816,7 @@ const V4LiquidityComponent = () => {
           onDone={() => setShowDrillDown(false)}
         />
       )}
-      
+
       {/* <section className="relative py-[50px] md:py-[75px]">
         <Container className="relative z-[5]">
           <Title>Rounds</Title>

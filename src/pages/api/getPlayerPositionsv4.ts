@@ -74,7 +74,7 @@ export default async function handler(
 
     const filteredPositions = positionsWithInfo.filter(Boolean);
 
-    return res.status(200).json({ positions: filteredPositions });
+    return res.status(200).json({ data: filteredPositions,status:true});
   } catch (error: any) {
     console.error("GraphQL error:", error.message);
     return res.status(500).json({ error: "Internal Server Error" });

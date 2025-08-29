@@ -6,7 +6,7 @@ import ScaleLoader from "react-spinners/ScaleLoader";
 import { useAppKit } from "@reown/appkit/react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSwapsFromSubgraph } from "../data/fetchSubgraph";
-import ProgressModal from "./Modal/ProgressModal";
+import ProgressModal from "./Modal/SwapProgressModal";
 import { toast } from "sonner";
 import {
   ChevronDownIcon,
