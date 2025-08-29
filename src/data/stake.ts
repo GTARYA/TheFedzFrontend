@@ -1,16 +1,18 @@
 import { ethers } from "ethers";
+import axios from "axios";
 import {
   LP_ADDR,
   STAKING_ADDR,
   FUSD_VAULT_ADDR,
   TimeSlotSystemAddress,
+  GRAPHQL_ENDPOINT
 } from "../config/staking";
 import LpStakeABI from "../abi/LpStaking.json";
 import fusdVaultABI from "../abi/SbFUSDVault.json";
 import timeSlotABI from "../abi/TimeSlotSystem_abi.json";
 import postionManagerABI from "../abi/positionManager.json";
 import { getLogs } from "../etherscan";
-
+import { PositionInfo } from "../type";
 export async function fetchNFTsForOwner(
   ownerAddress: string,
   contractAddress = "0xd88f38f930b7952f2db2432cb002e7abbf3dd869"
@@ -127,6 +129,18 @@ export const getStakedDataFromLogs = async (user: string): Promise<StakedNFT | n
     return null;
   }
 };
+
+export async function fetchPlayerStakedNFTs(
+  player: string
+): Promise<PositionInfo[]> {
+  const response = await axios.get(`/api/getStakedNFTs?user=${player}`);
+  const data = response.data?.data;
+
+  if (!Array.isArray(data)) return [];
+
+  return data;
+}
+
 
 export const contractStakingData = async (user?: string) => {
   try {

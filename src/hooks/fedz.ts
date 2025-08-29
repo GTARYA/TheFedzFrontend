@@ -261,7 +261,7 @@ export async function getPositionIdByPlayer(player: string) {
 export async function fetchPlayerPositions(
   player: string
 ): Promise<PositionInfo[]> {
-  const response = await axios.get(`/api/getPlayerPositionsv4?owner=${player}`);
+  const response = await axios.get(`/api/getPlayerPositionsv4?user=${player}`);
   const data = response.data?.data;
 
   if (!Array.isArray(data)) return [];

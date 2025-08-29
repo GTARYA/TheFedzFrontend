@@ -23,15 +23,15 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    const { owner } = req.query;
+    const { user } = req.query;
 
-    if (!owner) {
+    if (!user) {
       return res.status(400).json({ error: "Owner address is required" });
     }
 
     const response = await axios.post(UNISWAP_V4_SUBGRAPH_URL, {
       query: GET_POSITIONS_QUERY,
-      variables: { owner },
+      variables: { owner:user },
     });
 
     const positions = response.data.data.positions;

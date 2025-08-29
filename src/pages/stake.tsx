@@ -16,15 +16,23 @@ import { StakedNFT } from "../data/stake";
 import { useAppKit } from "@reown/appkit/react";
 import { ethers } from "ethers";
 import ScaleLoader from "react-spinners/ScaleLoader";
+import LPStakingModal from "../components/Modal/LPStakingModal";
 import StakingProgressModal from "../components/Modal/StakingProgressModal";
+import { fetchPlayerPositions } from "../hooks/fedz";
+import { fetchPlayerStakedNFTs } from "../data/stake";
 type Props = {};
 
 function stake({}: Props) {
   const { open, close } = useAppKit();
-  const { address } = useAccount();
+  const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
+  //  const { address }: { address: `0x${string}` } = useAccount() as any;
   const signer = useEthersSigner();
   const [nftData, setNftData] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
+  const [showStakeModal, setShowStakeModal] = useState(false);
+  const [selectedNFT, setSelectedNFT] = useState<number | null>(null);
+  const [isStake, setIsStake] = useState(true);
+
   const {
     loadingBurn,
     loadingStake,
@@ -51,6 +59,32 @@ function stake({}: Props) {
     redeemedByPlayerAndRound: "0",
     redeemedByRound: "0",
     staked: null,
+  });
+
+  const {
+    data: positions,
+    isLoading: isPositionLoading,
+    isError: isPositionError,
+    error: positionError,
+    isFetching: isPositionFetching,
+    refetch: refetchPositions,
+  } = useQuery({
+    queryKey: ["playerPositions", address],
+    queryFn: () => fetchPlayerPositions(address),
+    enabled: !!address,
+  });
+
+  const {
+    data: stakedNFTs,
+    isLoading: isStakedNFTsLoading,
+    isError: isStakedNFTsError,
+    error: stakedNFTsError,
+    isFetching: isStakedNFTsFetching,
+    refetch: refetchStakedNFTs,
+  } = useQuery({
+    queryKey: ["playerStakedNFTs", address],
+    queryFn: () => fetchPlayerStakedNFTs(address),
+    enabled: !!address,
   });
 
   const {
@@ -101,26 +135,32 @@ function stake({}: Props) {
     UpdateData();
   }, [address]);
 
-  const handleStake = async () => {
-    if (!address) return open();
-    if (!nftData) return toast.info("You don't have LP token");
-    await stake(nftData.tokenId);
-    await UpdateData();
 
-    setTimeout(async () => {
-      await UpdateData();
-    }, 10000 / 2); //
-  };
 
   const handleOpenStake = () => {
     if (!address) return open();
-    if (!nftData) return toast.info("You don't have LP token");
-    setStakeModalOpen(true);
+ 
+    if (!positions || positions.length <= 0)
+      return toast.info("You don't have LP token");
+    setIsStake(true);
+    setSelectedNFT(null);
+    setShowStakeModal(true); 
+  };
+    const handleOpenUnStake = () => {
+    if (!address) return open();
+    if (!stakedNFTs || stakedNFTs.length <= 0)
+      return toast.info("You haven't staked any NFT.");
+    setIsStake(false);
+    setSelectedNFT(null);
+    setShowStakeModal(true);
   };
 
+
   const handleWithdraw = async () => {
-    if (!stakingData.staked) return toast.info("You haven't staked any NFT.");
-    await withdraw(Number(stakingData?.staked?.nftId));
+    if (!stakedNFTs || stakedNFTs.length <= 0)
+      return toast.info("You haven't staked any NFT.");
+
+    await withdraw(Number(selectedNFT));
 
     await UpdateData();
 
@@ -128,6 +168,21 @@ function stake({}: Props) {
       await UpdateData();
     }, 10000 / 2); //
   };
+  const handleStake = async () => {
+    if (!address) return open();
+    if (!selectedNFT) return;
+  
+    await stake(selectedNFT.toString());
+    await UpdateData();
+    setTimeout(async () => {
+      await UpdateData();
+    }, 10000 / 2); //
+  };
+
+  const handleOpenStakeProgressModal = ()=>{
+    setStakeModalOpen(true)
+  }
+
 
   const redeem = async () => {
     if (!sbFusdBalanceData) return;
@@ -141,6 +196,17 @@ function stake({}: Props) {
   return (
     <div className="bg-[#0A0012] overflow-x-clip">
       <Navbar />
+      {positions && (
+        <LPStakingModal
+          isStake={isStake}
+          open={showStakeModal}
+          onClose={() => setShowStakeModal(false)}
+          positions={isStake ? positions || [] : stakedNFTs || []}
+          selectedNFT={selectedNFT}
+          onSelectNFT={(nft: number) => setSelectedNFT(nft)}
+          handleStakeOrUnstake={isStake ? handleOpenStakeProgressModal : handleWithdraw}
+        />
+      )}
 
       <main className="md:mt-14 mt-10 min-h-screen relative z-[10] p-6">
         <StakingProgressModal
@@ -220,13 +286,13 @@ function stake({}: Props) {
             </div>
           </div> */}
 
-          <div className=" mx-auto gap-4 items-center p-5 md:p-7 ">
+          <div className=" mx-auto gap-4 items-center p-5 md:p-7 grid grid-cols-2 ">
             <button
               disabled={
                 loadingStake || loadingWithdraw || stakingData.apr == "0"
               }
               onClick={() => {
-                stakingData.staked ? handleWithdraw() : handleOpenStake();
+               handleOpenStake()
               }}
               className="bg-lightblue w-full  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
             >
@@ -239,10 +305,29 @@ function stake({}: Props) {
                   aria-label="Loading Spinner"
                   data-testid="loader"
                 />
-              ) : stakingData.staked ? (
-                "Withdraw"
               ) : (
                 "Stake"
+              )}
+            </button>
+
+            <button
+              disabled={
+                loadingStake || loadingWithdraw || stakingData.apr == "0"
+              }
+              onClick={() => handleOpenUnStake()}
+              className="bg-lightblue w-full  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
+            >
+              {loadingStake || loadingWithdraw || stakingData.apr == "0" ? (
+                <ScaleLoader
+                  height={20}
+                  loading={true}
+                  color="#ffffff"
+                  className="text-white"
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              ) : (
+                "Withdraw"
               )}
             </button>
           </div>

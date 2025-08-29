@@ -492,7 +492,7 @@ const V4LiquidityComponent = () => {
                 </div>
               </div>
 
-              <div className="pt-6 space-y-6 mt-12">
+             {address &&  <div className="pt-6 space-y-6 mt-12">
                 <div>
                   <div className="text-3xl font-medium text-white text-center mb-8">
                     My positions
@@ -533,7 +533,7 @@ const V4LiquidityComponent = () => {
                       />
                     ))}
                 </div>
-              </div>
+              </div>}
             </div>
           </Container>
 

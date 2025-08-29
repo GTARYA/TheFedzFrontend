@@ -20,6 +20,7 @@ const useStake = (signer: any) => {
   const [approvalStatus, setApprovalStatus] = useState<StepStatus>("idle");
   const [stakingStatus, setStakingStatus] = useState<StepStatus>("idle");
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
+  
 
   const stake = async (id: string) => {
     if (!signer) {
