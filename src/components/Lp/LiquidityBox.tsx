@@ -3,11 +3,13 @@ import { calculateTokenAmounts } from "../../hooks/fedz";
 import { PositionInfo } from "../../type";
 import { formatAmount } from "../../utils/address";
 import RemoveLiquidityModal from "../Modal/RemoveLiquidityModal";
+import { toast } from "sonner";
 type Props = {
   data: PositionInfo;
   updateData: () => void;
   removeLiquidity: (tokenId: number, data: PositionInfo) => void;
   removeLiquidityloading: boolean;
+  isPlayerTurnState: boolean;
 };
 
 function LiquidityBox({
@@ -15,6 +17,7 @@ function LiquidityBox({
   updateData,
   removeLiquidity,
   removeLiquidityloading,
+  isPlayerTurnState,
 }: Props) {
   const [amountToken0, setAmountToken0] = useState("0");
   const [amountToken1, setAmountToken1] = useState("0");
@@ -34,6 +37,11 @@ function LiquidityBox({
     await removeLiquidity(tokenId, { liquidity, tokenId, owner });
     setShowModal(false);
     updateData();
+  };
+
+  const handleRemoveLiquidity = () => {
+    if (!isPlayerTurnState) return toast.info("It is not your Turn to Act!");
+    setShowModal(true);
   };
   return (
     <div className="border-[1px] relative overflow-hidden border-white/20 bg-[#131823]/65  rounded-2xl py-6  max-w-[620px] mx-auto ">
@@ -87,9 +95,9 @@ function LiquidityBox({
 
       <div className="px-6 ">
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => handleRemoveLiquidity()}
           disabled={removeLiquidityloading}
-          className="py-3 px-6  hover:scale-[1.01] transition-all  !rounded-xl bg-[#00ffe4]/65 font-medium ! outline-none text-white w-full"
+          className="py-3 px-6  hover:scale-[1.01] disabled:opacity-70 disabled:!text-white transition-all  !rounded-xl bg-[#00ffe4]/65 font-medium  outline-none text-white w-full"
         >
           Remove liquidity
         </button>

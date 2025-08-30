@@ -40,6 +40,8 @@ const PlayersTable: React.FC = () => {
 
     if (data) {
       setRoundNumber(data.roundNumber + 3);
+      console.log(data.turnOrder,"data.turnOrder");
+      
       setNFTs(data.turnOrder);
     }
   };

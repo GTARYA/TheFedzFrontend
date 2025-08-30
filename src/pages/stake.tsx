@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAccount, useBalance, useReadContracts } from "wagmi";
-import { fetchNFTsForOwner } from "../data/stake";
+import { useAccount, useBalance } from "wagmi";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { InfoLine } from "../components/stake/InfoLine";
@@ -10,28 +9,26 @@ import { useEthersSigner } from "../hooks/useEthersSigner";
 import useStake from "../hooks/useStake";
 import { toast } from "sonner";
 import { FUSD_TOKEN_ADDR, SBFUSD_ADDR, STAKING_ADDR } from "../config/staking";
-import stakingABI from "../abi/LpStaking.json";
 import { contractStakingData } from "../data/stake";
-import { StakedNFT } from "../data/stake";
 import { useAppKit } from "@reown/appkit/react";
 import { ethers } from "ethers";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import LPStakingModal from "../components/Modal/LPStakingModal";
 import StakingProgressModal from "../components/Modal/StakingProgressModal";
 import { fetchPlayerPositions } from "../hooks/fedz";
-import { fetchPlayerStakedNFTs } from "../data/stake";
+import { fetchPlayerStakedNFTs, getPredictRewards } from "../data/stake";
+
 type Props = {};
 
 function stake({}: Props) {
   const { open, close } = useAppKit();
-  const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
-  //  const { address }: { address: `0x${string}` } = useAccount() as any;
+  //const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
+  const { address }: { address: `0x${string}` } = useAccount() as any;
   const signer = useEthersSigner();
-  const [nftData, setNftData] = useState<any>(null);
-  const [isFetching, setIsFetching] = useState(false);
   const [showStakeModal, setShowStakeModal] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<number | null>(null);
   const [isStake, setIsStake] = useState(true);
+  const [predictedReward, setPredictedReward] = useState<string>("0");
 
   const {
     loadingBurn,
@@ -46,19 +43,15 @@ function stake({}: Props) {
     approvalStatus,
   } = useStake(signer);
   const [stakingData, setStakingData] = useState<{
-    rewards: string;
     apr: string;
     cap: string;
     redeemedByPlayerAndRound: string;
-    staked: StakedNFT | null;
     redeemedByRound: string;
   }>({
-    rewards: "0",
     apr: "0",
     cap: "0",
     redeemedByPlayerAndRound: "0",
     redeemedByRound: "0",
-    staked: null,
   });
 
   const {
@@ -106,47 +99,45 @@ function stake({}: Props) {
   });
 
   useEffect(() => {
-    const fetchNFTs = async () => {
-      if (!address) return;
-
-      setIsFetching(true);
+    const fetchRewards = async () => {
+      if (!stakedNFTs || stakedNFTs.length === 0) {
+        setPredictedReward("0");
+        return;
+      }
       try {
-        const data = await fetchNFTsForOwner(address);
-        setNftData(data);
+        const { totalReward } = await getPredictRewards(stakedNFTs);
+        setPredictedReward(totalReward);
       } catch (error) {
-        console.error("Error fetching NFTs:", error);
-        toast.error("Failed to fetch NFTs!");
-      } finally {
-        setIsFetching(false);
+        console.error("Error fetching predicted rewards:", error);
       }
     };
 
-    fetchNFTs();
-  }, [address]);
+    fetchRewards();
+  }, [stakedNFTs]);
 
   const UpdateData = async () => {
     const data = await contractStakingData(address);
     if (data) {
       setStakingData(data);
     }
+    refetchPositions();
+    refetchStakedNFTs();
   };
 
   useEffect(() => {
     UpdateData();
   }, [address]);
 
-
-
   const handleOpenStake = () => {
     if (!address) return open();
- 
+
     if (!positions || positions.length <= 0)
       return toast.info("You don't have LP token");
     setIsStake(true);
     setSelectedNFT(null);
-    setShowStakeModal(true); 
+    setShowStakeModal(true);
   };
-    const handleOpenUnStake = () => {
+  const handleOpenUnStake = () => {
     if (!address) return open();
     if (!stakedNFTs || stakedNFTs.length <= 0)
       return toast.info("You haven't staked any NFT.");
@@ -155,13 +146,11 @@ function stake({}: Props) {
     setShowStakeModal(true);
   };
 
-
   const handleWithdraw = async () => {
     if (!stakedNFTs || stakedNFTs.length <= 0)
       return toast.info("You haven't staked any NFT.");
 
     await withdraw(Number(selectedNFT));
-
     await UpdateData();
 
     setTimeout(async () => {
@@ -171,7 +160,7 @@ function stake({}: Props) {
   const handleStake = async () => {
     if (!address) return open();
     if (!selectedNFT) return;
-  
+
     await stake(selectedNFT.toString());
     await UpdateData();
     setTimeout(async () => {
@@ -179,10 +168,9 @@ function stake({}: Props) {
     }, 10000 / 2); //
   };
 
-  const handleOpenStakeProgressModal = ()=>{
-    setStakeModalOpen(true)
-  }
-
+  const handleOpenStakeProgressModal = () => {
+    setStakeModalOpen(true);
+  };
 
   const redeem = async () => {
     if (!sbFusdBalanceData) return;
@@ -204,7 +192,9 @@ function stake({}: Props) {
           positions={isStake ? positions || [] : stakedNFTs || []}
           selectedNFT={selectedNFT}
           onSelectNFT={(nft: number) => setSelectedNFT(nft)}
-          handleStakeOrUnstake={isStake ? handleOpenStakeProgressModal : handleWithdraw}
+          handleStakeOrUnstake={
+            isStake ? handleOpenStakeProgressModal : handleWithdraw
+          }
         />
       )}
 
@@ -247,9 +237,7 @@ function stake({}: Props) {
               text="Reward"
               load={stakingData.apr == "0"}
               value={
-                parseFloat(stakingData.rewards) < 0.01
-                  ? "<0.01"
-                  : stakingData.rewards
+                parseFloat(predictedReward) < 0.01 ? "<0.01" : predictedReward
               }
             />
 
@@ -259,11 +247,11 @@ function stake({}: Props) {
               value={stakingData.cap}
             />
 
-            {stakingData.staked && (
+            {stakedNFTs && stakedNFTs.length > 0 && (
               <InfoLine
-                text="Staked LP ID"
+                text="Staked "
                 load={stakingData.apr == "0"}
-                value={`#${stakingData.staked?.nftId}`}
+                value={stakedNFTs.length}
               />
             )}
           </div>
@@ -292,7 +280,7 @@ function stake({}: Props) {
                 loadingStake || loadingWithdraw || stakingData.apr == "0"
               }
               onClick={() => {
-               handleOpenStake()
+                handleOpenStake();
               }}
               className="bg-lightblue w-full  text-white  font-medium px-4 py-3 text-xl rounded-xl hover:bg-opacity-50"
             >

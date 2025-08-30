@@ -29,7 +29,7 @@ function LPStakingCard({
     <div
       onClick={() => onSelectNFT(Number(tokenId))}
       className={`border-[1px] cursor-pointer relative overflow-hidden border-white/20 bg-[#131823]/65  rounded-2xl pt-6 pb-3 w-full ${
-        Number(tokenId) == selectedNFT && "border-[#00ffe4] brightness-125"
+        Number(tokenId) === selectedNFT && "!border-[#00ffe4] brightness-125"
       } `}
     >
       <img

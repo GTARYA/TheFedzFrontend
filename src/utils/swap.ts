@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 const UNISWAP_V2_ROUTER_ADDRESS = "0x4752ba5dbc23f44d87826276bf6fd6b1c372ad24"; // Uniswap V2 Router address
 const UNISWAP_V2_PAIR = "0x342dEe677FEA9ECAA71A9490B08f9e4ADDEf79D6"
-let provider = new ethers.JsonRpcProvider("https://arbitrum.llamarpc.com")
+
 import { ChainId, Token, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import routerAbi from "../abi/uniswapRouter.json"
 import erc20Abi from "../abi/erc20.json"

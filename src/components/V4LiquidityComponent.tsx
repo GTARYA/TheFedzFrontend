@@ -63,9 +63,8 @@ const V4LiquidityComponent = () => {
 
   const activeChainId = useChainId();
   const signer = useEthersSigner();
-   const { address }: { address: `0x${string}` } = useAccount() as any;
-  //for testing..
-  //const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
+  const { address }: { address: `0x${string}` } = useAccount() as any;
+ // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
   const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
@@ -527,6 +526,7 @@ const V4LiquidityComponent = () => {
                       <LiquidityBox
                         key={index}
                         data={pos}
+                        isPlayerTurnState={isPlayerTurnState}
                         updateData={refetchPositions}
                         removeLiquidity={removeLiquidity}
                         removeLiquidityloading={removeLiquidityloading}
