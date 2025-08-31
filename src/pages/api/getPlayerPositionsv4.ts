@@ -24,18 +24,18 @@ export default async function handler(
 ) {
   try {
     const { user } = req.query;
-
     if (!user) {
       return res.status(400).json({ error: "Owner address is required" });
     }
 
     const response = await axios.post(UNISWAP_V4_SUBGRAPH_URL, {
       query: GET_POSITIONS_QUERY,
-      variables: { owner:user },
+       variables: { user: (user as string).toLowerCase() },
     });
 
     const positions = response.data.data.positions;
 
+    console.log(positions, "positions");
 
     if (!positions || positions.length === 0) {
       return res.status(200).json({ positions: [] });
@@ -57,7 +57,7 @@ export default async function handler(
           const poolData = info[0];
           const hooksAddr = poolData.hooks?.toLowerCase();
 
-          if (hooksAddr === HOOK_ADDR && Number(liquidity) > 0 ) {
+          if (hooksAddr === HOOK_ADDR && Number(liquidity) > 0) {
             return {
               ...pos,
               liquidity: liquidity.toString(),
@@ -74,7 +74,7 @@ export default async function handler(
 
     const filteredPositions = positionsWithInfo.filter(Boolean);
 
-    return res.status(200).json({ data: filteredPositions,status:true});
+    return res.status(200).json({ data: filteredPositions, status: true });
   } catch (error: any) {
     console.error("GraphQL error:", error.message);
     return res.status(500).json({ error: "Internal Server Error" });
