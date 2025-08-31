@@ -30,13 +30,10 @@ export default async function handler(
 
     const response = await axios.post(UNISWAP_V4_SUBGRAPH_URL, {
       query: GET_POSITIONS_QUERY,
-       variables: { user: (user as string).toLowerCase() },
+       variables: { owner: (user as string).toLowerCase() },
     });
 
-    const positions = response.data.data.positions;
-
-    console.log(positions, "positions");
-
+    const positions = response.data.data?.positions;
     if (!positions || positions.length === 0) {
       return res.status(200).json({ positions: [] });
     }

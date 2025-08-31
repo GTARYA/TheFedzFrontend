@@ -65,7 +65,7 @@ const V4LiquidityComponent = () => {
   const signer = useEthersSigner();
   const { address }: { address: `0x${string}` } = useAccount() as any;
  // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
-// const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+ //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
   const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
@@ -503,12 +503,6 @@ const V4LiquidityComponent = () => {
                   {isPositionLoading && (
                     <p className="text-center text-gray-400">
                       ⏳ Loading positions...
-                    </p>
-                  )}
-
-                  {isPositionError && (
-                    <p className="text-center text-red-400">
-                      ❌ {(positionError as Error).message}
                     </p>
                   )}
 
