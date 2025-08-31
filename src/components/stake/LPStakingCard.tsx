@@ -61,11 +61,11 @@ function LPStakingCard({
         <LineItem label="Position Id " value={`#${tokenId}`} withBorder />
         <LineItem label="Fee tier " value="0.4%" />
         <LineItem
-          label="Deposited mFUSD"
+          label="Deposited FUSD"
           value={`${formatAmount(amountToken0)} FUSD`}
         />
         <LineItem
-          label="Deposited mUSDT"
+          label="Deposited USDT"
           value={`${formatAmount(amountToken1)} USDT`}
         />
       </div>

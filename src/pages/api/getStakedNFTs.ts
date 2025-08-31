@@ -34,7 +34,6 @@ export default async function handler(
       query: GET_STAKEDS_QUERY,
       variables: { user: (user as string).toLowerCase() },
     });
-
     const stakeds = response.data.data.stakeds;
 
     if (!stakeds || stakeds.length === 0) {

@@ -65,7 +65,7 @@ const V4LiquidityComponent = () => {
   const signer = useEthersSigner();
   const { address }: { address: `0x${string}` } = useAccount() as any;
  // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
- //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
   const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
@@ -494,9 +494,10 @@ const V4LiquidityComponent = () => {
 
              {address &&  <div className="pt-6 space-y-6 mt-12">
                 <div>
-                  <div className="text-3xl font-medium text-white text-center mb-8">
+                   <Title className="text-center">My positions</Title>
+                  {/* <div className="text-3xl font-medium text-white text-center mb-8">
                     My positions
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="space-y-8">
@@ -509,7 +510,7 @@ const V4LiquidityComponent = () => {
                   {!isPositionLoading &&
                     !isPositionError &&
                     positions?.length === 0 && (
-                      <p className="text-center text-gray-400">
+                      <p className="text-center text-base text-gray-400">
                         ⚠️ No positions found
                       </p>
                     )}
@@ -546,7 +547,7 @@ const V4LiquidityComponent = () => {
         </Container>
       </section>
 
-      <section className="pb-[50px] md:pb-[75px] relative">
+      <section className="pb-[50px] md:pb-[75px] relative hidden">
         <Container className="relative z-[5]">
           <Title className="text-center">Liquidity Chart</Title>
           <div className="max-w-[900px] p-3 sm:p-6 mx-auto bg-white/10 rounded-[24px] mt-8">
