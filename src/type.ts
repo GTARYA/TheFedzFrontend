@@ -4,7 +4,7 @@ export interface TokenInfo {
     decimals: number;
   }
 
-export type StepStatus = 'idle' | 'loading' | 'done' | 'error';
+export type StepStatus = 'idle' | 'loading' | 'done' | 'error' | 'pending';
 export type PositionInfo = {
   owner: string;
   tokenId: number;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAccount, useReadContract, useChainId } from "wagmi";
+import { useAccount, useReadContract, useChainId,useWalletClient ,usePublicClient} from "wagmi";
 import { arbitrum } from "@reown/appkit/networks";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEthersSigner } from "../hooks/useEthersSigner";
@@ -64,8 +64,12 @@ const V4LiquidityComponent = () => {
   const activeChainId = useChainId();
   const signer = useEthersSigner();
   const { address }: { address: `0x${string}` } = useAccount() as any;
+
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+
  // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
-  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+  //const address = "0xd55D102d4B88C22244AE00F9342B320499ecAbaC"
   const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
@@ -411,6 +415,8 @@ const V4LiquidityComponent = () => {
                       ]}
                     />
                   </div>
+
+
                   <div className="pt-6">
                     {mount && address ? (
                       isNFTHolderState &&

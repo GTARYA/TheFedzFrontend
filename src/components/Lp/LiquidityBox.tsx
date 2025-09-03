@@ -41,6 +41,9 @@ function LiquidityBox({
 
   const handleRemoveLiquidity = () => {
     if (!isPlayerTurnState) return toast.info("It is not your Turn to Act!");
+    if (Number(percentToRemove) <= 0) {
+      return toast.info("Put greater than 0");
+    }
     setShowModal(true);
   };
   return (

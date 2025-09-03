@@ -30,19 +30,31 @@ export const getPredictRewards = async (data: PositionInfo[]) => {
     provider
   );
   const timestamp = Math.floor(Date.now() / 1000);
-  const promises = data.map((e) =>
-    stakingContract.predictRewards(timestamp, e.tokenId)
+
+  // fetch rewards for all positions
+  const rewards = await Promise.all(
+    data.map((e) => stakingContract.predictRewards(timestamp, e.tokenId))
   );
-  const rewards = await Promise.all(promises);
+
+  // sum total
   const totalReward = rewards.reduce(
     (acc, reward) => acc.add(reward),
     ethers.BigNumber.from(0)
   );
 
+  // map rewards by tokenId
+  const rewardsByTokenId: Record<string, string> = {};
+  data.forEach((e, i) => {
+    rewardsByTokenId[e.tokenId.toString()] = ethers.utils.formatUnits(rewards[i], 18);
+  });
+  
   return {
     totalReward: ethers.utils.formatUnits(totalReward, 18),
+    rewards: rewardsByTokenId,
   };
 };
+
+
 
 export const contractStakingData = async (user?: string) => {
   try {

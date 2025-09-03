@@ -34,11 +34,25 @@ import {
   RemoveLiquidityOptions,
   V4PositionManager,
 } from "@uniswap/v4-sdk";
-import { useAccount, useSendTransaction, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useSendTransaction,
+  useWriteContract,
+  useWalletClient,
+  usePublicClient,
+} from "wagmi";
 import { nextRoundAnnouncedNeeded } from "./fedz";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import { getPositionIdByPlayer } from "./fedz";
-import { token0,token1,poolId,lowerPrice,upperPrice,tickLower,tickUpper } from "./fedz";
+import {
+  token0,
+  token1,
+  poolId,
+  lowerPrice,
+  upperPrice,
+  tickLower,
+  tickUpper,
+} from "./fedz";
 const MAX_UINT160 = "1461501637330902918203684832716283019655932542975";
 const TICK_SPACING = 10;
 
@@ -60,7 +74,12 @@ const V4UseLP = (
   ) => void,
   slippageTolerance = new Percent(4, 100)
 ) => {
-  const {address} = useAccount();
+  const { address } = useAccount();
+  const publicClient  = usePublicClient()
+
+
+
+
   const loadPool = async () => {
     const stateViewContract = new ethers.Contract(
       "0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990",
@@ -227,15 +246,18 @@ const V4UseLP = (
         tickLower,
         tickUpper,
       });
-      const callParametersOptions: any = {
+
+      const mintOptions: any = {
         slippageTolerance,
+        recipient: address,
         deadline: Math.ceil(new Date().getTime() / 1000) + 7200,
       };
-      callParametersOptions.recipient = address;
+
       const { calldata, value } = V4PositionManager.addCallParameters(
         position,
-        callParametersOptions
+        mintOptions
       );
+
       const poolManagerContract = new ethers.Contract(
         PoolModifyLiquidityTestAddress,
         PoolModifiyLiquidityAbi,
@@ -281,9 +303,9 @@ const V4UseLP = (
     }
   };
 
-  const burnPosition = async (data:PositionInfo) => {
+  const burnPosition = async (data: PositionInfo) => {
     try {
-      const {tokenId} = data
+      const { tokenId } = data;
       if (!tokenId) {
         toast.error("No position found to burn.");
         return;
@@ -308,15 +330,16 @@ const V4UseLP = (
       const tx = await poolManagerContract.modifyLiquidities(tokenId);
       await tx.wait();
     } catch (e: any) {
+      console.log("burnPosition error",e);
       throw e;
     } finally {
     }
   };
-  const decreasePosition = async (p: number,data:PositionInfo) => {
+  const decreasePosition = async (percentageToRemove: number, data: PositionInfo) => {
     try {
       const pool = await loadPool();
-      const {tokenId,liquidity} = data;
-    
+      const { tokenId, liquidity } = data;
+      
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
@@ -328,9 +351,10 @@ const V4UseLP = (
         tickLower,
         tickUpper,
       });
+
       const partialRemoveOptions: RemoveLiquidityOptions = {
         tokenId: tokenId.toString(),
-        liquidityPercentage: new Percent(p, 100),
+        liquidityPercentage: new Percent(percentageToRemove, 100),
         slippageTolerance,
         deadline,
       };
@@ -345,15 +369,18 @@ const V4UseLP = (
       );
       await poolManagerContract.modifyLiquidities(calldata, deadline);
     } catch (e: any) {
+      console.log("decreasePosition error",e);
       throw e;
     } finally {
     }
   };
 
-  const removeLiquidity = async (percentToRemove: number,data:PositionInfo) => {
+  const removeLiquidity = async (
+    percentToRemove: number,
+    data: PositionInfo
+  ) => {
     setRemoveLiquidityloading(true);
-    let approvalToastId;
-    let removeLiquidityToastId;
+ 
     try {
       console.log(`Removing liquidity... ${percentToRemove}%`);
       const p = Number(percentToRemove);
@@ -365,14 +392,12 @@ const V4UseLP = (
         await burnPosition(data);
       } else {
         // Decrease position
-        await decreasePosition(p,data);
+        await decreasePosition(p, data);
       }
     } catch (error) {
       console.error("Error removing liquidity:", error);
       toast.error("Failed to remove liquidity.");
     } finally {
-      if (approvalToastId) toast.dismiss(approvalToastId);
-      if (removeLiquidityToastId) toast.dismiss(removeLiquidityToastId);
       setRemoveLiquidityloading(false);
     }
   };
@@ -460,6 +485,7 @@ const V4UseLP = (
       );
 
       const allowanceProvider = new AllowanceProvider(signer, PERMIT_2_ADDRESS);
+
       const nonce0 =
         1 +
         (await allowanceProvider.getNonce(

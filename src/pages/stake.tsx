@@ -22,7 +22,7 @@ type Props = {};
 
 function stake({}: Props) {
   const { open, close } = useAppKit();
-  //const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
+ // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
 
   const { address }: { address: `0x${string}` } = useAccount() as any;
@@ -31,6 +31,7 @@ function stake({}: Props) {
   const [selectedNFT, setSelectedNFT] = useState<number | null>(null);
   const [isStake, setIsStake] = useState(true);
   const [predictedReward, setPredictedReward] = useState<string>("0");
+  const [rewardsByTokenId, setRewardsByTokenId] = useState<Record<string, string>>({});
 
   const {
     loadingBurn,
@@ -107,7 +108,10 @@ function stake({}: Props) {
         return;
       }
       try {
-        const { totalReward } = await getPredictRewards(stakedNFTs);
+        const { totalReward,rewards } = await getPredictRewards(stakedNFTs);
+        setRewardsByTokenId(rewards);
+
+        
         setPredictedReward(totalReward);
       } catch (error) {
         console.error("Error fetching predicted rewards:", error);
@@ -194,6 +198,7 @@ function stake({}: Props) {
           positions={isStake ? positions || [] : stakedNFTs || []}
           selectedNFT={selectedNFT}
           onSelectNFT={(nft: number) => setSelectedNFT(nft)}
+          rewardsByTokenId={rewardsByTokenId}
           handleStakeOrUnstake={
             isStake ? handleOpenStakeProgressModal : handleWithdraw
           }

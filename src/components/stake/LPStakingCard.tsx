@@ -6,12 +6,15 @@ type Props = {
   data: PositionInfo;
   selectedNFT: number | null;
   onSelectNFT: (nft: number) => void;
+  reward:string
+
 };
 
 function LPStakingCard({
   data: { liquidity, tokenId, owner },
   onSelectNFT,
   selectedNFT,
+reward
 }: Props) {
   const [amountToken0, setAmountToken0] = useState("0");
   const [amountToken1, setAmountToken1] = useState("0");
@@ -60,6 +63,7 @@ function LPStakingCard({
       <div className="mx-3 sm:mx-6 p-4 mt-3 bg-black/35 rounded-xl border-white/10 border-[1px]">
         <LineItem label="Position Id " value={`#${tokenId}`} withBorder />
         <LineItem label="Fee tier " value="0.4%" />
+                <LineItem label="Reward " value={`${formatAmount(reward)}`} />
         <LineItem
           label="Deposited FUSD"
           value={`${formatAmount(amountToken0)} FUSD`}

@@ -142,16 +142,18 @@ export default function LiquidityProgressModal({
       const allowance1 = await validateSufficientAllowance(amount1);
       setSufficientAllowance0(allowance0);
       setSufficientAllowance1(allowance1);
-      
+
+
       console.log("Validation complete:", { balance0, balance1, unlocked, allowance0, allowance1 });
     } catch (error) {
       console.error("Validation error:", error);
     }
   };
 
+
   useEffect(() => {
     if (open) {
-      validateAll();
+     validateAll();
     }
   }, [open]);
 

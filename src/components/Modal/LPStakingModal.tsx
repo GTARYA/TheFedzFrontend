@@ -12,6 +12,7 @@ type LPStakingModalProps = {
   onSelectNFT: (nft: number) => void;
   handleStakeOrUnstake: () => void;
   isStake: boolean;
+  rewardsByTokenId:any
 };
 
 export default function LPStakingModal({
@@ -22,6 +23,7 @@ export default function LPStakingModal({
   selectedNFT,
   handleStakeOrUnstake,
   isStake,
+  rewardsByTokenId,
 }: LPStakingModalProps) {
   const stake = () => {
     if (selectedNFT == null) return toast.info(`Select a position to ${isStake ? "stake":"withdraw"}`);
@@ -79,6 +81,8 @@ export default function LPStakingModal({
                         onSelectNFT={onSelectNFT}
                         key={pos.tokenId}
                         data={pos}
+                        reward={rewardsByTokenId[pos.tokenId.toString()] || "0"} // pass reward
+
                       />
                     ))
                   ) : (
