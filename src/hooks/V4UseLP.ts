@@ -102,9 +102,9 @@ const V4UseLP = (
       4000,
       10,
       HookAddress,
-      sqrtPriceX96.toString(),
+      sqrtPriceX96,
       liquidity,
-      tick.toString()
+      tick
     );
     return pool;
   };
@@ -341,6 +341,9 @@ const V4UseLP = (
       console.log("start loadPool");
 
       const pool = await loadPool();
+
+      
+
       const { tokenId, liquidity } = data;
       console.log("end loadPool");
       if (!tokenId) {
@@ -375,7 +378,7 @@ const V4UseLP = (
         partialRemoveOptions
       );
 
-      console.log("end calldata ", calldata, value);
+      // console.log("end calldata ", calldata, value);
 
       const txHash = await walletClient!.writeContract({
         account: address,
