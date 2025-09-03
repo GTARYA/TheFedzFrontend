@@ -338,29 +338,20 @@ const V4UseLP = (
     data: PositionInfo
   ) => {
     try {
-      console.log("start loadPool");
 
       const pool = await loadPool();
-
-      
-
       const { tokenId, liquidity } = data;
-      console.log("end loadPool");
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
       }
       const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;
-      console.log("start Position");
       const position = new Position({
         pool,
         liquidity,
         tickLower,
         tickUpper,
       });
-      console.log("end Position");
-
-      console.log("start -partialRemoveOptions ");
 
       const partialRemoveOptions: RemoveLiquidityOptions = {
         tokenId: tokenId.toString(),
@@ -369,16 +360,13 @@ const V4UseLP = (
         deadline,
       };
 
-      console.log("end -partialRemoveOptions ", partialRemoveOptions);
-
-      console.log("get calldata ");
-
       const { calldata, value } = V4PositionManager.removeCallParameters(
         position,
         partialRemoveOptions
       );
 
-      // console.log("end calldata ", calldata, value);
+      console.log(calldata,"calldata");
+      
 
       const txHash = await walletClient!.writeContract({
         account: address,
@@ -393,10 +381,7 @@ const V4UseLP = (
         hash: txHash,
       });
 
-      // const { calldata, value } = V4PositionManager.removeCallParameters(
-      //   position,
-      //   partialRemoveOptions
-      // );
+  
       //   const poolManagerContract = new ethers.Contract(
       //     PoolModifyLiquidityTestAddress,
       //     PoolModifiyLiquidityAbi,
