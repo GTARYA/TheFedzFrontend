@@ -104,9 +104,9 @@ const V4UseLP = (
       4000,
       10,
       HookAddress,
-      sqrtPriceX96,
+      sqrtPriceX96.toString(),
       liquidity,
-      tick
+      tick.toString()
     );
     return pool;
   };
@@ -339,7 +339,7 @@ const V4UseLP = (
     try {
       const pool = await loadPool();
       const { tokenId, liquidity } = data;
-      
+
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
@@ -367,7 +367,8 @@ const V4UseLP = (
         PoolModifiyLiquidityAbi,
         signer
       );
-      await poolManagerContract.modifyLiquidities(calldata, deadline);
+     const tx =  await poolManagerContract.modifyLiquidities(calldata, deadline);
+     await tx.wait();
     } catch (e: any) {
       console.log("decreasePosition error",e);
       throw e;
