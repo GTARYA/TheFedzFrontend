@@ -75,10 +75,8 @@ const V4UseLP = (
   slippageTolerance = new Percent(4, 100)
 ) => {
   const { address } = useAccount();
-  const publicClient  = usePublicClient()
-
-
-
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
 
   const loadPool = async () => {
     const stateViewContract = new ethers.Contract(
@@ -330,27 +328,36 @@ const V4UseLP = (
       const tx = await poolManagerContract.modifyLiquidities(tokenId);
       await tx.wait();
     } catch (e: any) {
-      console.log("burnPosition error",e);
+      console.log("burnPosition error", e);
       throw e;
     } finally {
     }
   };
-  const decreasePosition = async (percentageToRemove: number, data: PositionInfo) => {
+  const decreasePosition = async (
+    percentageToRemove: number,
+    data: PositionInfo
+  ) => {
     try {
+      console.log("start loadPool");
+
       const pool = await loadPool();
       const { tokenId, liquidity } = data;
-
+      console.log("end loadPool");
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
       }
       const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;
+      console.log("start Position");
       const position = new Position({
         pool,
         liquidity,
         tickLower,
         tickUpper,
       });
+      console.log("end Position");
+
+      console.log("start -partialRemoveOptions ");
 
       const partialRemoveOptions: RemoveLiquidityOptions = {
         tokenId: tokenId.toString(),
@@ -358,19 +365,44 @@ const V4UseLP = (
         slippageTolerance,
         deadline,
       };
+
+      console.log("end -partialRemoveOptions ", partialRemoveOptions);
+
+      console.log("get calldata ");
+
       const { calldata, value } = V4PositionManager.removeCallParameters(
         position,
         partialRemoveOptions
       );
-      const poolManagerContract = new ethers.Contract(
-        PoolModifyLiquidityTestAddress,
-        PoolModifiyLiquidityAbi,
-        signer
-      );
-     const tx =  await poolManagerContract.modifyLiquidities(calldata, deadline);
-     await tx.wait();
+
+      console.log("end calldata ", calldata, value);
+
+      const txHash = await walletClient!.writeContract({
+        account: address,
+        address: PoolModifyLiquidityTestAddress,
+        abi: PoolModifiyLiquidityAbi,
+        functionName: "multicall",
+        args: [[calldata]],
+        value: BigInt(value.toString()),
+      });
+
+      const receipt = await publicClient!.waitForTransactionReceipt({
+        hash: txHash,
+      });
+
+      // const { calldata, value } = V4PositionManager.removeCallParameters(
+      //   position,
+      //   partialRemoveOptions
+      // );
+      //   const poolManagerContract = new ethers.Contract(
+      //     PoolModifyLiquidityTestAddress,
+      //     PoolModifiyLiquidityAbi,
+      //     signer
+      //   );
+      //  const tx =  await poolManagerContract.modifyLiquidities(calldata, deadline);
+      //  await tx.wait();
     } catch (e: any) {
-      console.log("decreasePosition error",e);
+      console.log("decreasePosition error", e);
       throw e;
     } finally {
     }
@@ -381,7 +413,7 @@ const V4UseLP = (
     data: PositionInfo
   ) => {
     setRemoveLiquidityloading(true);
- 
+
     try {
       console.log(`Removing liquidity... ${percentToRemove}%`);
       const p = Number(percentToRemove);
