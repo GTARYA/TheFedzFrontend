@@ -298,7 +298,7 @@ const V4UseLP = (
           args: [[calldata]],
           value: BigInt(value.toString()),
         });
-        console.log("Simulation add Liquidity success ", simulation);
+        console.log("Simulation add Liquidity success - ", simulation);
         const txHash = await walletClient!.writeContract(simulation.request);
         const receipt = await publicClient!.waitForTransactionReceipt({
           hash: txHash,
