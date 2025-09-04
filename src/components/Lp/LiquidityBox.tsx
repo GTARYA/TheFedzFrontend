@@ -7,7 +7,7 @@ import { toast } from "sonner";
 type Props = {
   data: PositionInfo;
   updateData: () => void;
-  removeLiquidity: (tokenId: number, data: PositionInfo) => void;
+  removeLiquidity: (percentToRemove: number, data: PositionInfo) => void;
   removeLiquidityloading: boolean;
   isPlayerTurnState: boolean;
 };
@@ -38,7 +38,11 @@ function LiquidityBox({
       return toast.info("Put greater than 0");
     }
 
-    await removeLiquidity(tokenId, { liquidity, tokenId, owner });
+    await removeLiquidity(Number(percentToRemove), {
+      liquidity,
+      tokenId,
+      owner,
+    });
     setShowModal(false);
     updateData();
   };

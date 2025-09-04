@@ -53,6 +53,7 @@ import {
   tickLower,
   tickUpper,
 } from "./fedz";
+import { an } from "framer-motion/dist/types.d-B50aGbjN";
 const MAX_UINT160 = "1461501637330902918203684832716283019655932542975";
 const TICK_SPACING = 10;
 
@@ -108,6 +109,7 @@ const V4UseLP = (
     );
     return pool;
   };
+
   const updateAmount0 = async (amountA: string) => {
     console.log("update - updateAmount0");
     const pool = await loadPool();
@@ -333,18 +335,105 @@ const V4UseLP = (
     } finally {
     }
   };
+
+  const testDereasePosition = async (percentageToRemove:number) => {
+
+  const decodePositionInfo = (value: any)=> {
+    const bigValue = ethers.BigNumber.from(value);
+    const tickUpperRaw = bigValue.shr(32).and(0xffffff).toNumber();
+    const tickLowerRaw = bigValue.shr(8).and(0xffffff).toNumber();
+    const tickUpper = tickUpperRaw >= 0x800000 ? tickUpperRaw - 0x1000000 : tickUpperRaw;
+    const tickLower = tickLowerRaw >= 0x800000 ? tickLowerRaw - 0x1000000 : tickLowerRaw;
+    return { tickLower, tickUpper };
+  }
+
+
+    const tokenId = "66056";
+    const poolIds =
+      "0xfa9cae5fcca285c3bcb8237cd4a012ce22731a940811587d02582df077cb9592";
+    const stateViewContract = new ethers.Contract(
+      "0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990",
+      UniswapStateViewAbi,
+      web3Provider
+    );
+    const poolLiquidity = await stateViewContract.getLiquidity(poolIds);
+  
+    const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolIds);
+
+    const pool = new Pool(
+      token0,
+      token1,
+      100,
+      1,
+      "0x0000000000000000000000000000000000000000",
+      sqrtPriceX96,
+      poolLiquidity,
+      tick
+    );
+
+    const poolManagerContract = new ethers.Contract(
+      PoolModifyLiquidityTestAddress,
+      PoolModifiyLiquidityAbi,
+      signer
+    );
+
+
+    const liquidity = await poolManagerContract.getPositionLiquidity(tokenId);
+    const [poolKey, infoValue] = await poolManagerContract.getPoolAndPositionInfo(tokenId)
+    const positionInfo = decodePositionInfo(infoValue);
+
+
+    const position = new Position({
+      pool,
+      tickLower: positionInfo.tickLower,
+      tickUpper: positionInfo.tickUpper,
+      liquidity: liquidity.toString(),
+    });
+
+    const deadline = Math.floor(Date.now() / 1000) + 1200;
+   
+    const burnTokenIfEmpty = false;
+    const removeOptions: RemoveLiquidityOptions = {
+      deadline,
+      slippageTolerance: new Percent(4, 100),
+      tokenId,
+      liquidityPercentage: new Percent(percentageToRemove,100),
+      burnToken: false, // true to burn NFT
+    };
+
+    const { calldata, value } = V4PositionManager.removeCallParameters(
+      position,
+      removeOptions
+    );
+
+    const tx = await poolManagerContract.modifyLiquidities(calldata, deadline, {
+      gasLimit: 1_500_000,
+      value: value.toString(),
+    });
+    await tx.wait();
+
+    //  const txHash = await walletClient!.writeContract({
+    //     account:address,
+    //     address: PoolModifyLiquidityTestAddress,
+    //     abi: PoolModifiyLiquidityAbi,
+    //     functionName: 'multicall',
+    //     args: [[calldata]],
+    //     value: BigInt(value.toString()),
+    //   })
+  };
+
   const decreasePosition = async (
     percentageToRemove: number,
     data: PositionInfo
   ) => {
     try {
-
       const pool = await loadPool();
       const { tokenId, liquidity } = data;
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
       }
+
       const deadline = Math.ceil(new Date().getTime() / 1000) + 7200;
       const position = new Position({
         pool,
@@ -365,30 +454,30 @@ const V4UseLP = (
         partialRemoveOptions
       );
 
-      console.log(calldata,"calldata");
-      
+      // const txHash = await walletClient!.writeContract({
+      //   account: address,
+      //   address: PoolModifyLiquidityTestAddress,
+      //   abi: PoolModifiyLiquidityAbi,
+      //   functionName: "multicall",
+      //   args: [[calldata]],
+      //   value: BigInt(value.toString()),
+      // });
 
-      const txHash = await walletClient!.writeContract({
-        account: address,
-        address: PoolModifyLiquidityTestAddress,
-        abi: PoolModifiyLiquidityAbi,
-        functionName: "multicall",
-        args: [[calldata]],
-        value: BigInt(value.toString()),
-      });
+      // const receipt = await publicClient!.waitForTransactionReceipt({
+      //   hash: txHash,
+      // });
 
-      const receipt = await publicClient!.waitForTransactionReceipt({
-        hash: txHash,
-      });
-
+      const poolManagerContract = new ethers.Contract(
+        PoolModifyLiquidityTestAddress,
+        PoolModifiyLiquidityAbi,
+        signer
+      );
+      const tx = await poolManagerContract.modifyLiquidities(
+        calldata,
+        deadline
+      );
   
-      //   const poolManagerContract = new ethers.Contract(
-      //     PoolModifyLiquidityTestAddress,
-      //     PoolModifiyLiquidityAbi,
-      //     signer
-      //   );
-      //  const tx =  await poolManagerContract.modifyLiquidities(calldata, deadline);
-      //  await tx.wait();
+      await tx.wait();
     } catch (e: any) {
       console.log("decreasePosition error", e);
       throw e;
@@ -404,16 +493,12 @@ const V4UseLP = (
 
     try {
       console.log(`Removing liquidity... ${percentToRemove}%`);
-      const p = Number(percentToRemove);
-      console.log({
-        p,
-      });
-      if (p === 100) {
+      if (percentToRemove === 100) {
         // Burn position
         await burnPosition(data);
       } else {
         // Decrease position
-        await decreasePosition(p, data);
+        await decreasePosition(percentToRemove, data);
       }
     } catch (error) {
       console.error("Error removing liquidity:", error);
