@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { useAccount, useReadContract, useChainId,useWalletClient ,usePublicClient} from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useChainId,
+  useWalletClient,
+  usePublicClient,
+} from "wagmi";
 import { arbitrum } from "@reown/appkit/networks";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { useEthersSigner } from "../hooks/useEthersSigner";
@@ -68,8 +74,8 @@ const V4LiquidityComponent = () => {
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
- // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
- // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+  // const address = "0x3fe703dBaB90aaCbfeA43669DE72A57931614eCf";
+  // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
   const [mount, setMount] = useState(false);
   const [poolKeyHash, setPoolKeyHash] = useState("");
   const [token0] = useState(MockFUSDAddress);
@@ -245,7 +251,6 @@ const V4LiquidityComponent = () => {
     }
   };
 
-
   useEffect(() => {
     if (tickLower > tickUpper) {
       setTickError("Lower tick cannot be above upper tick!");
@@ -415,7 +420,24 @@ const V4LiquidityComponent = () => {
                       ]}
                     />
                   </div>
-
+                  {/* <button
+                          disabled={loading}
+                          onClick={addLiquidity}
+                          className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                        >
+                          {loading ? (
+                            <ScaleLoader
+                              height={20}
+                              loading={loading}
+                              color="#ffffff"
+                              className="text-white"
+                              aria-label="Loading Spinner"
+                              data-testid="loader"
+                            />
+                          ) : (
+                            "Add liquidity"
+                          )}
+                        </button> */}
 
                   <div className="pt-6">
                     {mount && address ? (
@@ -498,44 +520,46 @@ const V4LiquidityComponent = () => {
                 </div>
               </div>
 
-             {address &&  <div className="pt-6 space-y-6 mt-12">
-                <div>
-                   <Title className="text-center">My positions</Title>
-                  {/* <div className="text-3xl font-medium text-white text-center mb-8">
+              {address && (
+                <div className="pt-6 space-y-6 mt-12">
+                  <div>
+                    <Title className="text-center">My positions</Title>
+                    {/* <div className="text-3xl font-medium text-white text-center mb-8">
                     My positions
                   </div> */}
-                </div>
+                  </div>
 
-                <div className="space-y-8">
-                  {isPositionLoading && (
-                    <p className="text-center text-gray-400">
-                      ⏳ Loading positions...
-                    </p>
-                  )}
-
-                  {!isPositionLoading &&
-                    !isPositionError &&
-                    positions?.length === 0 && (
-                      <p className="text-center text-base text-gray-400">
-                        ⚠️ No positions found
+                  <div className="space-y-8">
+                    {isPositionLoading && (
+                      <p className="text-center text-gray-400">
+                        ⏳ Loading positions...
                       </p>
                     )}
 
-                  {!isPositionLoading &&
-                    !isPositionError &&
-                    positions &&
-                    positions.map((pos, index) => (
-                      <LiquidityBox
-                        key={index}
-                        data={pos}
-                        isPlayerTurnState={isPlayerTurnState}
-                        updateData={refetchPositions}
-                        removeLiquidity={removeLiquidity}
-                        removeLiquidityloading={removeLiquidityloading}
-                      />
-                    ))}
+                    {!isPositionLoading &&
+                      !isPositionError &&
+                      positions?.length === 0 && (
+                        <p className="text-center text-base text-gray-400">
+                          ⚠️ No positions found
+                        </p>
+                      )}
+
+                    {!isPositionLoading &&
+                      !isPositionError &&
+                      positions &&
+                      positions.map((pos, index) => (
+                        <LiquidityBox
+                          key={index}
+                          data={pos}
+                          isPlayerTurnState={isPlayerTurnState}
+                          updateData={refetchPositions}
+                          removeLiquidity={removeLiquidity}
+                          removeLiquidityloading={removeLiquidityloading}
+                        />
+                      ))}
+                  </div>
                 </div>
-              </div>}
+              )}
             </div>
           </Container>
 

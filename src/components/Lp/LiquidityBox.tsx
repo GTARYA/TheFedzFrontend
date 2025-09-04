@@ -48,6 +48,7 @@ function LiquidityBox({
   };
 
   const handleRemoveLiquidity = () => {
+      //  setShowModal(true);
     if (!isPlayerTurnState) return toast.info("It is not your Turn to Act!");
     setShowModal(true);
   };
