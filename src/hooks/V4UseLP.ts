@@ -7,8 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
 import { CurrencyAmount, Percent, Token } from "@uniswap/sdk-core";
-import { useQuery } from "@tanstack/react-query";
-import { decodeErrorResult } from 'viem'
+import { BaseError, ContractFunctionRevertedError } from 'viem';
 
 import {
   nearestUsableTick,
@@ -35,7 +34,7 @@ import {
   Position,
   RemoveLiquidityOptions,
   V4PositionManager,
-  MintOptions
+  MintOptions,
 } from "@uniswap/v4-sdk";
 import {
   useAccount,
@@ -78,9 +77,10 @@ const V4UseLP = (
   ) => void,
   slippageTolerance = new Percent(4, 100)
 ) => {
-  const { address } = useAccount();
+   const { address } = useAccount();
+  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
- // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
+  // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
@@ -244,6 +244,8 @@ const V4UseLP = (
   ) => {
     setLoading(true);
     try {
+      console.log(liquidity, "liquidity");
+
       const pool = await loadPool();
       const position = new Position({
         pool,
@@ -259,7 +261,7 @@ const V4UseLP = (
         batchPermit: {
           owner: address!,
           permitBatch: permitBatch,
-          signature:signature!,
+          signature: signature!,
         },
       };
 
@@ -310,7 +312,6 @@ const V4UseLP = (
         //   gasLimit: 1_500_000,
         // });
       }
-
     } catch (error) {
       console.error("Error adding liquidity:", error);
       toast.error("Failed to add liquidity.");
@@ -394,7 +395,7 @@ const V4UseLP = (
       address: PoolModifyLiquidityTestAddress,
       abi: PoolModifiyLiquidityAbi,
       functionName: "multicall",
-      args: [[calldata]], 
+      args: [[calldata]],
       value: BigInt(value.toString()), // if required
     });
     console.log("Simulation success:", simulation);
@@ -414,45 +415,44 @@ const V4UseLP = (
   ) => {
     try {
       const pool = await loadPool();
+
       const { tokenId, liquidity } = data;
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
       }
-      const deadline = Math.ceil(new Date().getTime() / 1000) + 20 * 60;
+      const deadline = Math.ceil(new Date().getTime() / 1000) + 1200;
       const position = new Position({
         pool,
-        liquidity,
         tickLower,
         tickUpper,
+        liquidity: liquidity.toString(),
       });
 
       const removeOptions: RemoveLiquidityOptions = {
-        deadline,
         slippageTolerance,
-        tokenId: tokenId.toString(),
+        deadline,
+        tokenId,
         liquidityPercentage: new Percent(percentageToRemove, 100),
         burnToken: percentageToRemove === 100, // true to burn NFT
       };
-
+    
       const { calldata, value } = V4PositionManager.removeCallParameters(
         position,
         removeOptions
       );
-
+  
       const simulation = await publicClient!.simulateContract({
-        account: address,
+        account: address, // or any user you want to simulate for
         address: PoolModifyLiquidityTestAddress,
         abi: PoolModifiyLiquidityAbi,
         functionName: "multicall",
         args: [[calldata]],
-        value: BigInt(value.toString()),
+        value: BigInt(value.toString()), // if required
       });
 
       console.log("Simulation decreasePosition success ", simulation);
-
       const txHash = await walletClient!.writeContract(simulation.request);
-
       const receipt = await publicClient!.waitForTransactionReceipt({
         hash: txHash,
       });

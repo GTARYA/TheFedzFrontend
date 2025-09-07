@@ -81,6 +81,7 @@ export default function LPStakingModal({
                         onSelectNFT={onSelectNFT}
                         key={pos.tokenId}
                         data={pos}
+                        isStake={isStake}
                         reward={rewardsByTokenId[pos.tokenId.toString()] || "0"} // pass reward
 
                       />

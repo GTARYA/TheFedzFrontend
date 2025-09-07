@@ -23,9 +23,10 @@ type Props = {};
 function stake({}: Props) {
   const { open, close } = useAppKit();
  // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
-  // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+ //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
 
   const { address }: { address: `0x${string}` } = useAccount() as any;
+ // const address = "0xbdA1956dE20b61167400720C49435d3Cbb25e5C0"
   const signer = useEthersSigner();
   const [showStakeModal, setShowStakeModal] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<number | null>(null);
