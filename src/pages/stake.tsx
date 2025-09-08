@@ -22,7 +22,7 @@ type Props = {};
 
 function stake({}: Props) {
   const { open, close } = useAppKit();
- // const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
+  //const address = "0xbeb1e27c4cec83ee58a38785f662cc6a7c46d004";
  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
 
   const { address }: { address: `0x${string}` } = useAccount() as any;
@@ -162,7 +162,13 @@ function stake({}: Props) {
 
     setTimeout(async () => {
       await UpdateData();
-    }, 10000 / 2); //
+    }, 20000 );
+
+    setTimeout(async () => {
+      await UpdateData();
+    }, 40000 );
+
+
   };
   const handleStake = async () => {
     if (!address) return open();
@@ -170,9 +176,15 @@ function stake({}: Props) {
 
     await stake(selectedNFT.toString());
     await UpdateData();
+
     setTimeout(async () => {
       await UpdateData();
-    }, 10000 / 2); //
+    }, 20000 );
+
+    setTimeout(async () => {
+      await UpdateData();
+    }, 40000 );
+
   };
 
   const handleOpenStakeProgressModal = () => {

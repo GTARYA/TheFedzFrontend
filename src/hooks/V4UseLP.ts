@@ -7,8 +7,15 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
 import { CurrencyAmount, Percent, Token } from "@uniswap/sdk-core";
-import { BaseError, ContractFunctionRevertedError } from 'viem';
-
+import { BaseError, ContractFunctionRevertedError } from "viem";
+//remove
+import {
+  createPublicClient,
+  http,
+  encodeAbiParameters,
+  parseAbiParameters,
+} from "viem";
+import { arbitrum } from "viem/chains";
 import {
   nearestUsableTick,
   encodeSqrtRatioX96,
@@ -46,6 +53,7 @@ import {
 import { nextRoundAnnouncedNeeded } from "./fedz";
 import TimeSlotSystemAbi from "../abi/TimeSlotSystem_abi.json";
 import { getPositionIdByPlayer } from "./fedz";
+import { getPoolInfo } from "../utils/stateViewUtils";
 import {
   token0,
   token1,
@@ -75,43 +83,28 @@ const V4UseLP = (
     amount1: CurrencyAmount<any>,
     liquidity: string
   ) => void,
-  slippageTolerance = new Percent(4, 100)
+  slippageTolerance = new Percent(5, 100)
 ) => {
-   const { address } = useAccount();
-  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
+  const { address } = useAccount();
+  // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
   const loadPool = async () => {
-    const stateViewContract = new ethers.Contract(
-      "0x76Fd297e2D437cd7f76d50F01AfE6160f86e9990",
-      UniswapStateViewAbi,
-      web3Provider
-    );
-    const liquidity = await stateViewContract.getLiquidity(poolId);
-    const [sqrtPriceX96, tick] = await stateViewContract.getSlot0(poolId);
-    console.log({
-      token0,
-      token1,
-      fee: 4000,
-      tickSpacing: 10,
-      HookAddress,
-      sqrtPriceX96,
-      liquidity,
-      tick,
-    });
+    const poolInfo = await getPoolInfo();
     const pool = new Pool(
       token0,
       token1,
       4000,
-      10,
+      TICK_SPACING,
       HookAddress,
-      sqrtPriceX96,
-      liquidity,
-      tick
+      poolInfo.sqrtPriceX96,
+      poolInfo.liquidity,
+      poolInfo.tick
     );
+
     return pool;
   };
 
@@ -244,8 +237,6 @@ const V4UseLP = (
   ) => {
     setLoading(true);
     try {
-      console.log(liquidity, "liquidity");
-
       const pool = await loadPool();
       const position = new Position({
         pool,
@@ -254,64 +245,43 @@ const V4UseLP = (
         tickUpper,
       });
 
-      const mintOptions: MintOptions = {
+      let mintOptions: any = {
         slippageTolerance,
         recipient: address!,
-        deadline: Math.ceil(new Date().getTime() / 1000) + 60 * 20,
-        batchPermit: {
-          owner: address!,
-          permitBatch: permitBatch,
-          signature: signature!,
-        },
+        deadline: (Math.ceil(new Date().getTime() / 1000) + 60 * 20).toString(),
+        useNative: undefined,
       };
+
+      if (permitBatch && signature) {
+        mintOptions.batchPermit = {
+          owner: address,
+          permitBatch: permitBatch,
+          signature,
+        };
+      }
+
+      console.log("Mint options:", mintOptions);
 
       const { calldata, value } = V4PositionManager.addCallParameters(
         position,
         mintOptions
       );
 
-      // const poolManagerContract = new ethers.Contract(
-      //   PoolModifyLiquidityTestAddress,
-      //   PoolModifiyLiquidityAbi,
-      //   signer
-      // );
+      const simulation = await publicClient!.simulateContract({
+        account: address,
+        address: PoolModifyLiquidityTestAddress,
+        abi: PoolModifiyLiquidityAbi,
+        functionName: "multicall",
+        args: [[calldata]],
+        value: BigInt(value.toString()),
+      });
 
-      if (permitBatch && signature) {
-        // Use permit batch for gasless approval with multicall
-        console.log("Using permit batch for liquidity addition with multicall");
-
-        // // Create the multicall data array
-        // const multicallData = [
-        //   // Permit batch call
-        //   poolManagerContract.interface.encodeFunctionData("permitBatch", [
-        //     address, // owner
-        //     permitBatch, // permit batch data
-        //     signature, // signature
-        //   ]),
-        //   // Add liquidity call
-        //   calldata,
-        // ];
-
-        const simulation = await publicClient!.simulateContract({
-          account: address,
-          address: PoolModifyLiquidityTestAddress,
-          abi: PoolModifiyLiquidityAbi,
-          functionName: "multicall",
-          args: [[calldata]],
-          value: BigInt(value.toString()),
-        });
-        console.log("Simulation add Liquidity success - ", simulation);
-        const txHash = await walletClient!.writeContract(simulation.request);
-        const receipt = await publicClient!.waitForTransactionReceipt({
-          hash: txHash,
-        });
-        console.log("Liquidity added:", receipt);
-
-        // tx = await poolManagerContract.multicall(multicallData, {
-        //   value,
-        //   gasLimit: 1_500_000,
-        // });
-      }
+      console.log("Simulation add Liquidity success - ", simulation);
+      const txHash = await walletClient!.writeContract(simulation.request);
+      const receipt = await publicClient!.waitForTransactionReceipt({
+        hash: txHash,
+      });
+      console.log("Liquidity added:", receipt);
     } catch (error) {
       console.error("Error adding liquidity:", error);
       toast.error("Failed to add liquidity.");
@@ -374,6 +344,8 @@ const V4UseLP = (
       liquidity: liquidity.toString(),
     });
 
+    console.log(position, "position 1");
+
     const deadline = Math.floor(Date.now() / 1000) + 1200;
 
     const burnTokenIfEmpty = false;
@@ -414,16 +386,19 @@ const V4UseLP = (
     data: PositionInfo
   ) => {
     try {
-      const pool = await loadPool();
-
       const { tokenId, liquidity } = data;
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
       }
-      const deadline = Math.ceil(new Date().getTime() / 1000) + 1200;
+      const poolData = await loadPool();
+
+      const deadline = (
+        Math.ceil(new Date().getTime() / 1000) + 1200
+      ).toString();
+
       const position = new Position({
-        pool,
+        pool: poolData,
         tickLower,
         tickUpper,
         liquidity: liquidity.toString(),
@@ -432,18 +407,19 @@ const V4UseLP = (
       const removeOptions: RemoveLiquidityOptions = {
         slippageTolerance,
         deadline,
-        tokenId,
+        tokenId: tokenId.toString(),
         liquidityPercentage: new Percent(percentageToRemove, 100),
-        burnToken: percentageToRemove === 100, // true to burn NFT
+        burnToken: percentageToRemove === 100,
+        hookData: "0x",
       };
-    
+
       const { calldata, value } = V4PositionManager.removeCallParameters(
         position,
         removeOptions
       );
-  
+
       const simulation = await publicClient!.simulateContract({
-        account: address, // or any user you want to simulate for
+        account: address,
         address: PoolModifyLiquidityTestAddress,
         abi: PoolModifiyLiquidityAbi,
         functionName: "multicall",

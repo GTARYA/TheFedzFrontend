@@ -421,25 +421,7 @@ const V4LiquidityComponent = () => {
                       ]}
                     />
                   </div>
-                  {/* <button
-                          disabled={loading}
-                          onClick={addLiquidity}
-                          className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
-                        >
-                          {loading ? (
-                            <ScaleLoader
-                              height={20}
-                              loading={loading}
-                              color="#ffffff"
-                              className="text-white"
-                              aria-label="Loading Spinner"
-                              data-testid="loader"
-                            />
-                          ) : (
-                            "Add liquidity"
-                          )}
-                        </button> */}
-
+            
                   <div className="pt-6">
                     {mount && address ? (
                       isNFTHolderState &&

@@ -75,7 +75,8 @@ const useStake = (signer: any) => {
       await stakeTx.wait();
 
       toast.dismiss(stakeToastID);
-      toast.success("NFT staked successfully!");
+      toast.success("NFT staked successfully! Please allow 10–30 seconds for the data to refresh.");
+
       setStakingStatus("done");
       setStakeModalOpen(false);
     } catch (error: any) {
@@ -109,7 +110,7 @@ const useStake = (signer: any) => {
       const withdrawTx = await stakingContract.withdraw(id);
       await withdrawTx.wait();
       toast.dismiss(withdrawToastID);
-      toast.success("NFT withdrawn successfully!");
+     toast.success("NFT withdrawn successfully! Please allow 10–30 seconds for the data to refresh.");
     } catch (error: any) {
       console.error("Withdraw error:", error);
       if (withdrawToastID) toast.dismiss(withdrawToastID);

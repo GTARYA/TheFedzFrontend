@@ -1,14 +1,22 @@
 'use client';
 import React from 'react';
 import Navbar from '../components/Navbar';
-import LiquidityComponent from '../components/LiquidityComponent';
 import { useAccount, useChainId } from 'wagmi';
 import Footer from '../components/Footer';
-import {
-    arbitrum,
-    sepolia,
-  } from "@reown/appkit/networks";
-import V4LiquidityComponent from '../components/V4LiquidityComponent';
+import dynamic from "next/dynamic";
+const V4LiquidityComponent = dynamic(
+  () => import("../components/V4LiquidityComponent"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-20">
+        <p className="text-primary text-lg animate-pulse">
+          Loading liquidity component...
+        </p>
+      </div>
+    ),
+  }
+);
 
 const liquidity = () => {
     const { isConnected } = useAccount();
@@ -19,7 +27,7 @@ const liquidity = () => {
 
             <main className="md:mt-14 mt-10 min-h-[80vh] relative z-1">
 
-           < V4LiquidityComponent />
+           <V4LiquidityComponent />
                 {/* {isConnected ? (
                     sepolia.id === activeChainId ? (
                         <LiquidityComponent />
