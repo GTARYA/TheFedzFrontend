@@ -7,20 +7,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChainId } from "../config";
 import { CurrencyAmount, Percent, Token } from "@uniswap/sdk-core";
-import { BaseError, ContractFunctionRevertedError } from "viem";
-//remove
-import {
-  createPublicClient,
-  http,
-  encodeAbiParameters,
-  parseAbiParameters,
-} from "viem";
-import { arbitrum } from "viem/chains";
-import {
-  nearestUsableTick,
-  encodeSqrtRatioX96,
-  TickMath,
-} from "@uniswap/v3-sdk";
 import UniswapStateViewAbi from "../abi/UniswapStateView_abi.json";
 import AllowanceTransferAbi from "../abi/AllowanceTransfer_abi.json";
 import MockERC20Abi from "../abi/MockERC20_abi.json";
@@ -63,9 +49,8 @@ import {
   tickLower,
   tickUpper,
 } from "./fedz";
-import { an } from "framer-motion/dist/types.d-B50aGbjN";
+import { UNISWAP_V4_POOL_FEE,UNISWAP_V4_TICK_SPACING } from "../config/liquidity";
 const MAX_UINT160 = "1461501637330902918203684832716283019655932542975";
-const TICK_SPACING = 10;
 
 const V4UseLP = (
   chainId: number,
@@ -85,20 +70,26 @@ const V4UseLP = (
   ) => void,
   slippageTolerance = new Percent(5, 100)
 ) => {
-  const { address } = useAccount();
+  //const { address } = useAccount();
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
+
+    const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032"
+
+  //  const address = "0x854ce16536CC41A0593A754F88a3eAf14EEe9938"
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
   const loadPool = async () => {
     const poolInfo = await getPoolInfo();
+    console.log(poolInfo,'poolInfo');
+    
     const pool = new Pool(
       token0,
       token1,
-      4000,
-      TICK_SPACING,
+      UNISWAP_V4_POOL_FEE,
+      UNISWAP_V4_TICK_SPACING,
       HookAddress,
       poolInfo.sqrtPriceX96,
       poolInfo.liquidity,
@@ -281,6 +272,7 @@ const V4UseLP = (
       const receipt = await publicClient!.waitForTransactionReceipt({
         hash: txHash,
       });
+
       console.log("Liquidity added:", receipt);
     } catch (error) {
       console.error("Error adding liquidity:", error);
@@ -432,6 +424,7 @@ const V4UseLP = (
       const receipt = await publicClient!.waitForTransactionReceipt({
         hash: txHash,
       });
+ 
     } catch (e: any) {
       console.log("decreasePosition error", e);
       throw e;

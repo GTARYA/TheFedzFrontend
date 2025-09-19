@@ -34,6 +34,9 @@ export default async function handler(
     });
 
     const positions = response.data.data?.positions;
+
+    console.log(positions,'positions');
+    
     
     if (!positions || positions.length === 0) {
       return res.status(200).json({ positions: [] });

@@ -30,6 +30,7 @@ import { TurnOrderEntry, LatestEventResponse } from "../type";
 import { getLogs } from "../etherscan";
 const { ethers } = require("ethers");
 import { PositionInfo } from "../type";
+import { UNISWAP_V4_POOL_FEE, UNISWAP_V4_TICK_SPACING } from "../config/liquidity";
 class NotNFTHolderError extends Error {
   constructor() {
     super("Account is not an NFT holder");
@@ -274,7 +275,9 @@ export async function fetchPlayerPositions(
 export const token0 = new Token(42161, MockFUSDAddress, 18, "FUSD", "FUSD");
 export const token1 = new Token(42161, MockUSDTAddress, 6, "USDT", "USDT");
 const TICK_SPACING = 10;
-export const poolId = Pool.getPoolId(token0, token1, 4000, 10, HookAddress);
+export const poolId = Pool.getPoolId(token0, token1, UNISWAP_V4_POOL_FEE, UNISWAP_V4_TICK_SPACING, HookAddress);
+
+console.log(poolId,'poolId');
 
 export const lowerPrice = encodeSqrtRatioX96(100e6, 105e18);
 export const upperPrice = encodeSqrtRatioX96(105e6, 100e18);
