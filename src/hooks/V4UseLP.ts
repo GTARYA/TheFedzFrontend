@@ -239,7 +239,7 @@ const V4UseLP = (
       let mintOptions: any = {
         slippageTolerance,
         recipient: address!,
-        deadline: (Math.ceil(new Date().getTime() / 1000) + 60 * 20).toString(),
+        deadline: (Math.ceil(new Date().getTime() / 1000) + 60 * 20),
         useNative: undefined,
       };
 
@@ -387,7 +387,7 @@ const V4UseLP = (
 
       const deadline = (
         Math.ceil(new Date().getTime() / 1000) + 1200
-      ).toString();
+      );
 
       const position = new Position({
         pool: poolData,
