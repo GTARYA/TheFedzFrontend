@@ -49,7 +49,10 @@ import {
   tickLower,
   tickUpper,
 } from "./fedz";
-import { UNISWAP_V4_POOL_FEE,UNISWAP_V4_TICK_SPACING } from "../config/liquidity";
+import {
+  UNISWAP_V4_POOL_FEE,
+  UNISWAP_V4_TICK_SPACING,
+} from "../config/liquidity";
 const MAX_UINT160 = "1461501637330902918203684832716283019655932542975";
 
 const V4UseLP = (
@@ -70,12 +73,12 @@ const V4UseLP = (
   ) => void,
   slippageTolerance = new Percent(5, 100)
 ) => {
-  //const { address } = useAccount();
-  // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
+  const { address } = useAccount();
+  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
 
-    const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032"
+  // const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032";
 
   //  const address = "0x854ce16536CC41A0593A754F88a3eAf14EEe9938"
   const publicClient = usePublicClient();
@@ -83,8 +86,8 @@ const V4UseLP = (
 
   const loadPool = async () => {
     const poolInfo = await getPoolInfo();
-    console.log(poolInfo,'poolInfo');
-    
+    console.log(poolInfo, "poolInfo");
+
     const pool = new Pool(
       token0,
       token1,
@@ -239,7 +242,7 @@ const V4UseLP = (
       let mintOptions: any = {
         slippageTolerance,
         recipient: address!,
-        deadline: (Math.ceil(new Date().getTime() / 1000) + 60 * 20),
+        deadline: Math.ceil(new Date().getTime() / 1000) + 60 * 20,
         useNative: undefined,
       };
 
@@ -378,15 +381,16 @@ const V4UseLP = (
     data: PositionInfo
   ) => {
     try {
-      const { tokenId, liquidity } = data;
+      const { tokenId, liquidity: positionLiquidity } = data;
       if (!tokenId) {
         toast.error("No position found to decrease.");
         return;
       }
       const poolData = await loadPool();
 
-      const deadline = (
-        Math.ceil(new Date().getTime() / 1000) + 1200
+      //liquidity to remove
+      const liquidity = BigInt(
+        Math.floor(positionLiquidity * (percentageToRemove / 100))
       );
 
       const position = new Position({
@@ -396,35 +400,64 @@ const V4UseLP = (
         liquidity: liquidity.toString(),
       });
 
-      const removeOptions: RemoveLiquidityOptions = {
-        slippageTolerance,
-        deadline,
-        tokenId: tokenId.toString(),
-        liquidityPercentage: new Percent(percentageToRemove, 100),
-        burnToken: percentageToRemove === 100,
-        hookData: "0x",
-      };
+      const { amount0: amount0MinJSBI, amount1: amount1MinJSBI } =
+        position.burnAmountsWithSlippage(slippageTolerance);
 
-      const { calldata, value } = V4PositionManager.removeCallParameters(
-        position,
-        removeOptions
+      const amount0Min = BigInt(amount0MinJSBI.toString());
+      const amount1Min = BigInt(amount1MinJSBI.toString());
+
+      console.log(amount0Min.toString(), "amount0Min");
+      console.log(amount1Min.toString(), "amount1Min");
+
+      const actions = "0x0111";
+      const params: string[] = [];
+
+      params.push(
+        ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256", "uint128", "uint128", "bytes"],
+          [tokenId, liquidity, amount0Min, amount1Min, "0x"]
+        )
       );
 
-      const simulation = await publicClient!.simulateContract({
-        account: address,
-        address: PoolModifyLiquidityTestAddress,
-        abi: PoolModifiyLiquidityAbi,
-        functionName: "multicall",
-        args: [[calldata]],
-        value: BigInt(value.toString()), // if required
+      params.push(
+        ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "address"],
+          [token0.address, token1.address, address]
+        )
+      );
+
+      const callbackData = ethers.utils.defaultAbiCoder.encode(
+        ["bytes", "bytes[]"],
+        [actions, params]
+      ) as "0x${string}";
+
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20); // 20 minutes from now
+      const { request } = await publicClient!.simulateContract({
+        account: address as `0x${string}`,
+        address: PoolModifyLiquidityTestAddress as `0x${string}`,
+        abi: [
+          {
+            name: "modifyLiquidities",
+            type: "function",
+            stateMutability: "payable",
+            inputs: [
+              { name: "unlockData", type: "bytes" },
+              { name: "deadline", type: "uint256" },
+            ],
+            outputs: [],
+          },
+        ],
+        functionName: "modifyLiquidities",
+        args: [callbackData, deadline],
+        value: BigInt(0),
       });
 
-      console.log("Simulation decreasePosition success ", simulation);
-      const txHash = await walletClient!.writeContract(simulation.request);
+      console.log("Simulation decreasePosition success ", request);
+      const txHash = await walletClient!.writeContract(request);
       const receipt = await publicClient!.waitForTransactionReceipt({
         hash: txHash,
       });
- 
+      toast.success("Liquidity successfully decreased ✅");
     } catch (e: any) {
       console.log("decreasePosition error", e);
       throw e;
@@ -432,6 +465,83 @@ const V4UseLP = (
     }
   };
 
+  const burnPosition = async (data: PositionInfo) => {
+    try {
+      const { tokenId, liquidity } = data;
+      if (!tokenId) {
+        toast.error("No position found to decrease.");
+        return;
+      }
+      const poolData = await loadPool();
+
+      const position = new Position({
+        pool: poolData,
+        tickLower,
+        tickUpper,
+        liquidity,
+      });
+
+      const { amount0: amount0MinJSBI, amount1: amount1MinJSBI } =
+        position.burnAmountsWithSlippage(slippageTolerance);
+
+      const amount0Min = BigInt(amount0MinJSBI.toString());
+      const amount1Min = BigInt(amount1MinJSBI.toString());
+
+      const actions = "0x0311";
+      const params: string[] = [];
+
+      params.push(
+        ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint128", "uint128", "bytes"],
+          [tokenId, amount0Min, amount1Min, "0x"]
+        )
+      );
+
+      params.push(
+        ethers.utils.defaultAbiCoder.encode(
+          ["address", "address", "address"],
+          [token0.address, token1.address, address]
+        )
+      );
+
+      const callbackData = ethers.utils.defaultAbiCoder.encode(
+        ["bytes", "bytes[]"],
+        [actions, params]
+      ) as "0x${string}";
+
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20); // 20 minutes from now
+      const { request } = await publicClient!.simulateContract({
+        account: address as `0x${string}`,
+        address: PoolModifyLiquidityTestAddress as `0x${string}`,
+        abi: [
+          {
+            name: "modifyLiquidities",
+            type: "function",
+            stateMutability: "payable",
+            inputs: [
+              { name: "unlockData", type: "bytes" },
+              { name: "deadline", type: "uint256" },
+            ],
+            outputs: [],
+          },
+        ],
+        functionName: "modifyLiquidities",
+        args: [callbackData, deadline],
+        value: BigInt(0),
+      });
+
+      console.log("Simulation burn success ", request);
+      const txHash = await walletClient!.writeContract(request);
+      const receipt = await publicClient!.waitForTransactionReceipt({
+        hash: txHash,
+      });
+      toast.success("Liquidity successfully burned ✅");
+    } catch (e: any) {
+      console.log("decreasePosition error", e);
+      throw e;
+    } finally {
+    }
+  };
   const removeLiquidity = async (
     percentToRemove: number,
     data: PositionInfo
@@ -440,8 +550,15 @@ const V4UseLP = (
 
     try {
       console.log(`Removing liquidity... ${percentToRemove}%`);
-      // Decrease position
-      await decreasePosition(percentToRemove, data);
+      if (percentToRemove == 100) {
+        // Burn position
+        await burnPosition(data);
+      } else {
+        console.log("calling....", percentToRemove, data);
+
+        // Decrease position
+        await decreasePosition(percentToRemove, data);
+      }
     } catch (error) {
       console.error("Error removing liquidity:", error);
       toast.error("Failed to remove liquidity.");

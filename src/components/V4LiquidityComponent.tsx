@@ -64,12 +64,16 @@ const tickUpperNum =
   TICK_SPACING;
 
 let autofillTimeout: NodeJS.Timeout | undefined;
+
+
+// test
+import { provideLiquidity } from "../hooks/liquidity";
 const V4LiquidityComponent = () => {
   const { open, close } = useAppKit();
 
   const activeChainId = useChainId();
   const signer = useEthersSigner();
-   const { address }: { address: `0x${string}` } = useAccount() as any;
+  const { address }: { address: `0x${string}` } = useAccount() as any;
 
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
@@ -360,6 +364,11 @@ const V4LiquidityComponent = () => {
     open();
   };
 
+
+  const TestLP= async()=>{
+    await provideLiquidity(signer);
+  }
+
   return (
     <div>
       <section className="pb-[50px] md:pb-[75px] relative">
@@ -422,7 +431,13 @@ const V4LiquidityComponent = () => {
                       ]}
                     />
                   </div>
-            
+
+                  {/* <div>
+                    <button onClick={()=>TestLP()} className="text-white bg-green-400">
+                      ADD LP.
+                    </button>
+                  </div>
+             */}
                   <div className="pt-6">
                     {mount && address ? (
                       isNFTHolderState &&
