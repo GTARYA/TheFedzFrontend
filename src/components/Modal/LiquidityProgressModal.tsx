@@ -36,8 +36,8 @@ interface Props {
   validateSufficientAllowance: (amount: CurrencyAmount<any>) => Promise<boolean>;
   validateSufficientAllowanceOnPermit2: (amount: CurrencyAmount<any>) => Promise<boolean>;
   approveToken: (amount: CurrencyAmount<any>) => Promise<void>;
-  signBatchPermit: (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>) => Promise<{permitBatch: any, signature: string}>;
-  addLPS: (liquidity: string, permitBatch?: any, sig?: string) => Promise<void>;
+  signBatchPermit: (amount0: CurrencyAmount<any>, amount1: CurrencyAmount<any>,deadline: number) => Promise<{permitBatch: any, signature: string}>;
+  addLPS: (liquidity: string, deadline:number,permitBatch?: any, sig?: string) => Promise<void>;
   onDone: () => void;
 }
 
@@ -114,6 +114,11 @@ export default function LiquidityProgressModal({
   const isFinished = liquidityStatus === "done";
   const isError = [roundUnlockStatus, token0ApprovalStatus, token1ApprovalStatus, permitStatus, liquidityStatus].includes("error");
   const showClose = isFinished || isError;
+
+  useEffect(() => {
+    console.log(sufficientAllowance0,"sufficientAllowance0");
+      console.log(sufficientAllowance1,"sufficientAllowance1");
+  }, [open,sufficientAllowance1,sufficientAllowance1]);
 
   const isInactive = (status: StepStatus) => !["loading", "error"].includes(status);
 
@@ -195,12 +200,15 @@ export default function LiquidityProgressModal({
         setIsProcessing(false);
         return;
       }
+
+      const deadline = Math.ceil(new Date().getTime() / 1000) + 60 * 20;
+  
       
       // Step 4: Sign batch permit if needed
       if (!batchPermitData) {
         setPermitStatus("loading");
         setCurrentStep("signing_permit");
-        const permitData = await signBatchPermit(amount0, amount1);
+        const permitData = await signBatchPermit(amount0, amount1,deadline);
         setBatchPermitData(permitData);
         setPermitStatus("done");
         setIsProcessing(false);
@@ -210,7 +218,7 @@ export default function LiquidityProgressModal({
       // Step 5: Execute liquidity addition
       setLiquidityStatus("loading");
       setCurrentStep("adding_liquidity");
-      await addLPS(liquidity, batchPermitData.permitBatch, batchPermitData.signature);
+      await addLPS(liquidity,deadline, batchPermitData.permitBatch, batchPermitData.signature);
       setLiquidityStatus("done");
       setCurrentStep("complete");
       onDone();

@@ -74,6 +74,8 @@ const V4UseLP = (
   slippageTolerance = new Percent(5, 100)
 ) => {
   const { address } = useAccount();
+//const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+
   //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
@@ -226,9 +228,12 @@ const V4UseLP = (
     amount0: CurrencyAmount<any>,
     amount1: CurrencyAmount<any>,
     liquidity: string,
+    deadline: number,
     permitBatch?: any,
     signature?: string
   ) => {
+    console.log("deadline--", deadline);
+    
     setLoading(true);
     try {
       const pool = await loadPool();
@@ -242,7 +247,7 @@ const V4UseLP = (
       let mintOptions: any = {
         slippageTolerance,
         recipient: address!,
-        deadline: Math.ceil(new Date().getTime() / 1000) + 60 * 20,
+        deadline: deadline,
         useNative: undefined,
       };
 
@@ -630,7 +635,8 @@ const V4UseLP = (
 
   const signBatchPermit = async (
     amount0: CurrencyAmount<any>,
-    amount1: CurrencyAmount<any>
+    amount1: CurrencyAmount<any>,
+    deadline: number
   ): Promise<{ permitBatch: any; signature: string }> => {
     try {
       console.log(
@@ -638,9 +644,6 @@ const V4UseLP = (
         amount0.toExact(),
         amount1.toExact()
       );
-
-      const currentTime = Math.ceil(new Date().getTime() / 1000);
-      const deadline = currentTime + 20 * 60; // 20 minutes from now
 
       // Get current nonces for both tokens
       const allowanceTransfer = new ethers.Contract(

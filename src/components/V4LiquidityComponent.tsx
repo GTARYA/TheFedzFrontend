@@ -819,6 +819,7 @@ const V4LiquidityComponent = () => {
           signBatchPermit={signBatchPermit}
           addLPS={async (
             liquidity: string,
+            deadline:number,
             permitBatch?: any,
             sig?: string
           ) => {
@@ -827,6 +828,7 @@ const V4LiquidityComponent = () => {
                 quoteFromLp[0],
                 quoteFromLp[1],
                 quoteFromLp[2],
+                deadline,
                 permitBatch,
                 sig
               );
