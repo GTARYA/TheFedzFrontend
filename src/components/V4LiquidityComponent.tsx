@@ -457,7 +457,7 @@ const refreshLiquidityData = () => {
                   <button
                     disabled={addingLiquidityLoading}
                     onClick={addLiquidity}
-                    className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                    className="btn btn-primary hidden w-full hover:scale-105 transition-transform duration-200"
                   >
                     {addingLiquidityLoading ? (
                       <ScaleLoader
