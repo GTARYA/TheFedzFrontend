@@ -64,3 +64,14 @@ export type PositionInfo = {
     };
   };
   
+
+export enum LiquidityStep {
+  Idle = "idle",
+  UnlockingRound = "unlocking_round",
+  ApprovingToken0 = "approving_token0",
+  ApprovingToken1 = "approving_token1",
+  SigningPermit = "signing_permit",
+  AddingLiquidity = "adding_liquidity",
+  Complete = "complete",
+  Error = "error",
+}

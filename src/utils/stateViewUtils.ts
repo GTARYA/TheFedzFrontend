@@ -28,18 +28,11 @@ export const getStateViewContract = () => {
 export const getPoolInfo = async () => {
   try {
     const stateView = getStateViewContract();
-
-    console.log(`Checking pool info for ID: ${poolId}`);
-
     // Try to get slot0 data and liquidity
     const [slot0Data, liquidity] = await Promise.all([
       stateView.read.getSlot0([poolId]) as Promise<any>,
       stateView.read.getLiquidity([poolId]) as Promise<any>,
     ]);
-
-    console.log("Pool slot0 data:", slot0Data);
-    console.log("Pool liquidity:", liquidity);
-
     // Extract values from slot0Data
     const sqrtPriceX96 = slot0Data[0];
     const tick = Number(slot0Data[1]);

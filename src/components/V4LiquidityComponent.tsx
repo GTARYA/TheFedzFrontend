@@ -5,6 +5,7 @@ import {
   useChainId,
   useWalletClient,
   usePublicClient,
+  useBalance,
 } from "wagmi";
 import { arbitrum } from "@reown/appkit/networks";
 import ScaleLoader from "react-spinners/ScaleLoader";
@@ -49,7 +50,6 @@ import { formatBalance } from "../hooks/formatters";
 import { balanceOf } from "../hooks/erc20";
 import { isActingPlayer, isNftHolder } from "../hooks/fedz";
 import { LiquidityEvent } from "../type";
-import { BigNumber } from "ethers";
 import LiquidityProgressModal from "./Modal/LiquidityProgressModal";
 import { fetchPlayerPositions } from "../hooks/fedz";
 const TICK_SPACING = 10;
@@ -65,7 +65,6 @@ const tickUpperNum =
 
 let autofillTimeout: NodeJS.Timeout | undefined;
 
-
 // test
 import { provideLiquidity } from "../hooks/liquidity";
 const V4LiquidityComponent = () => {
@@ -75,9 +74,11 @@ const V4LiquidityComponent = () => {
   const signer = useEthersSigner();
   const { address }: { address: `0x${string}` } = useAccount() as any;
 
+ // const address = "0xBEb1E27c4Cec83ee58A38785f662Cc6a7C46d004";
+
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
- // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
+  //const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
   // const address = "0x3fe703dBaB90aaCbfeA43669DE72A57931614eCf";
   // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd"
   //const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032"
@@ -107,23 +108,38 @@ const V4LiquidityComponent = () => {
   const [tokenA, setTokenA] = useState<Token>(v4Token0);
   const [tokenB, setTokenB] = useState<Token>(v4Token1);
 
-  const [isApproved, setIsApproved] = useState(false);
-  const [hookData, setHookData] = useState<`0x${string}`>("0x0"); // New state for custom hook data
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
   const [tickError, setTickError] = useState<string | null>(null);
-
-  const [percentToRemove, setPercentToRemove] = useState("");
-  const [tokenABalance, setTokenABalance] = useState<string>("-");
-  const [tokenBBalance, setTokenBBalance] = useState<string>("-");
   const [showDrillDown, setShowDrillDown] = useState(false);
 
   const [page, setPage] = useState(0);
   const limit = 10;
 
   const {
+    data: tokenABalance,
+    isLoading: loadingA,
+    refetch: refetchTokenABalance,
+    error: errorA,
+  } = useBalance({
+    address,
+    token: tokenA?.address as "0x",
+  });
+
+  const {
+    data: tokenBBalance,
+    isLoading: loadingB,
+    refetch: refetchTokenBBalance,
+    error: errorB,
+  } = useBalance({
+    address,
+    token: tokenB?.address as "0x",
+  });
+
+  const {
     data: lpEvent,
     isLoading,
+    refetch: refetLiquidityEvents,
     isError,
   } = useQuery<LiquidityEvent[]>({
     queryKey: ["LiquidityEvent", poolKeyHash, address],
@@ -153,7 +169,6 @@ const V4LiquidityComponent = () => {
 
   useEffect(() => {
     if (!mount && signer && address) {
-      fetchBalancesAndPrint();
       isNftHolder(address, signer).then((result: boolean) => {
         setIsNFTHolderState(result);
       });
@@ -163,17 +178,11 @@ const V4LiquidityComponent = () => {
       setMount(true);
     }
   }, [mount, signer, address]);
-  const fetchBalance = async (tokenAddress: string) => {
-    return await balanceOf(tokenAddress, address, signer);
-  };
+
   const fetchBalancesAndPrint = async () => {
-    console.log("fetching balances");
-    setTokenABalance("-");
-    setTokenBBalance("-");
-    const tokenABalance = await fetchBalance(tokenA.address);
-    const tokenBBalance = await fetchBalance(tokenB.address);
-    setTokenABalance(formatBalance(tokenABalance, tokenA.decimals));
-    setTokenBBalance(formatBalance(tokenBBalance, tokenB.decimals));
+    console.log("fetching balances....");
+    refetchTokenABalance();
+    refetchTokenBBalance();
   };
 
   const [liqudidity, setLiqudidity] = useState<string>();
@@ -182,7 +191,6 @@ const V4LiquidityComponent = () => {
     amount1: CurrencyAmount<any>,
     liqudidity: string
   ) {
-    console.log("Q0");
     setAmount0Quote(amount0.toFixed());
     setAmount1(amount1.toFixed());
     setLiqudidity(liqudidity);
@@ -193,15 +201,12 @@ const V4LiquidityComponent = () => {
     amount1: CurrencyAmount<any>,
     liqudidity: string
   ) {
-    console.log("Q1");
-
     setAmount0(amount0.toFixed());
     setAmount1Quote(amount1.toFixed());
     setLiqudidity(liqudidity);
     setQuote([amount0, amount1, liqudidity]);
   }
   const {
-    loading,
     quote,
     quoteLoading,
     addLiquidity: addLPS,
@@ -209,13 +214,11 @@ const V4LiquidityComponent = () => {
     removeLiquidityloading,
     updateAmount0,
     updateAmount1,
-    validateRoundUnlock,
-    unlockRound,
-    validateSufficientBalance,
-    validateSufficientAllowance,
-    validateSufficientAllowanceOnPermit2,
-    approveToken,
-    signBatchPermit,
+    addingLiquidityLoading,
+    currentStep,
+    stepStatuses,
+    resetStepStatuses,
+    isRoundStepShow
   } = useLP(
     activeChainId,
     amount,
@@ -225,6 +228,30 @@ const V4LiquidityComponent = () => {
     onAmount0QuoteChange,
     onAmount1QuoteChange
   );
+
+const refreshLiquidityData = () => {
+  // 🔁 Initial refetch (immediate)
+  refetchPositions();
+  refetLiquidityEvents();
+
+  // ⏳ Second refetch after 5s (to catch delayed updates)
+  setTimeout(() => {
+    refetchPositions();
+    refetLiquidityEvents();
+  }, 5000);
+};
+
+  const handleAddLiquidity = async () => {
+    if (quoteFromLp) {
+      const data = await addLPS(quoteFromLp[0], quoteFromLp[1], quoteFromLp[2]);
+      if (data.success) {
+        fetchBalancesAndPrint();
+        setShowDrillDown(false);
+
+        refreshLiquidityData();
+      }
+    }
+  };
 
   useEffect(() => {
     if (amount0 && editingTokenA) {
@@ -248,13 +275,35 @@ const V4LiquidityComponent = () => {
   }, [amount1]);
 
   const addLiquidity = async () => {
-    if (Number(nftbalance?.toString()) > 0) {
-      if (quoteFromLp) {
-        setShowDrillDown(true);
-      }
-    } else {
+    if (Number(nftbalance?.toString()) <= 0) {
       toast.error("You need to be an NFT Holder to add Liquidity");
+      return;
     }
+
+    if (!quoteFromLp) return;
+
+    // Convert balances and amounts safely
+    const balanceA = Number(tokenABalance?.formatted ?? 0);
+    const balanceB = Number(tokenBBalance?.formatted ?? 0);
+    const inputA = Number(amount0 ?? 0);
+    const inputB = Number(amount1 ?? 0);
+
+    // 🔹 Check Token A balance
+    if (inputA > balanceA) {
+      toast.error(`You have insufficient ${tokenA?.symbol} balance`);
+      return;
+    }
+
+    // 🔹 Check Token B balance
+    if (inputB > balanceB) {
+      toast.error(`You have insufficient ${tokenB?.symbol} balance`);
+      return;
+    }
+
+    // ✅ If both checks pass
+    resetStepStatuses();
+    setShowDrillDown(true);
+   
   };
 
   useEffect(() => {
@@ -264,39 +313,6 @@ const V4LiquidityComponent = () => {
       setTickError(null);
     }
   }, [tickLower, tickUpper]);
-
-  const { data: token0Allowance } = useReadContract({
-    address: MockFUSDAddress,
-    abi: MockERC20Abi,
-    functionName: "allowance",
-    args: [address, PoolModifyLiquidityTestAddress],
-  });
-
-  const { data: token1Allowance } = useReadContract({
-    address: MockUSDTAddress,
-    abi: MockERC20Abi,
-    functionName: "allowance",
-    args: [address, PoolModifyLiquidityTestAddress],
-  });
-
-  useEffect(() => {
-    if (token0Allowance != null && token1Allowance != null && amount != null) {
-      try {
-        const amountBigInt = parseEther(amount.toString());
-        const token0AllowanceBigInt = BigInt(token0Allowance.toString());
-        const token1AllowanceBigInt = BigInt(token1Allowance.toString());
-        const isApproved =
-          token0AllowanceBigInt >= amountBigInt &&
-          token1AllowanceBigInt >= amountBigInt;
-        setIsApproved(isApproved);
-      } catch (error) {
-        console.error("Error converting values to BigInt:", error);
-        setIsApproved(false);
-      }
-    } else {
-      setIsApproved(false);
-    }
-  }, [token0Allowance, token1Allowance, amount]);
 
   useEffect(() => {
     if (
@@ -333,10 +349,10 @@ const V4LiquidityComponent = () => {
       setTickUpper(Math.max(newTick, tickLower + tickSpacing));
     }
   };
-  const tokenOptions = [
-    { value: FUSD_ADDR[ChainId], label: "FUSD", decimals: 18 },
-    { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
-  ];
+  // const tokenOptions = [
+  //   { value: FUSD_ADDR[ChainId], label: "FUSD", decimals: 18 },
+  //   { value: USDT_ADDR[ChainId], label: "USDT", decimals: 6 },
+  // ];
 
   const handleTokenSelection = (selectedToken: Token, isInput: boolean) => {
     if (isInput) {
@@ -364,10 +380,9 @@ const V4LiquidityComponent = () => {
     open();
   };
 
-
-  const TestLP= async()=>{
-    await provideLiquidity(signer);
-  }
+  // const TestLP = async () => {
+  //   await provideLiquidity(signer);
+  // };
 
   return (
     <div>
@@ -438,19 +453,39 @@ const V4LiquidityComponent = () => {
                     </button>
                   </div>
              */}
+
+                  <button
+                    disabled={addingLiquidityLoading}
+                    onClick={addLiquidity}
+                    className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
+                  >
+                    {addingLiquidityLoading ? (
+                      <ScaleLoader
+                        height={20}
+                        loading={true}
+                        color="#ffffff"
+                        className="text-white"
+                        aria-label="Loading Spinner"
+                        data-testid="loader"
+                      />
+                    ) : (
+                      "Add liquidity"
+                    )}
+                  </button>
+
                   <div className="pt-6">
                     {mount && address ? (
                       isNFTHolderState &&
                       isPlayerTurnState && (
                         <button
-                          disabled={loading}
+                          disabled={addingLiquidityLoading || quoteLoading}
                           onClick={addLiquidity}
                           className="btn btn-primary w-full hover:scale-105 transition-transform duration-200"
                         >
-                          {loading ? (
+                          {addingLiquidityLoading || quoteLoading ? (
                             <ScaleLoader
                               height={20}
-                              loading={loading}
+                              loading={true}
                               color="#ffffff"
                               className="text-white"
                               aria-label="Loading Spinner"
@@ -551,7 +586,7 @@ const V4LiquidityComponent = () => {
                           key={index}
                           data={pos}
                           isPlayerTurnState={isPlayerTurnState}
-                          updateData={refetchPositions}
+                          updateData={refreshLiquidityData}
                           removeLiquidity={removeLiquidity}
                           removeLiquidityloading={removeLiquidityloading}
                         />
@@ -807,40 +842,12 @@ const V4LiquidityComponent = () => {
           amount0={quoteFromLp[0]}
           amount1={quoteFromLp[1]}
           liquidity={quoteFromLp[2]}
-          loading={loading}
-          validateRoundUnlock={validateRoundUnlock}
-          unlockRound={unlockRound}
-          validateSufficientBalance={validateSufficientBalance}
-          validateSufficientAllowance={validateSufficientAllowance}
-          validateSufficientAllowanceOnPermit2={
-            validateSufficientAllowanceOnPermit2
-          }
-          approveToken={approveToken}
-          signBatchPermit={signBatchPermit}
-          addLPS={async (
-            liquidity: string,
-            deadline:number,
-            permitBatch?: any,
-            sig?: string
-          ) => {
-            try {
-              await addLPS(
-                quoteFromLp[0],
-                quoteFromLp[1],
-                quoteFromLp[2],
-                deadline,
-                permitBatch,
-                sig
-              );
-              fetchBalancesAndPrint();
-              setShowDrillDown(false);
-              toast.success("Liquidity added successfully!");
-            } catch (error) {
-              console.error("Error adding liquidity:", error);
-              toast.error("Failed to add liquidity");
-            }
-          }}
+          handleAddLiquidity={handleAddLiquidity}
           onDone={() => setShowDrillDown(false)}
+          addingLiquidityLoading={addingLiquidityLoading}
+          currentStep={currentStep}
+          stepStatuses={stepStatuses}
+          isRoundStepShow={isRoundStepShow}
         />
       )}
 

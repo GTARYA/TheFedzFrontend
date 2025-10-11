@@ -31,8 +31,6 @@ const RoundInfos = ({ isSelf }: { isSelf?: boolean }) => {
     ],
   });
 
- console.log(data,"pla");
- 
 
 
   useEffect(() => {

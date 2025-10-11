@@ -1,3 +1,4 @@
+import { parseUnits } from "viem";
 interface BalanceDisplayProps {
   label: string;
   balance?: any;
@@ -8,7 +9,9 @@ const BalanceDisplay: React.FC<BalanceDisplayProps> = ({ label, balance }) => (
     <span className="text-sm sm:text-base">{label}</span>
     <span className="text-sm sm:text-base">
       Balance :
-      {balance}
+      {balance?.formatted
+        ? parseFloat(balance.formatted).toFixed(4)
+        : " - "}
     </span>
   </div>
 );
