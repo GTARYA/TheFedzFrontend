@@ -138,11 +138,7 @@ const Home: NextPage = () => {
               </h1>
 
               <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
-                Trade global stocks. Settle in FUSD. Stay decentralized.
-              </p>
-
-              <p className="text-primary md:leading-[24px] leading-[20px] font-normal md:text-[16px] text-[14px] text-center max-w-[820px] mx-auto mt-4 opacity-80">
-                Synthetic equities for a decentralized monetary experiment.
+                Superior Yield. Robust Stability. Deeper Liquidity.
               </p>
               <div className="flex items-center gap-4 justify-center py-6">
                 <PrimaryBtn onClick={() => setShowForm(true)}>
@@ -160,10 +156,9 @@ const Home: NextPage = () => {
               </div>
             </section>
           </Container>
-        </div>
 
-        <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14 relative">
-          <div className="absolute bg-[#140025] -top-[5px] z-[5] w-full h-[10px]"></div>
+          {/* Gradient transition at bottom */}
+          <div className="absolute bottom-0 left-0 w-full h-[150px] md:h-[200px] bg-gradient-to-b from-transparent to-[#0A0012] z-[3] pointer-events-none"></div>
         </div>
 
         <section className="relative">
@@ -175,6 +170,9 @@ const Home: NextPage = () => {
               <Title className="text-center pt-1 relative z-[10]">
                 The Fedz
               </Title>
+              <p className="text-primary md:leading-[24px] leading-[20px] font-normal md:text-[16px] text-[14px] text-center max-w-[820px] mx-auto mt-4 opacity-80">
+                Synthetic equities for a decentralized monetary experiment.
+              </p>
               <div className="flex justify-center mt-8 rounded-lg px-5">
                 <img
                   src="/the-fedz-banner.png"
