@@ -141,7 +141,7 @@ const Home: NextPage = () => {
           />
 
           {/* Gradient overlay - dark at top, normal at bottom */}
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/70 via-black/40 to-transparent z-[3] pointer-events-none"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black via-black/50 to-transparent z-[3] pointer-events-none"></div>
 
           <Container className="z-[9] relative">
             <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
@@ -197,7 +197,7 @@ const Home: NextPage = () => {
               <p className="text-primary md:leading-[24px] leading-[20px] font-normal md:text-[16px] text-[14px] text-center max-w-[820px] mx-auto mt-4 opacity-80">
                 Synthetic equities for a decentralized monetary experiment.
               </p>
-              <div className="flex justify-center mt-8 rounded-lg bg-white/30 w-fit mx-5 md:mx-auto">
+              <div className="flex justify-center mt-8 rounded-lg">
                 <img
                   src="/wizard.png"
                   alt="The Fedz"
