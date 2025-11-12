@@ -124,14 +124,23 @@ const Home: NextPage = () => {
       {showForm && <JoinUsForm onClose={onClose} isOpen={showForm} />}
       <div className="bg-[#0A0012] relative">
         <Navbar />
-        <div className="relative overflow-hidden md:py-[100px] py-[50px] lg:py-[200px]">
+        <div className="relative overflow-hidden">
+          <div className="sm:block hidden absolute w-full md:top-40 top-20 -left-1/3 z-[8] rotate-[-45deg] text-center">
+            <div className="bg-pink-500 px-6 py-2 md:px-8 md:py-3 shadow-lg">
+              <span className="text-white font-bold text-2xl md:text-4xl uppercase">
+                Coming Soon
+              </span>
+            </div>
+          </div>
+          {/* Coming Soon Label */}
+
           <img
-            className="absolute top-0 w-full lg:h-auto h-full object-cover left-1/2 -translate-x-1/2 z-[2]"
-            src="/hero-banner.png"
+            className="absolute top-0 w-full lg:h-auto h-full object-cover left-1/2 -translate-x-1/2 z-[2] filter brightness-50"
+            src="/fstocks-wallpaper.png"
             alt="hero banner"
           />
 
-          <Container className="z-[6] relative">
+          <Container className="z-[9] relative">
             <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
               <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
                 FStocks by The Fedz
@@ -153,6 +162,13 @@ const Home: NextPage = () => {
                     Learn More
                   </PrimaryBtn>
                 </a>
+              </div>
+              <div className="flex items-center justify-center gap-10 mt-0">
+                <img
+                  src="./hero-banner.png"
+                  alt="hero banner"
+                  className="md:max-w-[750px] mx-auto max-w-[500px]"
+                />
               </div>
             </section>
           </Container>
