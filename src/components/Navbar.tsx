@@ -116,7 +116,7 @@ const Navbar = () => {
                       href="/fstocks"
                       className="text-primary leading-6 text-[16px]"
                     >
-                      FStocks(soon)
+                      FStocks (soon)
                     </Link>
                   </div>
                 )}
@@ -260,7 +260,7 @@ const Navbar = () => {
                   href="/fstocks"
                   className="text-primary leading-6 text-[16px]"
                 >
-                  FStocks(soon)
+                  FStocks (soon)
                 </Link>
               </li>
             </ul>

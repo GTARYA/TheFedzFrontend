@@ -153,7 +153,7 @@ const Home: NextPage = () => {
               </h1>
 
               <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
-                Superior Yield. Robust Stability. Deeper Liquidity.
+                Trade global stocks. Settle in FUSD. Stay decentralized.
               </p>
               <div className="flex items-center gap-4 justify-center py-6">
                 <PrimaryBtn onClick={() => setShowForm(true)}>
