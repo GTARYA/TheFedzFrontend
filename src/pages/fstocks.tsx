@@ -140,10 +140,16 @@ const Home: NextPage = () => {
             alt="hero banner"
           />
 
+          {/* Gradient overlay - dark at top, normal at bottom */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/70 via-black/40 to-transparent z-[3] pointer-events-none"></div>
+
           <Container className="z-[9] relative">
             <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
               <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
-                FStocks by The Fedz
+                <span data-text="FStocks" className="neon-text font-semibold">
+                  FStocks
+                </span>{" "}
+                by The Fedz
               </h1>
 
               <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
@@ -163,12 +169,14 @@ const Home: NextPage = () => {
                   </PrimaryBtn>
                 </a>
               </div>
-              <div className="flex items-center justify-center gap-10 mt-0">
-                <img
-                  src="./hero-banner.png"
-                  alt="hero banner"
-                  className="md:max-w-[750px] mx-auto max-w-[500px]"
-                />
+              <div className="flex items-center justify-center gap-10 mt-0 relative">
+                <div className="relative">
+                  <img
+                    src="./hero-banner.png"
+                    alt="hero banner"
+                    className="md:max-w-[750px] mx-auto max-w-[500px]"
+                  />
+                </div>
               </div>
             </section>
           </Container>
@@ -189,11 +197,11 @@ const Home: NextPage = () => {
               <p className="text-primary md:leading-[24px] leading-[20px] font-normal md:text-[16px] text-[14px] text-center max-w-[820px] mx-auto mt-4 opacity-80">
                 Synthetic equities for a decentralized monetary experiment.
               </p>
-              <div className="flex justify-center mt-8 rounded-lg px-5">
+              <div className="flex justify-center mt-8 rounded-lg bg-white/30 w-fit mx-5 md:mx-auto">
                 <img
-                  src="/the-fedz-banner.png"
+                  src="/wizard.png"
                   alt="The Fedz"
-                  className="max-w-full md:max-w-4xl w-full rounded-lg"
+                  className="max-w-full md:max-w-xl w-full rounded-lg"
                 />
               </div>
             </div>
@@ -536,9 +544,9 @@ const Home: NextPage = () => {
               <Subtitle className="mx-auto mb-1">FStocks & RWA</Subtitle>
               <Title className="text-center mb-5">The Fedz FAQ</Title>
               <FStocksFAQSection />
-              <div className="mt-8 p-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-yellow-400 font-semibold text-lg mb-2">
-                  ⚠️ TL;DR — Read This Before You Click "Mint"
+              <div className="mt-8 p-6 rounded-[32px] border-[1px] border-white/20 bg-white/5">
+                <p className="text-primary font-semibold text-lg mb-2">
+                  ⚠️ TL;DR — Read This Before You Print or Use
                 </p>
                 <p className="text-primary text-sm md:text-base">
                   The Fedz, FUSD, and FStocks are not financial products. They
