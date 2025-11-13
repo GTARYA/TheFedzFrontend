@@ -1,13 +1,9 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
 import CursorEffect from '../libs/cursorEffect';
 import Head from 'next/head';
-import { Toaster } from 'react-hot-toast';
 import Web3provider from '../context/web3Provider';
-import { headers } from 'next/headers';
 import { ModeProvider } from '../context/modeProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {

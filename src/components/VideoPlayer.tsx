@@ -8,6 +8,7 @@ import { useVideo } from "../hooks/useVideo";
 const VideoPlayer = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { isPlaying, isMuted, toggleMute, togglePlay } = useVideo();
   const [isInView, setIsInView] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -18,9 +19,18 @@ const VideoPlayer = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsInView(true);
+            // Clear any existing timeout
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
             // Delay loading slightly to improve initial page load
-            setTimeout(() => setShouldLoad(true), 100);
+            timeoutRef.current = setTimeout(() => setShouldLoad(true), 100);
           } else {
+            // Clear timeout if leaving view
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
             // Pause video when out of view to save resources
             if (videoRef.current && !videoRef.current.paused) {
               videoRef.current.pause();
@@ -34,13 +44,25 @@ const VideoPlayer = () => {
       }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    const currentContainer = containerRef.current;
+    if (currentContainer) {
+      observer.observe(currentContainer);
     }
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (currentContainer) {
+        observer.unobserve(currentContainer);
+      }
+      observer.disconnect();
+      // Pause and cleanup video on unmount
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = "";
+        videoRef.current.load();
       }
     };
   }, []);
@@ -48,10 +70,19 @@ const VideoPlayer = () => {
   useEffect(() => {
     if (shouldLoad && videoRef.current && isInView) {
       // Only autoplay when in view
-      videoRef.current.play().catch(() => {
-        // Handle autoplay restrictions
-      });
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Handle autoplay restrictions
+        });
+      }
     }
+    return () => {
+      // Cleanup video on unmount
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+    };
   }, [shouldLoad, isInView]);
 
   return (

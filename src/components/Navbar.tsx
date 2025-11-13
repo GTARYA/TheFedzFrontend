@@ -18,11 +18,15 @@ const Navbar = () => {
     if (menuIsOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "auto";
 
-    const resize = window.addEventListener("resize", () => {
+    const handleResize = () => {
       if (!window.matchMedia("(max-width: 1024px)").matches)
         setMenuIsOpen(false);
-    });
-    return resize;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [menuIsOpen]);
 
   return (
