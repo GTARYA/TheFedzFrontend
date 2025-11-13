@@ -172,7 +172,7 @@ const Home: NextPage = () => {
               <div className="flex items-center justify-center gap-10 mt-0 relative">
                 <div className="relative">
                   <img
-                    src="./hero-banner.png"
+                    src="/hero-banner.png"
                     alt="hero banner"
                     className="md:max-w-[750px] mx-auto max-w-[500px]"
                   />
@@ -306,12 +306,12 @@ const Home: NextPage = () => {
               </div>
             </Container>
             <img
-              src="./cursor/2.png"
+              src="/cursor/2.png"
               alt="money"
               className="absolute left-[10px] xl:top-[40%] w-[40px] md:w-[80px] top-[30px]"
             />
             <img
-              src="./cursor/1.png"
+              src="/cursor/1.png"
               alt="money"
               className="absolute -right-[15px] md:right-[10px] bottom-[40%] md:bottom-0 w-[50px] md:w-[80px]"
             />
