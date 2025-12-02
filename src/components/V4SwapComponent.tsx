@@ -74,12 +74,32 @@ const V4SwapComponent = () => {
   const { address }: { address: `0x${string}` } = useAccount() as any;
   const { loading, quote, quoteLoading, updateAmountIn, progressModal } =
     V4UseSwap(activeChainId, amount, signer, v4Token0, v4Token1);
-  const [tokenABalance, setTokenABalance] = useState<string>("-");
-  const [tokenBBalance, setTokenBBalance] = useState<string>("-");
+  // const [tokenABalance, setTokenABalance] = useState<string>("-");
+  // const [tokenBBalance, setTokenBBalance] = useState<string>("-");
   const [isNFTHolderState, setIsNFTHolderState] = useState(true);
   const [isPlayerTurnState, setIsPlayerTurnState] = useState(true);
   const [page, setPage] = useState(0);
   const limit = 10;
+
+   const {
+      data: tokenABalance,
+      isLoading: loadingA,
+      refetch: refetchTokenABalance,
+      error: errorA,
+    } = useBalance({
+      address,
+      token: v4Token0?.address as "0x",
+    });
+  
+    const {
+      data: tokenBBalance,
+      isLoading: loadingB,
+      refetch: refetchTokenBBalance,
+      error: errorB,
+    } = useBalance({
+      address,
+      token: v4Token1?.address as "0x",
+    });
 
   //0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032
   //0xe2d084a729df207afea549782ed1b9b2054244c3f70dcb27eb3f766063d8d9b7
@@ -99,7 +119,6 @@ const V4SwapComponent = () => {
 
   useEffect(() => {
     if (!mount && signer && address) {
-      fetchBalancesAndPrint();
       onAmountChange();
       isNftHolder(address, signer).then((result: boolean) => {
         setIsNFTHolderState(result);
@@ -114,20 +133,17 @@ const V4SwapComponent = () => {
   const fetchBalance = async (tokenAddress: string) => {
     return await balanceOf(tokenAddress, address, signer);
   };
-  const fetchBalancesAndPrint = async () => {
-    console.log("fetching balances");
-    setTokenABalance("-");
-    setTokenBBalance("-");
-    const tokenABalance = await fetchBalance(tokenIn.address);
-    const tokenBBalance = await fetchBalance(tokenOut.address);
-    setTokenABalance(formatBalance(tokenABalance, tokenIn.decimals));
-    setTokenBBalance(formatBalance(tokenBBalance, tokenOut.decimals));
+ 
+
+   const fetchBalancesAndPrint = async () => {
+    console.log("fetching balances....");
+    refetchTokenABalance();
+    refetchTokenBBalance();
   };
 
+
   useEffect(() => {
-    if (address) {
-      fetchBalancesAndPrint();
-    }
+   
     onAmountChange();
   }, [tokenOut, tokenIn, signer]);
 
@@ -139,7 +155,9 @@ const V4SwapComponent = () => {
   const arbSwap = async () => {
     if (!address) return;
     if (exeuteSwapQuoteCallback) {
-      await exeuteSwapQuoteCallback(signer);
+      await exeuteSwapQuoteCallback(signer).then(async () => {
+        fetchBalancesAndPrint();
+      })
     } else {
       toast.error("Swap is not ready. Please enter a valid amount.");
     }
