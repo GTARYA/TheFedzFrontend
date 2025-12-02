@@ -88,7 +88,7 @@ const V4SwapComponent = () => {
       error: errorA,
     } = useBalance({
       address,
-      token: v4Token0?.address as "0x",
+      token: tokenIn?.address as "0x",
     });
   
     const {
@@ -98,7 +98,7 @@ const V4SwapComponent = () => {
       error: errorB,
     } = useBalance({
       address,
-      token: v4Token1?.address as "0x",
+      token: tokenOut?.address as "0x",
     });
 
   //0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032
