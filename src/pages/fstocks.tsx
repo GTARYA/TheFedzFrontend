@@ -124,25 +124,36 @@ const Home: NextPage = () => {
       {showForm && <JoinUsForm onClose={onClose} isOpen={showForm} />}
       <div className="bg-[#0A0012] relative">
         <Navbar />
-        <div className="relative overflow-hidden md:py-[100px] py-[50px] lg:py-[200px]">
+        <div className="relative overflow-hidden">
+          <div className="sm:block hidden absolute w-full md:top-40 top-20 -left-1/3 z-[8] rotate-[-45deg] text-center">
+            <div className="bg-pink-500 px-6 py-2 md:px-8 md:py-3 shadow-lg">
+              <span className="text-white font-bold text-2xl md:text-4xl uppercase">
+                Coming Soon
+              </span>
+            </div>
+          </div>
+          {/* Coming Soon Label */}
+
           <img
-            className="absolute top-0 w-full lg:h-auto h-full object-cover left-1/2 -translate-x-1/2 z-[2]"
-            src="/hero-banner.png"
+            className="absolute top-0 w-full lg:h-auto h-full object-cover left-1/2 -translate-x-1/2 z-[2] filter brightness-50"
+            src="/fstocks-wallpaper.png"
             alt="hero banner"
           />
 
-          <Container className="z-[6] relative">
+          {/* Gradient overlay - dark at top, normal at bottom */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black via-black/50 to-transparent z-[3] pointer-events-none"></div>
+
+          <Container className="z-[9] relative">
             <section className="max-w-[1050px] mx-auto md:mt-[10px] mt-[56px]">
               <h1 className="text-primary md:leading-[72px] md:font-extrabold font-bold md:text-[60px] text-center mb-4 leading-[40px] text-[34px]">
-                FStocks by The Fedz
+                <span data-text="FStocks" className="neon-text font-semibold">
+                  FStocks
+                </span>{" "}
+                by The Fedz
               </h1>
 
               <p className="text-primary md:leading-[30px] leading-[24px] font-medium md:text-[20px] text-[16px] text-center max-w-[820px] mx-auto">
                 Trade global stocks. Settle in FUSD. Stay decentralized.
-              </p>
-
-              <p className="text-primary md:leading-[24px] leading-[20px] font-normal md:text-[16px] text-[14px] text-center max-w-[820px] mx-auto mt-4 opacity-80">
-                Synthetic equities for a decentralized monetary experiment.
               </p>
               <div className="flex items-center gap-4 justify-center py-6">
                 <PrimaryBtn onClick={() => setShowForm(true)}>
@@ -158,12 +169,20 @@ const Home: NextPage = () => {
                   </PrimaryBtn>
                 </a>
               </div>
+              <div className="flex items-center justify-center gap-10 mt-0 relative">
+                <div className="relative">
+                  <img
+                    src="/hero-banner.png"
+                    alt="hero banner"
+                    className="md:max-w-[750px] mx-auto max-w-[500px]"
+                  />
+                </div>
+              </div>
             </section>
           </Container>
-        </div>
 
-        <div className="bg-gradient-to-b from-[#140025] to-[#0A0012] h-14 relative">
-          <div className="absolute bg-[#140025] -top-[5px] z-[5] w-full h-[10px]"></div>
+          {/* Gradient transition at bottom */}
+          <div className="absolute bottom-0 left-0 w-full h-[150px] md:h-[200px] bg-gradient-to-b from-transparent to-[#0A0012] z-[3] pointer-events-none"></div>
         </div>
 
         <section className="relative">
@@ -175,11 +194,14 @@ const Home: NextPage = () => {
               <Title className="text-center pt-1 relative z-[10]">
                 The Fedz
               </Title>
-              <div className="flex justify-center mt-8 rounded-lg px-5">
+              <p className="text-primary md:leading-[24px] leading-[20px] font-normal md:text-[16px] text-[14px] text-center max-w-[820px] mx-auto mt-4 opacity-80">
+                Synthetic equities for a decentralized monetary experiment.
+              </p>
+              <div className="flex justify-center mt-8 rounded-lg">
                 <img
-                  src="/the-fedz-banner.png"
+                  src="/wizard.png"
                   alt="The Fedz"
-                  className="max-w-full md:max-w-4xl w-full rounded-lg"
+                  className="max-w-full md:max-w-xl w-full rounded-lg"
                 />
               </div>
             </div>
@@ -284,12 +306,12 @@ const Home: NextPage = () => {
               </div>
             </Container>
             <img
-              src="./cursor/2.png"
+              src="/cursor/2.png"
               alt="money"
               className="absolute left-[10px] xl:top-[40%] w-[40px] md:w-[80px] top-[30px]"
             />
             <img
-              src="./cursor/1.png"
+              src="/cursor/1.png"
               alt="money"
               className="absolute -right-[15px] md:right-[10px] bottom-[40%] md:bottom-0 w-[50px] md:w-[80px]"
             />
@@ -522,9 +544,9 @@ const Home: NextPage = () => {
               <Subtitle className="mx-auto mb-1">FStocks & RWA</Subtitle>
               <Title className="text-center mb-5">The Fedz FAQ</Title>
               <FStocksFAQSection />
-              <div className="mt-8 p-6 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-yellow-400 font-semibold text-lg mb-2">
-                  ⚠️ TL;DR — Read This Before You Click "Mint"
+              <div className="mt-8 p-6 rounded-[32px] border-[1px] border-white/20 bg-white/5">
+                <p className="text-primary font-semibold text-lg mb-2">
+                  ⚠️ TL;DR — Read This Before You Print or Use
                 </p>
                 <p className="text-primary text-sm md:text-base">
                   The Fedz, FUSD, and FStocks are not financial products. They

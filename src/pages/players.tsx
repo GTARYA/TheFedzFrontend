@@ -17,9 +17,8 @@ const players = () => {
     <div className="bg-[#0A0012] min-h-screen">
       <Navbar />
 
-   
       <PlayersTable />
-        {/* {isConnected && isClient ? (
+      {/* {isConnected && isClient ? (
           <PlayersTable />
         ) : (
           <div className="text-center text-primary">
@@ -29,7 +28,7 @@ const players = () => {
             </p>
           </div>
         )} */}
-   
+
       <Footer />
     </div>
   );
