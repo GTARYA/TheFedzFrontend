@@ -1,4 +1,7 @@
 import { ethers } from "ethers";
-export const web3Provider = new ethers.providers.JsonRpcProvider(
-  "https://arb-mainnet.g.alchemy.com/v2/V-XZ3MOv9AXdTc6PdKJvcMcBxYMSDi3F"
-);
+
+const rpcUrl =
+  process.env.NEXT_PUBLIC_ARB_RPC_URL ||
+  "https://arb1.arbitrum.io/rpc"; // safe public fallback
+
+export const web3Provider = new ethers.providers.JsonRpcProvider(rpcUrl);
