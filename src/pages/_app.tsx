@@ -20,10 +20,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 
         <Head>
           <title>The Fedz Project</title>
-          <meta name="description" content="The Fedz - Revolutionary DeFi Platform" />
+          <meta
+            name="description"
+            content="The Fedz - Revolutionary DeFi Platform"
+          />
 
           <link rel="icon" href="/favicon.ico" />
-          {/* If you really need this cursor icon, keep it too */}
           <link rel="icon" href="/cursor/5.png" sizes="any" />
 
           <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,14 +36,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           />
         </Head>
 
-        {/* ✅ Removed suppressHydrationWarning (it masks the real issue) */}
         <Component {...pageProps} />
 
-        {/* ✅ You were importing Toaster but not rendering it */}
         <Toaster />
-      </Web3provider>
-    </ModeProvider>
-  );
-}
 
-export default MyApp;
