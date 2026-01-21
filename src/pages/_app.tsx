@@ -9,10 +9,10 @@ import { Toaster } from "react-hot-toast";
 import Web3provider from "../context/web3Provider";
 import { ModeProvider } from "../context/modeProvider";
 
-// ✅ CursorEffect is browser-only → load it client-side to prevent hydration mismatch
+// Client-only (prevents hydration mismatch from DOM/window usage inside CursorEffect)
 const CursorEffect = dynamic(() => import("../libs/cursorEffect"), { ssr: false });
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ModeProvider>
       <Web3provider>
@@ -39,4 +39,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
 
         <Toaster />
-
+      </Web3provider>
+    </ModeProvider>
+  );
+}
