@@ -68,15 +68,8 @@ const V4UseLP = (
   slippageTolerance = new Percent(5, 100)
 ) => {
   const { address } = useAccount();
-  //const address = "0xBEb1E27c4Cec83ee58A38785f662Cc6a7C46d004";
+ // const address = "0xBEb1E27c4Cec83ee58A38785f662Cc6a7C46d004";
 
-  //const address = "0xBEb1E27c4Cec83ee58A38785f662Cc6a7C46d004";
-  // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
-  // const address = "0x3c5Aac016EF2F178e8699D6208796A2D67557fe2"
-
-  // const address = "0x3A3CeF3A0cb8B1bA0812b23E15CF125B11098032";
-
-  //  const address = "0x854ce16536CC41A0593A754F88a3eAf14EEe9938"
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [isRoundStepShow, setIsRoundStepShow] = useState<boolean>(false);

@@ -72,9 +72,9 @@ const V4LiquidityComponent = () => {
 
   const activeChainId = useChainId();
   const signer = useEthersSigner();
-  const { address }: { address: `0x${string}` } = useAccount() as any;
+ const { address }: { address: `0x${string}` } = useAccount() as any;
 
- // const address = "0xBEb1E27c4Cec83ee58A38785f662Cc6a7C46d004";
+  //const address = "0xBEb1E27c4Cec83ee58A38785f662Cc6a7C46d004";
 
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
@@ -452,27 +452,8 @@ const refreshLiquidityData = () => {
                       ADD LP.
                     </button>
                   </div>
-             */}
-
-                  <button
-                    disabled={addingLiquidityLoading}
-                    onClick={addLiquidity}
-                    className="btn btn-primary hidden w-full hover:scale-105 transition-transform duration-200"
-                  >
-                    {addingLiquidityLoading ? (
-                      <ScaleLoader
-                        height={20}
-                        loading={true}
-                        color="#ffffff"
-                        className="text-white"
-                        aria-label="Loading Spinner"
-                        data-testid="loader"
-                      />
-                    ) : (
-                      "Add liquidity"
-                    )}
-                  </button>
-
+             */} 
+              
                   <div className="pt-6">
                     {mount && address ? (
                       isNFTHolderState &&
