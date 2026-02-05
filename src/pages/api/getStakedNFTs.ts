@@ -45,16 +45,10 @@ export default async function handler(
       }
     );
 
-
-
-    console.log(response.data.data, "response.data.data");
-
     const stakeds = response.data.data.stakeds;
-
     if (!stakeds || stakeds.length === 0) {
       return res.status(200).json({ data: [], status: true });
     }
-
     // Contract instance
     const positionManager = new ethers.Contract(
       POOL_MANAGER_ADDR,
