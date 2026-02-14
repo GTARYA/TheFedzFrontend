@@ -29,17 +29,26 @@ export default async function handler(
       return res.status(400).json({ error: "User address is required" });
     }
 
-    // Fetch staked NFTs from subgraph
-    const response = await axios.post(GRAPHQL_ENDPOINT, {
-      query: GET_STAKEDS_QUERY,
-      variables: { user: (user as string).toLowerCase() },
-    });
-    const stakeds = response.data.data.stakeds;
+    const response = await axios.post(
+      GRAPHQL_ENDPOINT,
+      {
+        query: GET_STAKEDS_QUERY,
+        variables: {
+          user: (user as string).toLowerCase(),
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.THE_GRAPH_API_KEY}`,
+        },
+      }
+    );
 
+    const stakeds = response.data.data.stakeds;
     if (!stakeds || stakeds.length === 0) {
       return res.status(200).json({ data: [], status: true });
     }
-
     // Contract instance
     const positionManager = new ethers.Contract(
       POOL_MANAGER_ADDR,
@@ -54,7 +63,7 @@ export default async function handler(
           const liquidity = await Promise.all([
             positionManager.getPositionLiquidity(stake.nftId),
           ]);
-         
+
           return {
             owner: stake.user,
             tokenId: stake.nftId,

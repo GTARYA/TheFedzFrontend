@@ -13,6 +13,15 @@ import fusdVaultABI from "../abi/SbFUSDVault.json";
 import timeSlotABI from "../abi/TimeSlotSystem_abi.json";
 import postionManagerABI from "../abi/positionManager.json";
 import { StepStatus } from "../type";
+
+import {
+  useAccount,
+  useSendTransaction,
+  useWriteContract,
+  useWalletClient,
+  usePublicClient,
+} from "wagmi";
+
 const useStake = (signer: any) => {
   const [loadingStake, setLoadingStake] = useState(false);
   const [loadingWithdraw, setLoadingWithdraw] = useState(false);
@@ -20,7 +29,12 @@ const useStake = (signer: any) => {
   const [approvalStatus, setApprovalStatus] = useState<StepStatus>("idle");
   const [stakingStatus, setStakingStatus] = useState<StepStatus>("idle");
   const [stakeModalOpen, setStakeModalOpen] = useState(false);
-  
+
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+
+  const { address } = useAccount();
+ // const address = "0x05A449aB36cE8D096C0bd0028Ea2Ae5A42Fe4EFd";
 
   const stake = async (id: string) => {
     if (!signer) {
@@ -70,7 +84,6 @@ const useStake = (signer: any) => {
     try {
       stakeToastID = toast.loading("Staking NFT...");
       setStakingStatus("loading");
-
       const stakeTx = await stakingContract.stake(id);
       await stakeTx.wait();
 
@@ -107,10 +120,26 @@ const useStake = (signer: any) => {
 
       // Step 1: Withdraw NFT
       withdrawToastID = toast.loading("Withdrawing NFT...");
-      const withdrawTx = await stakingContract.withdraw(id);
-      await withdrawTx.wait();
+
+      const { request } = await publicClient!.simulateContract({
+        account: address as `0x${string}`,
+        address: STAKING_ADDR as `0x${string}`,
+        abi: LpStakeABI.abi,
+        functionName: "withdraw",
+        args: [id],
+        value: BigInt(0),
+      });
+
+      console.log("Simulation burn success ", request);
+      const txHash = await walletClient!.writeContract(request);
+      const receipt = await publicClient!.waitForTransactionReceipt({
+        hash: txHash,
+      });
+
+      // const withdrawTx = await stakingContract.withdraw(id);
+      // await withdrawTx.wait();
       toast.dismiss(withdrawToastID);
-     toast.success("NFT withdrawn successfully! Please allow 10–30 seconds for the data to refresh.");
+      toast.success("NFT withdrawn successfully! Please allow 10–30 seconds for the data to refresh.");
     } catch (error: any) {
       console.error("Withdraw error:", error);
       if (withdrawToastID) toast.dismiss(withdrawToastID);
